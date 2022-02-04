@@ -12,7 +12,7 @@
 
 <label on:input|stopPropagation={handleInput} on:change|stopPropagation={handleChange} bind:this={label}>
     <slot />
-    <span class="form-field-error" role="alert">error</span>
+    <span class="form-field-error" role="alert" />
 </label>
 
 <style>
@@ -22,5 +22,10 @@
     }
     :global(.touched :invalid ~ .form-field-error) {
         display: initial;
+    }
+
+    :global(.form-field-error:after) {
+        content: var(--error-message, "Error");
+        display: inline;
     }
 </style>

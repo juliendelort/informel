@@ -38,15 +38,18 @@
 	// document.querySelector('inform-el').julien();
 
 	// console.log(document.querySelector('inform-el').toto, document.querySelector('inform-el'))
-	// 	document.querySelector('inform-el').toto(({values})=>{
+		document.querySelector('inform-el').validationHandler = ({values})=>{
+			console.log({values})
+			if(values.email.indexOf('toto')<0){
+				return {email:'Must contain "toto"!'};
+			}
+		};
+
+	// customElements.whenDefined('inform-el').then(()=>{
+	// 		document.querySelector('inform-el').setValidationHandler(({ values }) => {
 	// 		console.log(values);
 	// 	})
-
-	customElements.whenDefined('inform-el').then(()=>{
-			document.querySelector('inform-el').setValidationHandler(({ values }) => {
-			console.log(values);
-		})
-	})
+	// })
 		</script>
 </body>
 </html>

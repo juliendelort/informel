@@ -4,14 +4,14 @@
 
     let form;
     let submitButton;
-    let validationHandler;
+    let host;
 
     function getFormValues() {
         return Object.fromEntries(new FormData(form));
     }
     function handleSubmit() {
         if (checkValidity()) {
-            form.parentElement.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
+            host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
         }
     }
     function handleInput(e) {
@@ -23,12 +23,29 @@
     }
 
     function checkValidity() {
-        let errors = null;
-        if (validationHandler) {
-            errors = validationHandler({ values: getFormValues() });
+        let hasCustomError = false;
+        if (host.validationHandler) {
+            const errors = host.validationHandler({ values: getFormValues() });
+
+            const elements = [...form.elements];
+
+            elements.forEach((element) => {
+                hasCustomError |= !!errors?.[element.name];
+                element.setCustomValidity(errors?.[element.name] ?? "");
+                // if (errors?.[element.name]) {
+                //     console.log("setting", element, element.parentNode.parentNode, element.parentElement);
+                //     element.parentNode.parentNode.style.setProperty("--error", errors?.[element.name]);
+                // }
+            });
         }
 
-        return form.checkValidity() && !errors;
+        const valid = form.checkValidity() && !hasCustomError;
+        if (!valid) {
+            host.classList.add("invalid");
+        } else {
+            host.classList.remove("invalid");
+        }
+        return valid;
     }
 
     function checkSubmitButtonEnabled() {
@@ -54,10 +71,7 @@
     }
 
     onMount(() => {
-        // form.parentElement.setValidationHandler = (handler) => {
-        //     validationHandler = handler;
-        // };
-        // form.parentElement.dispatchEvent(new CustomEvent("mounted", { bubbles: true }));
+        host = form.parentElement;
         submitButton = form.querySelector('[type="submit"]');
 
         if (!submitButton) {
