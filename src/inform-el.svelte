@@ -15,7 +15,7 @@
         }
     }
     function handleInput(e) {
-        checkSubmitButtonEnabled();
+        checkValidity();
     }
 
     function handleChange(e) {
@@ -24,6 +24,7 @@
 
     function checkValidity() {
         let hasCustomError = false;
+
         if (host.validationHandler) {
             const errors = host.validationHandler({ values: getFormValues() });
 
@@ -32,10 +33,6 @@
             elements.forEach((element) => {
                 hasCustomError |= !!errors?.[element.name];
                 element.setCustomValidity(errors?.[element.name] ?? "");
-                // if (errors?.[element.name]) {
-                //     console.log("setting", element, element.parentNode.parentNode, element.parentElement);
-                //     element.parentNode.parentNode.style.setProperty("--error", errors?.[element.name]);
-                // }
             });
         }
 
@@ -45,13 +42,12 @@
         } else {
             host.classList.remove("invalid");
         }
-        return valid;
-    }
 
-    function checkSubmitButtonEnabled() {
         if (errorDisableSubmit) {
-            submitButton.disabled = !checkValidity();
+            submitButton.disabled = !valid;
         }
+
+        return valid;
     }
 
     // error-disable-submit
@@ -61,7 +57,7 @@
             if (!errorDisableSubmit) {
                 submitButton.disabled = false;
             } else {
-                checkSubmitButtonEnabled();
+                checkValidity();
             }
         }
     }
