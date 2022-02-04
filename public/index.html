@@ -11,22 +11,42 @@
 	<link rel='stylesheet' href='/build/bundle.css'>
 
 	<script defer src='/build/bundle.js'></script>
+	<style>
+	</style>
 </head>
 
 <body>
 	<h1>Julien</h1>
-	<form-el>
-
-		<input type="email" name="email" required />
-		<input type="password" name="password" required />
-
+	<inform-el error-disable-submit>
+		<inform-field>
+			<input type="email" name="email" required />
+		</inform-field>
+		<inform-field>
+				<input type="password" name="password" required />
+		</inform-field>
 		<button type="submit">Login</button>
-	</form-el>
+	</inform-el>
 
 	<script>
-		document.querySelector('form-el').addEventListener('submit', ({detail})=>{
+		document.querySelector('inform-el').addEventListener('submit', ({detail})=>{
 			console.log('submit', detail);
+		});
+
+		document.querySelector('inform-el').addEventListener('mounted', (e) => {
+				console.log('mounted', e);
+			})
+	// document.querySelector('inform-el').julien();
+
+	// console.log(document.querySelector('inform-el').toto, document.querySelector('inform-el'))
+	// 	document.querySelector('inform-el').toto(({values})=>{
+	// 		console.log(values);
+	// 	})
+
+	customElements.whenDefined('inform-el').then(()=>{
+			document.querySelector('inform-el').setValidationHandler(({ values }) => {
+			console.log(values);
 		})
+	})
 		</script>
 </body>
 </html>

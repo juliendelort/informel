@@ -1,10 +1,7 @@
-import Informel from './inform-el.svelte';
+import InformEl from './inform-el.svelte';
+import InformField from './inform-field.svelte';
+import component from './customElement';
 
 
-import component from 'svelte-tag';
-new component({ component: Informel, tagname: 'form-el', shadow: false, attributes: ['name'] });;
-// var app = new App({
-// 	target: document.body
-// });
-
-// export default app;
+new component({ component: InformEl, tagname: 'inform-el', shadow: false, attributes: ['error-disable-submit'], methods: ['setValidationHandler'] });
+new component({ component: InformField, tagname: 'inform-field', shadow: false, attributes: [] });
