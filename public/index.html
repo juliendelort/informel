@@ -18,13 +18,15 @@
 <body>
 	<h1>Julien</h1>
 	<inform-el error-disable-submit>
+		<form>
 		<inform-field label="email" >
 			<input type="email" name="email" required />
 		</inform-field>
-		<inform-field>
+		<!-- <inform-field> -->
 				<input type="password" name="password" required />
-		</inform-field>
+		<!-- </inform-field> -->
 		<button type="submit">Login</button>
+		</form>
 	</inform-el>
 
 	<script>
@@ -35,6 +37,10 @@
 		document.querySelector('inform-el').addEventListener('mounted', (e) => {
 				console.log('mounted', e);
 			})
+
+				document.querySelector('input[name="email"]').addEventListener('change', (e) => {
+						console.log('changed', e.target.value);
+					})
 	// document.querySelector('inform-el').julien();
 
 	// console.log(document.querySelector('inform-el').toto, document.querySelector('inform-el'))

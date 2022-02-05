@@ -1,67 +1,73 @@
+<svelte:options tag="inform-field" />
+
 <script>
     export let label = "";
-    import { onMount, onDestroy } from "svelte";
+    export let error = "";
+    import { onMount } from "svelte";
+    import { get_current_component } from "svelte/internal";
 
-    let hostElement;
-    let labelElement;
+    let host = get_current_component();
+    let rootElement;
     let controlElement;
-    let errorMessage;
-    let labelClass;
-    let errorClass;
 
     function handleInput() {
-        hostElement.dispatchEvent(new CustomEvent("input", { detail: null, bubbles: true }));
+        host.dispatchEvent(new CustomEvent("input", { detail: null, bubbles: true, composed: true }));
     }
 
     function handleChange() {
-        hostElement.dispatchEvent(new CustomEvent("change", { detail: null, bubbles: true }));
-    }
-
-    function handleInvalid(e) {
-        console.log("!!!invalid", e.target);
-        errorMessage = e.target.validationMessage;
+        host.dispatchEvent(new CustomEvent("change", { detail: null, bubbles: true, composed: true }));
     }
 
     onMount(() => {
-        hostElement = labelElement.parentNode;
-        controlElement = labelElement.querySelector("[name]");
+        const elements = rootElement.querySelector("slot").assignedElements();
+
+        // Find control element
+        elements.some((e) => {
+            if (e.name) {
+                controlElement = e;
+                return true;
+            } else {
+                const c = e.querySelector("[name]");
+                if (c) {
+                    controlElement = c;
+                    return true;
+                }
+            }
+        });
 
         if (!controlElement) {
-            console.log("label", labelElement);
             throw new Error("<inform-field> must have one descendant with a name attribute.");
         }
 
-        console.log({ controlElement });
-        controlElement.addEventListener("invalid", handleInvalid);
-    });
-
-    onDestroy(() => {
-        controlElement.removeEventListener("invalid", handleInvalid);
-    });
-
-    // label-class
-    $: {
-        labelClass = $$props["label-class"] ?? "";
-    }
-
-    // error-class
-    $: {
-        errorClass = $$props["error-class"] ?? "";
-    }
+        // controlElement.addEventListener("invalid", handleInvalid);
+        host.setAttribute("name", controlElement.name);
+    }); // controlElement.removeEventListener("invalid", handleInvalid);
 </script>
 
-<label on:input|stopPropagation={handleInput} on:change|stopPropagation={handleChange} bind:this={labelElement} class={labelClass}>
-    {label}
-    <slot />
-    <span class="form-field-error" role="alert">{errorMessage}</span>
-</label>
+{#if label}
+    <label on:input={handleInput} on:change={handleChange} bind:this={rootElement}>
+        {label}
+        <slot />
+        {#if error}
+            <span class="form-field-error" role="alert">{error}</span>
+        {/if}
+    </label>
+{:else}
+    <div on:input={handleInput} on:change={handleChange} bind:this={rootElement}>
+        {label}
+        <slot />
+        {#if error}
+            <span class="form-field-error" role="alert">{error}</span>
+        {/if}
+    </div>
+{/if}
 
 <style>
-    :global(.form-field-error) {
+    .form-field-error {
         display: none;
         color: red;
     }
-    :global(.touched :invalid ~ .form-field-error) {
+    :host(.touched) .form-field-error {
         display: initial;
     }
 </style>
