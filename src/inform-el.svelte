@@ -1,20 +1,25 @@
 <svelte:options tag="inform-el" />
 
 <script>
-    let errorDisableSubmit;
-    import { onMount, onDestroy } from "svelte";
+    export let error_disable_submit;
+    import { onMount } from "svelte";
     import { get_current_component } from "svelte/internal";
 
     let form;
     let submitButton;
     let host = get_current_component();
     let container;
+    let defaultSlot;
+    let errorDisableSubmit;
 
     function getFormValues() {
         return Object.fromEntries(new FormData(form));
     }
     function handleSubmit(e) {
         e.preventDefault();
+        e.stopPropagation();
+
+        host.querySelectorAll("inform-field").forEach((e) => e.classList.add("touched"));
         if (checkValidity()) {
             host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
         }
@@ -29,15 +34,12 @@
     }
 
     function checkValidity() {
-        // let hasCustomError = false;
-
         const errors = host.validationHandler ? host.validationHandler({ values: getFormValues() }) : null;
 
         const elements = [...form.elements];
 
         elements.forEach((element) => {
-            // hasCustomError |= !!errors?.[element.name];
-            const informField = host.querySelector(`inform-field[name="${element.name}"]`);
+            const informField = element.closest("inform-field");
             if (informField) {
                 element.setCustomValidity(errors?.[element.name] ?? "");
                 informField.setAttribute("error", errors?.[element.name] ?? element.validationMessage);
@@ -52,17 +54,15 @@
         }
 
         if (errorDisableSubmit) {
-            console.log({ errorDisableSubmit, submitButton, valid });
             submitButton.disabled = !valid;
         }
 
         return valid;
     }
 
-    // error-disable-submit
+    // error_disable_submit
     $: {
-        errorDisableSubmit = $$props["error-disable-submit"] !== null && $$props["error-disable-submit"] !== undefined;
-
+        errorDisableSubmit = error_disable_submit !== null && error_disable_submit !== undefined;
         if (submitButton) {
             if (!errorDisableSubmit) {
                 submitButton.disabled = false;
@@ -72,8 +72,9 @@
         }
     }
 
-    onMount(() => {
-        form = container.querySelector("slot").assignedElements()[0];
+    function initSlot() {
+        form = defaultSlot.assignedElements()[0];
+
         if (!form || form.tagName.toLowerCase() !== "form") {
             throw new Error("<inform-el> must have a <form> element as direct child");
         }
@@ -87,12 +88,21 @@
         if (!submitButton) {
             throw new Error("There is no submit button on this form!");
         }
-    });
 
-    onDestroy(() => {
-        form.removeEventListener("change", handleChange);
-        form.removeEventListener("input", handleInput);
-        form.removeEventListener("submit", handleSubmit);
+        // Wait for children to be mounted before checking validity
+        setTimeout(() => checkValidity(), 0);
+    }
+
+    onMount(() => {
+        defaultSlot = container.querySelector("slot");
+        initSlot();
+        defaultSlot.addEventListener("slotchange", initSlot);
+        return () => {
+            defaultSlot.removeEventListener("slotchange", initSlot);
+            form.removeEventListener("change", handleChange);
+            form.removeEventListener("input", handleInput);
+            form.removeEventListener("submit", handleSubmit);
+        };
     });
 </script>
 
