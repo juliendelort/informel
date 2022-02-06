@@ -1,16 +1,14 @@
-<svelte:options tag="inform-el" />
-
 <script>
-    export let error_disable_submit;
-    import { onMount } from "svelte";
+    export let errorDisableSubmit;
+
+    import { onMount, tick } from "svelte";
     import { get_current_component } from "svelte/internal";
 
     let form;
     let submitButton;
-    let host = get_current_component();
+    let host = get_current_component(); // can also be container.parentNode.host
     let container;
     let defaultSlot;
-    let errorDisableSubmit;
 
     function getFormValues() {
         return Object.fromEntries(new FormData(form));
@@ -33,16 +31,40 @@
         control.classList.add("touched");
     }
 
+    function getValidityKey(element) {
+        for (let key in element.validity) {
+            if (element.validity[key]) {
+                return key;
+            }
+        }
+    }
+
+    function getFieldError(element, informField) {
+        const isValid = element.checkValidity();
+
+        if (isValid) {
+            return "";
+        }
+        const validityAttribute = toKebabCase(getValidityKey(element));
+
+        return informField.getAttribute(validityAttribute) ?? informField.getAttribute("error-message") ?? element.validationMessage;
+    }
+
+    function toKebabCase(str) {
+        return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+    }
     function checkValidity() {
         const errors = host.validationHandler ? host.validationHandler({ values: getFormValues() }) : null;
 
         const elements = [...form.elements];
 
         elements.forEach((element) => {
+            // Set native error
+            element.setCustomValidity(errors?.[element.name] ?? "");
+
             const informField = element.closest("inform-field");
             if (informField) {
-                element.setCustomValidity(errors?.[element.name] ?? "");
-                informField.setAttribute("error", errors?.[element.name] ?? element.validationMessage);
+                informField.setAttribute("error", errors?.[element.name] ?? getFieldError(element, informField));
             }
         });
 
@@ -53,18 +75,22 @@
             host.classList.remove("invalid");
         }
 
-        if (errorDisableSubmit) {
+        if (getErrorDisabledSubmit()) {
             submitButton.disabled = !valid;
         }
 
         return valid;
     }
 
-    // error_disable_submit
+    function getErrorDisabledSubmit() {
+        return errorDisableSubmit !== null && errorDisableSubmit !== undefined;
+    }
+
+    // error-disable-submit
     $: {
-        errorDisableSubmit = error_disable_submit !== null && error_disable_submit !== undefined;
+        errorDisableSubmit; // Make this block reactive to a change on errorDisableSubmit
         if (submitButton) {
-            if (!errorDisableSubmit) {
+            if (!getErrorDisabledSubmit()) {
                 submitButton.disabled = false;
             } else {
                 checkValidity();
@@ -72,7 +98,7 @@
         }
     }
 
-    function initSlot() {
+    async function initSlot() {
         form = defaultSlot.assignedElements()[0];
 
         if (!form || form.tagName.toLowerCase() !== "form") {
@@ -90,7 +116,8 @@
         }
 
         // Wait for children to be mounted before checking validity
-        setTimeout(() => checkValidity(), 0);
+        await tick();
+        checkValidity();
     }
 
     onMount(() => {

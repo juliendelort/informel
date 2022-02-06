@@ -1,7 +1,16 @@
 import InformEl from './inform-el.svelte';
 import InformField from './inform-field.svelte';
-// import component from 'svelte-tag';
 
+// Adding support for kebab-case attributes
+class InformElWrapper extends InformEl {
+    static get observedAttributes() {
+        return (super.observedAttributes || []).map(attr => attr.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase());
+    }
 
-// new component({ component: InformEl, tagname: 'inform-el', shadow: false, attributes: ['error-disable-submit'] });
-// new component({ component: InformField, tagname: 'inform-field', shadow: false, attributes: ['label', 'label-class', 'error-class'] });
+    attributeChangedCallback(attrName, oldValue, newValue) {
+        attrName = attrName.replace(/-([a-z])/g, (_, up) => up.toUpperCase());
+        super.attributeChangedCallback(attrName, oldValue, newValue);
+    }
+}
+
+customElements.define('inform-el', InformElWrapper);

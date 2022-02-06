@@ -31,7 +31,6 @@
         errorSlot = rootElement.querySelector('slot[name="error"]');
 
         errorSlot.addEventListener("slotchange", updateErrorSlot);
-
         return () => {
             errorSlot.removeEventListener("slotchange", updateErrorSlot);
         };
