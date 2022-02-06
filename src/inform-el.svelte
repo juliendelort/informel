@@ -1,5 +1,5 @@
 <script>
-    export let errorDisableSubmit = null;
+    export let noErrorDisable = null;
     export let action = null;
     export let method = "POST";
 
@@ -11,22 +11,47 @@
     let host = get_current_component(); // can also be container.parentNode.host
     let container;
     let defaultSlot;
+    let submitting;
 
-    async function sendSubmitRequest() {
+    async function sendSubmitRequest(submitter) {
         if (action) {
-            host.dispatchEvent(new CustomEvent("request-start", { detail: { values: getFormValues() }, bubbles: true }));
-
+            const values = getFormValues();
             try {
-                const result = await fetch(action, {
-                    method,
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(getFormValues()),
-                });
+                host.dispatchEvent(new CustomEvent("requestStart", { detail: { values: getFormValues() }, bubbles: true }));
+                submitting = true;
+                submitter.disabled = true;
+
+                try {
+                    const result = await fetch(action, {
+                        method,
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(values),
+                    });
+                    const response = await result.json();
+                    if (result.ok) {
+                        host.dispatchEvent(new CustomEvent("requestSuccess", { detail: { response, status: result.status, values }, bubbles: true }));
+                    } else {
+                        host.dispatchEvent(new CustomEvent("requestError", { detail: { response, status: result.status, values }, bubbles: true }));
+                    }
+                } catch (e) {
+                    host.dispatchEvent(new CustomEvent("requestError", { detail: { error: e, values }, bubbles: true }));
+                }
             } finally {
-                host.dispatchEvent(new CustomEvent("request-end", { detail: { values: getFormValues() }, bubbles: true }));
+                submitting = false;
+                submitter.disabled = false;
+
+                host.dispatchEvent(new CustomEvent("requestEnd", { detail: values, bubbles: true, composed: true }));
             }
+        }
+    }
+
+    $: {
+        if (submitting) {
+            host.classList.add("submitting");
+        } else {
+            host.classList.remove("submitting");
         }
     }
 
@@ -44,14 +69,17 @@
 
         return values;
     }
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
         e.stopPropagation();
+
+        const submitter = e.submitter || e.detail.submitter; // If event is customsubmit, we need to check e.detail.submitter
 
         host.querySelectorAll("inform-field").forEach((e) => e.classList.add("touched"));
         if (checkValidity()) {
             host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
-            sendSubmitRequest();
+            await sendSubmitRequest(submitter);
+            form.reset();
         }
     }
     function handleInput(e) {
@@ -61,6 +89,14 @@
     function handleChange(e) {
         const control = e.target;
         control.classList.add("touched");
+    }
+
+    function handleReset() {
+        host.querySelectorAll(".touched").forEach((e) => {
+            e.classList.remove("touched");
+        });
+
+        checkValidity();
     }
 
     function getValidityKey(element) {
@@ -107,26 +143,22 @@
             host.classList.remove("invalid");
         }
 
-        if (getErrorDisabledSubmit()) {
-            if (submitButton) {
-                submitButton.disabled = !valid;
-            } else {
-                console.error('error-disable-submit: didn\'t find any submit button ([type="submit") to disable.');
-            }
+        if (!submitting && !getNoErrorDisable() && submitButton) {
+            submitButton.disabled = !valid;
         }
 
         return valid;
     }
 
-    function getErrorDisabledSubmit() {
-        return errorDisableSubmit !== null && errorDisableSubmit !== undefined;
+    function getNoErrorDisable() {
+        return noErrorDisable !== null && noErrorDisable !== undefined;
     }
 
     // error-disable-submit
     $: {
-        errorDisableSubmit; // Make this block reactive to a change on errorDisableSubmit
+        noErrorDisable; // Make this block reactive to a change on errorDisableSubmit
         if (submitButton) {
-            if (!getErrorDisabledSubmit()) {
+            if (getNoErrorDisable()) {
                 submitButton.disabled = false;
             } else {
                 checkValidity();
@@ -145,6 +177,7 @@
         form.addEventListener("submit", handleSubmit);
         form.addEventListener("input", handleInput);
         form.addEventListener("change", handleChange);
+        form.addEventListener("reset", handleReset);
 
         submitButton = form.querySelector('[type="submit"]');
 
@@ -161,6 +194,7 @@
             form.removeEventListener("change", handleChange);
             form.removeEventListener("input", handleInput);
             form.removeEventListener("submit", handleSubmit);
+            form.removeEventListener("reset", handleReset);
         };
     });
 </script>

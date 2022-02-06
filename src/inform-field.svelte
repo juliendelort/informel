@@ -1,6 +1,6 @@
 <script>
     export let error = "";
-    export let submitOnChange = false;
+    export let submitOnChange = null;
     import { onMount } from "svelte";
     import { get_current_component } from "svelte/internal";
 
@@ -17,10 +17,10 @@
         host.dispatchEvent(new CustomEvent("input", { detail: null, bubbles: true, composed: true }));
     }
 
-    function handleChange() {
+    function handleChange(e) {
         host.dispatchEvent(new CustomEvent("change", { detail: null, bubbles: true, composed: true }));
         if (getSubmitOnChange()) {
-            host.dispatchEvent(new CustomEvent("customsubmit", { detail: null, bubbles: true, composed: true }));
+            host.dispatchEvent(new CustomEvent("customsubmit", { detail: { submitter: e.target }, bubbles: true, composed: true }));
         }
     }
 
