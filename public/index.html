@@ -12,21 +12,18 @@
 
 	<script defer src='/build/bundle.js'></script>
 	<style>
-		.error {
-			display: none;
-			color: blue;
-			margin-top: 10px;
-		}
-		.touched .error {
-			display: block;
-		}
 
 	</style>
 </head>
 
 <body>
 
-	<my-test />
+<inform-el>
+	<form>
+		<input type="text" name="some-name" required />
+		<button type="submit">Submit</button>
+	</form>
+</inform-el>
 
 	<script>
 		</script>

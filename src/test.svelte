@@ -13,10 +13,6 @@
     function handleAddSuccess() {
         refreshTasks();
     }
-
-    function onSubmit({ detail: { values } }) {
-        console.log({ values });
-    }
     onMount(() => {
         refreshTasks();
     });
@@ -32,7 +28,6 @@
     }
 
     function handleAdd({ detail: { values } }) {
-        console.log("add", { values });
         tasks = [...tasks, { ...values, id: tasks[tasks.length - 1].id + 1, createdAt: new Date(), new: true }];
     }
 
@@ -42,7 +37,7 @@
 </script>
 
 <div>
-    <inform-el action="https://1ffdd875e1c4100174f6fe7.mockapi.io/api/task" on:requestSuccess={handleAddSuccess} on:submit={handleAdd} on:requestError={handleAddError}>
+    <inform-el action="https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task" on:requestSuccess={handleAddSuccess} on:submit={handleAdd} on:requestError={handleAddError}>
         <form>
             <inform-field>
                 <input type="text" name="title" required />

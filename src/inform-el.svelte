@@ -17,6 +17,8 @@
         if (action) {
             const values = getFormValues();
             try {
+                const hasFiles = Object.values(values).some((v) => v instanceof File);
+
                 host.dispatchEvent(new CustomEvent("requestStart", { detail: { values: getFormValues() }, bubbles: true }));
                 submitting = true;
                 submitter.disabled = true;
@@ -25,9 +27,9 @@
                     const result = await fetch(action, {
                         method,
                         headers: {
-                            "Content-Type": "application/json",
+                            ...(!hasFiles && { "Content-Type": "application/json" }),
                         },
-                        body: JSON.stringify(values),
+                        body: hasFiles ? valuesToFormData(values) : JSON.stringify(values),
                     });
                     const response = await result.json();
                     if (result.ok) {
@@ -38,6 +40,8 @@
                 } catch (e) {
                     host.dispatchEvent(new CustomEvent("requestError", { detail: { error: e, values }, bubbles: true }));
                 }
+            } catch (e) {
+                console.error(e);
             } finally {
                 submitting = false;
                 submitter.disabled = false;
@@ -53,6 +57,15 @@
         } else {
             host.classList.remove("submitting");
         }
+    }
+
+    function valuesToFormData(values) {
+        const result = new FormData();
+        for (let key in values) {
+            result.append(key, values[key]);
+        }
+
+        return result;
     }
 
     function getFormValues() {
