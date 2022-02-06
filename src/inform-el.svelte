@@ -1,5 +1,7 @@
 <script>
-    export let errorDisableSubmit;
+    export let errorDisableSubmit = null;
+    export let action = null;
+    export let method = "POST";
 
     import { onMount, tick } from "svelte";
     import { get_current_component } from "svelte/internal";
@@ -10,8 +12,37 @@
     let container;
     let defaultSlot;
 
+    async function sendSubmitRequest() {
+        if (action) {
+            host.dispatchEvent(new CustomEvent("request-start", { detail: { values: getFormValues() }, bubbles: true }));
+
+            try {
+                const result = await fetch(action, {
+                    method,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(getFormValues()),
+                });
+            } finally {
+                host.dispatchEvent(new CustomEvent("request-end", { detail: { values: getFormValues() }, bubbles: true }));
+            }
+        }
+    }
+
     function getFormValues() {
-        return Object.fromEntries(new FormData(form));
+        const values = Object.fromEntries(new FormData(form));
+        // Add missing values (checkboxes)
+        [...form.elements].forEach((e) => {
+            const name = e.name;
+
+            if ((name && !values[name]) || e.type === "checkbox") {
+                const elementValue = e.type === "checkbox" ? e.checked : e.value;
+                values[name] = elementValue;
+            }
+        });
+
+        return values;
     }
     function handleSubmit(e) {
         e.preventDefault();
@@ -20,6 +51,7 @@
         host.querySelectorAll("inform-field").forEach((e) => e.classList.add("touched"));
         if (checkValidity()) {
             host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
+            sendSubmitRequest();
         }
     }
     function handleInput(e) {
@@ -76,7 +108,11 @@
         }
 
         if (getErrorDisabledSubmit()) {
-            submitButton.disabled = !valid;
+            if (submitButton) {
+                submitButton.disabled = !valid;
+            } else {
+                console.error('error-disable-submit: didn\'t find any submit button ([type="submit") to disable.');
+            }
         }
 
         return valid;
@@ -111,9 +147,6 @@
         form.addEventListener("change", handleChange);
 
         submitButton = form.querySelector('[type="submit"]');
-        if (!submitButton) {
-            throw new Error("There is no submit button on this form!");
-        }
 
         // Wait for children to be mounted before checking validity
         await tick();
@@ -122,7 +155,6 @@
 
     onMount(() => {
         defaultSlot = container.querySelector("slot");
-        initSlot();
         defaultSlot.addEventListener("slotchange", initSlot);
         return () => {
             defaultSlot.removeEventListener("slotchange", initSlot);
@@ -133,6 +165,6 @@
     });
 </script>
 
-<div bind:this={container}>
+<div bind:this={container} on:customsubmit={handleSubmit}>
     <slot />
 </div>

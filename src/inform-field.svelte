@@ -1,7 +1,6 @@
-<svelte:options tag="inform-field" />
-
 <script>
     export let error = "";
+    export let submitOnChange = false;
     import { onMount } from "svelte";
     import { get_current_component } from "svelte/internal";
 
@@ -10,12 +9,19 @@
     let errorSlot;
     let errorSlotHasContent;
 
+    function getSubmitOnChange() {
+        return submitOnChange !== null && submitOnChange !== undefined;
+    }
+
     function handleInput() {
         host.dispatchEvent(new CustomEvent("input", { detail: null, bubbles: true, composed: true }));
     }
 
     function handleChange() {
         host.dispatchEvent(new CustomEvent("change", { detail: null, bubbles: true, composed: true }));
+        if (getSubmitOnChange()) {
+            host.dispatchEvent(new CustomEvent("customsubmit", { detail: null, bubbles: true, composed: true }));
+        }
     }
 
     function updateErrorSlot(err = error) {
@@ -35,6 +41,7 @@
             errorSlot.removeEventListener("slotchange", updateErrorSlot);
         };
     });
+
     $: {
         // On error, update slot
         updateErrorSlot(error);
@@ -55,6 +62,6 @@
         color: red;
     }
     :host(.touched) .form-field-error {
-        display: initial;
+        display: block;
     }
 </style>

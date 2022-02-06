@@ -25,51 +25,10 @@
 </head>
 
 <body>
-	<h1>Julien</h1>
-	<inform-el some-prop="toto">
-		<form>
-		<inform-field  >
-			<input type="email" name="email" placeholder="email" required aria-label="email" />
-			<span slot="error" class="error">toto</span>
-		</inform-field>
-		<inform-field >
-				<label>
-					Password
-					<input type="password" name="password" required />
-				</label>
 
-		</inform-field>
-		<button type="submit">Login</button>
-		</form>
-	</inform-el>
+	<my-test />
 
 	<script>
-		document.querySelector('inform-el').addEventListener('submit', ({detail})=>{
-			console.log('submit', detail);
-		});
-
-		document.querySelector('inform-el').addEventListener('mounted', (e) => {
-				console.log('mounted', e);
-			})
-
-				document.querySelector('input[name="email"]').addEventListener('change', (e) => {
-						console.log('changed', e.target.value);
-					})
-	// document.querySelector('inform-el').julien();
-
-	// console.log(document.querySelector('inform-el').toto, document.querySelector('inform-el'))
-		document.querySelector('inform-el').validationHandler = ({values})=>{
-			// console.log({values})
-			if(values.email?.indexOf('toto')<0){
-				return {email:'Must contain "toto"!'};
-			}
-		};
-
-	// customElements.whenDefined('inform-el').then(()=>{
-	// 		document.querySelector('inform-el').setValidationHandler(({ values }) => {
-	// 		console.log(values);
-	// 	})
-	// })
 		</script>
 </body>
 </html>
