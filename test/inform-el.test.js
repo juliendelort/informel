@@ -147,7 +147,7 @@ describe('<inform-el', () => {
 
     });
 
-    it('sets the error on  <inform-field>', async () => {
+    it('sets the error on <inform-field>', async () => {
         const informEl = await fixture(`
             <inform-el>
                 <form>
@@ -167,14 +167,12 @@ describe('<inform-el', () => {
         // Set a value => no more error
         type(input, 'value1');
         expect(informField).not.to.have.attribute('error');
-
-
     });
 
 
     it('only shows the error when touched', async () => {
         const informEl = await fixture(`
-            <inform-el no-error-disable style="display: none;">
+            <inform-el no-error-disable>
                  <form>
                     <inform-field >
                         <input type="text" name="some-name" pattern="^.{20,}$"/>
@@ -187,7 +185,6 @@ describe('<inform-el', () => {
         const informField = informEl.querySelector('inform-field');
 
 
-        // console.log('span', informField.shadowRoot.getRootNode().querySelector('[role="alert"]')?.outerHTML);
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
 
         type(input, 'va'); // Value too short (pattern minlength = 20)
@@ -197,12 +194,51 @@ describe('<inform-el', () => {
 
         input.dispatchEvent(new Event('change', { bubbles: true }));
 
+        // After blur, the error should be visible
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
+
+
+        // Fix the error => no more error
+        type(input, 'a'.repeat(20));
+
+        // No more error 
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(informField).not.to.have.attribute('error');
+
+
     });
 
     it('shows the error slot', async () => {
         const informEl = await fixture(`
-                <inform-el no-error-disable style="display: none;">
+                <inform-el no-error-disable>
+                    <form>
+                        <inform-field >
+                            <input type="text" name="some-name" pattern="^.{20,}$"/>
+                            <span slot="error" id="the-error-slot"></span>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const input = informEl.querySelector('[name="some-name"]');
+        const informField = informEl.querySelector('inform-field');
+        const errorSlot = informEl.querySelector('#the-error-slot');
+
+        type(input, 'va', true); // Value too short (pattern minlength = 20)
+
+
+        // The default error span should not exist
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+
+        // ...And the slot has the error
+        expect(errorSlot).to.have.rendered.text(input.validationMessage);
+    });
+
+    it('reacts to updates to the error slot', async () => {
+        const informEl = await fixture(`
+                <inform-el no-error-disable>
                     <form>
                         <inform-field >
                             <input type="text" name="some-name" pattern="^.{20,}$"/>
@@ -218,6 +254,8 @@ describe('<inform-el', () => {
 
         // Renders the default error span
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
+
 
         // Add a slot
         const errorSlot = document.createElement('span');
@@ -232,20 +270,75 @@ describe('<inform-el', () => {
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
 
         // ...And the slot has the error
-        expect(errorSlot.textContent).to.equal(input.validationMessage);
+        expect(errorSlot).to.have.rendered.text(input.validationMessage);
+
 
         // Remove the slot
-        errorSlot.parentNode.remove(errorSlot);
+        informField.removeChild(errorSlot);
+
         await elementUpdated(informField);
 
         // ...The default error is back
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
-
-
-
-        // TODO: test when slot is present from the beginning
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
 
     });
 
+    it('considers validationHandler', async () => {
+        // There should be an error on the input because of the pattern
+        const informEl = await fixture(`
+                <inform-el no-error-disable>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" pattern="^ab|ef$"/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const form = informEl.querySelector('form');
+        const informField = informEl.querySelector('inform-field');
+        const input = informEl.querySelector('[name="some-name"]');
 
+        informEl.validationHandler = ({ values }) => {
+            const result = {};
+            if (values['some-name'] === 'ab' || values['some-name'] === 'cd') {
+                result['some-name'] = 'my custom error message';
+            }
+            return result;
+        };
+        type(input, 'a', true); // Should be native only
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField).to.have.attribute('error', input.validationMessage);
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
+
+        expect(input.validity.customError).to.equal(false);
+        expect(input.validity.patternMismatch).to.equal(true);
+
+
+        type(input, 'ab'); // Should be a custom error only
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField).to.have.attribute('error', 'my custom error message');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
+        expect(form.checkValidity()).to.equal(false);
+        expect(informEl).to.have.class('invalid');
+
+
+        type(input, 'cd'); // Should be both => still renders the custom one
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField).to.have.attribute('error', 'my custom error message');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
+
+        type(input, 'ef'); // Should be no error
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(informField).not.to.have.attribute('error');
+        expect(form.checkValidity()).to.equal(true);
+        expect(informEl).not.to.have.class('invalid');
+
+
+    });
+
+    // it('shows the proper error', () => {
+    // validation handler first, then validity attribute, then "error-message" attribute, then native validation message
+    // });
 });
