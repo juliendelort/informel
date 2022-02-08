@@ -40,7 +40,7 @@
     <inform-el action="https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task" on:requestSuccess={handleAddSuccess} on:submit={handleAdd} on:requestError={handleAddError}>
         <form>
             <inform-field>
-                <input type="text" name="title" required />
+                <input type="text" name="title" pattern={`^.{20,}$`} />
             </inform-field>
             <button type="submit">Create task</button>
         </form>

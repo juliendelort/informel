@@ -1,5 +1,6 @@
 <script>
     export let error = "";
+    export let touched = null;
     export let submitOnChange = null;
     import { onMount } from "svelte";
     import { get_current_component } from "svelte/internal";
@@ -8,6 +9,7 @@
     let rootElement;
     let errorSlot;
     let errorSlotHasContent;
+    let touchedIsPresent;
 
     function getSubmitOnChange() {
         return submitOnChange !== null && submitOnChange !== undefined;
@@ -24,7 +26,7 @@
         }
     }
 
-    function updateErrorSlot(err = error) {
+    function updateErrorSlot() {
         const errorSlotChild = errorSlot?.assignedElements()?.[0];
         errorSlotHasContent = !!errorSlotChild;
 
@@ -46,11 +48,15 @@
         // On error, update slot
         updateErrorSlot(error);
     }
+
+    $: {
+        touchedIsPresent = touched !== null && touched !== undefined;
+    }
 </script>
 
 <div on:input={handleInput} on:change={handleChange} bind:this={rootElement}>
     <slot />
-    {#if error && !errorSlotHasContent}
+    {#if error && !errorSlotHasContent && touchedIsPresent}
         <span class="form-field-error" role="alert">{error}</span>
     {/if}
     <slot name="error" />
@@ -58,10 +64,6 @@
 
 <style>
     .form-field-error {
-        display: none;
         color: red;
-    }
-    :host(.touched) .form-field-error {
-        display: block;
     }
 </style>

@@ -100,13 +100,13 @@
     }
 
     function handleChange(e) {
-        const control = e.target;
-        control.classList.add("touched");
+        const formField = e.target;
+        formField.setAttribute("touched", "");
     }
 
     function handleReset() {
-        host.querySelectorAll(".touched").forEach((e) => {
-            e.classList.remove("touched");
+        host.querySelectorAll("[touched]").forEach((e) => {
+            e.removeAttribute("touched");
         });
 
         checkValidity();
@@ -145,7 +145,12 @@
 
             const informField = element.closest("inform-field");
             if (informField) {
-                informField.setAttribute("error", errors?.[element.name] ?? getFieldError(element, informField));
+                const errorPropValue = errors?.[element.name] ?? getFieldError(element, informField);
+                if (errorPropValue) {
+                    informField.setAttribute("error", errorPropValue);
+                } else {
+                    informField.removeAttribute("error");
+                }
             }
         });
 

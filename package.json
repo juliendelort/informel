@@ -1,6 +1,6 @@
 {
   "name": "informel",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "public/build/bundle.js",
   "files": [
     "public/build/*"
@@ -9,12 +9,14 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear",
-    "test": "jest"
+    "test": "web-test-runner \"test/**/*.test.js\" --node-resolve"
   },
   "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4",
+    "@open-wc/testing": "^3.0.0-next.5",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
-    "jest": "^27.5.0",
+    "@web/test-runner": "^0.13.27",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
@@ -24,10 +26,7 @@
     "svelte": "^3.0.0"
   },
   "jest": {
-    "testEnvironment": "jest-environment-jsdom",
-    "setupFiles": [
-      "./public/build/bundle.js"
-    ],
+    "testEnvironment": "jest-environment-node",
     "moduleDirectories": [
       "node_modules",
       "src"
