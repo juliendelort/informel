@@ -96,12 +96,18 @@
         }
     }
     function handleInput(e) {
+        e.stopPropagation();
         checkValidity();
+        host.dispatchEvent(new CustomEvent("input", { detail: { values: getFormValues() }, bubbles: true }));
     }
 
     function handleChange(e) {
+        e.stopPropagation();
+
         const formField = e.target;
         formField.setAttribute("touched", "");
+
+        host.dispatchEvent(new CustomEvent("change", { detail: { values: getFormValues() }, bubbles: true }));
     }
 
     function handleReset() {
@@ -128,7 +134,7 @@
         }
         const validityAttribute = toKebabCase(getValidityKey(element));
 
-        return informField.getAttribute(validityAttribute) ?? informField.getAttribute("error-message") ?? element.validationMessage;
+        return informField.getAttribute(validityAttribute) ?? informField.getAttribute("default-error") ?? element.validationMessage;
     }
 
     function toKebabCase(str) {

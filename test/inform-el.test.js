@@ -1,4 +1,4 @@
-import { fixture, expect, elementUpdated } from '@open-wc/testing';
+import { fixture, expect, elementUpdated, nextFrame } from '@open-wc/testing';
 
 
 import '../public/build/bundle.js';
@@ -172,7 +172,7 @@ describe('<inform-el', () => {
 
     it('only shows the error when touched', async () => {
         const informEl = await fixture(`
-            <inform-el no-error-disable>
+            <inform-el>
                  <form>
                     <inform-field >
                         <input type="text" name="some-name" pattern="^.{20,}$"/>
@@ -211,7 +211,7 @@ describe('<inform-el', () => {
 
     it('shows the error slot', async () => {
         const informEl = await fixture(`
-                <inform-el no-error-disable>
+                <inform-el>
                     <form>
                         <inform-field >
                             <input type="text" name="some-name" pattern="^.{20,}$"/>
@@ -238,7 +238,7 @@ describe('<inform-el', () => {
 
     it('reacts to updates to the error slot', async () => {
         const informEl = await fixture(`
-                <inform-el no-error-disable>
+                <inform-el>
                     <form>
                         <inform-field >
                             <input type="text" name="some-name" pattern="^.{20,}$"/>
@@ -287,7 +287,7 @@ describe('<inform-el', () => {
     it('considers validationHandler', async () => {
         // There should be an error on the input because of the pattern
         const informEl = await fixture(`
-                <inform-el no-error-disable>
+                <inform-el>
                     <form>
                         <inform-field>
                             <input type="text" name="some-name" pattern="^ab|ef$"/>
@@ -338,7 +338,190 @@ describe('<inform-el', () => {
 
     });
 
-    // it('shows the proper error', () => {
-    // validation handler first, then validity attribute, then "error-message" attribute, then native validation message
-    // });
+    it('shows the proper error', async () => {
+        // validation handler first, then validity attribute, then "error-message" attribute, then native validation message
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field type-mismatch="Type mismatch!" default-error="This field is invalid!" >
+                            <input type="email" name="some-name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const informField = informEl.querySelector('inform-field');
+        const input = informEl.querySelector('[name="some-name"]');
+
+        informEl.validationHandler = ({ values }) => {
+            const result = {};
+            if (values['some-name'] === 'ab') {
+                result['some-name'] = 'my custom error message';
+            }
+            return result;
+        };
+
+        // Not in format email
+        type(input, 'a', true);
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('Type mismatch!');
+
+        // Custom error
+        type(input, 'ab');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
+
+        // General error
+        type(input, '');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('This field is invalid!');
+
+        // Remove default-error => default to validation 
+        informField.removeAttribute('default-error');
+        type(input, '');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.have.rendered.text('This field is invalid!');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
+
+        // Valid
+        type(input, 'some@else');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+
+    });
+
+    it('shows the proper error in the slot', async () => {
+        // validation handler first, then validity attribute, then "error-message" attribute, then native validation message
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field type-mismatch="Type mismatch!" default-error="This field is invalid!" >
+                            <input type="email" name="some-name" required/>
+                            <span slot="error" id="error-slot"/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const informField = informEl.querySelector('inform-field');
+        const input = informEl.querySelector('[name="some-name"]');
+        const errorSlot = informEl.querySelector('#error-slot');
+
+        informEl.validationHandler = ({ values }) => {
+            const result = {};
+            if (values['some-name'] === 'ab') {
+                result['some-name'] = 'my custom error message';
+            }
+            return result;
+        };
+
+        // Not in format email
+        type(input, 'a', true);
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(errorSlot).to.have.rendered.text('Type mismatch!');
+
+        // Custom error
+        type(input, 'ab');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(errorSlot).to.have.rendered.text('my custom error message');
+
+        // General error
+        type(input, '');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(errorSlot).to.have.rendered.text('This field is invalid!');
+
+        // Remove default-error => default to validation 
+        informField.removeAttribute('default-error');
+        type(input, '');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(errorSlot).not.to.have.rendered.text('This field is invalid!');
+        expect(errorSlot).to.have.rendered.text(input.validationMessage);
+
+        // Valid
+        type(input, 'some@else');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(errorSlot).to.have.rendered.text('');
+    });
+
+    it('triggers the submit event with the form values if the form is valid', async () => {
+        let receivedEventDetails = null;
+        const informEl = await fixture(`
+                <inform-el no-error-disable>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const input = informEl.querySelector('[name="some-name"]');
+        const submitButton = informEl.querySelector('[type="submit"]');
+
+        type(input, '', true); // Invalid
+        expect(submitButton).not.to.have.attribute('disabled'); //no-error-disable
+
+        informEl.addEventListener('submit', ({ detail }) => {
+            receivedEventDetails = detail;
+        });
+
+        submitButton.click();
+        await nextFrame();
+
+        expect(receivedEventDetails).to.be.null;
+
+        // Fix the form
+        type(input, 'something');
+
+        submitButton.click();
+        await nextFrame();
+        expect(receivedEventDetails).to.eql({ values: { 'some-name': 'something' } });
+
+
+
+    });
+
+    it('triggers the change and input events with the form values', async () => {
+        let changeEventDetails = null;
+        let inputEventDetails = null;
+        const informEl = await fixture(`
+                <inform-el no-error-disable>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const input = informEl.querySelector('[name="some-name"]');
+        const submitButton = informEl.querySelector('[type="submit"]');
+        expect(submitButton).not.to.have.attribute('disabled'); //no-error-disable
+
+        informEl.addEventListener('change', ({ detail }) => {
+            changeEventDetails = detail;
+        });
+
+        informEl.addEventListener('input', ({ detail }) => {
+            inputEventDetails = detail;
+        });
+
+        type(input, 'something', false); // Only input
+        await nextFrame();
+
+        expect(inputEventDetails).to.eql({ values: { 'some-name': 'something' } });
+        expect(changeEventDetails).to.be.null;
+
+        inputEventDetails = null; // reset
+        type(input, 'something else', true); // Both input and change
+        await nextFrame();
+
+        expect(inputEventDetails).to.eql({ values: { 'some-name': 'something else' } });
+        expect(changeEventDetails).to.eql({ values: { 'some-name': 'something else' } });
+    });
+
+    it('handles slot change', async () => {
+
+    });
 });
