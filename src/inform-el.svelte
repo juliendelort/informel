@@ -12,6 +12,7 @@
     let container;
     let defaultSlot;
     let submitting;
+    let initialValues;
 
     async function sendSubmitRequest(submitter) {
         if (action) {
@@ -113,7 +114,7 @@
         host.dispatchEvent(new CustomEvent("change", { detail: { values: getFormValues() }, bubbles: true }));
     }
 
-    function handleFormReset() {
+    async function handleFormReset() {
         host.querySelectorAll("[touched]").forEach((e) => {
             e.removeAttribute("touched");
         });
@@ -121,7 +122,9 @@
         host.classList.remove("dirty");
         host.dirty = false;
         host.querySelectorAll(".dirty").forEach((e) => e.classList.remove("dirty"));
+        await tick(); // wait for the form to be actually reset before getting the values;
         host.values = getFormValues();
+
         checkValidity();
     }
 
@@ -153,7 +156,7 @@
         let dirty = false;
         Object.keys(newValues).forEach((key) => {
             const informField = form.elements[key].closest("inform-field");
-            if (newValues[key] !== host.values[key]) {
+            if (newValues[key] !== initialValues[key]) {
                 dirty = true;
 
                 if (informField) {
@@ -244,7 +247,8 @@
         await tick();
 
         host.dirty = false;
-        host.values = getFormValues();
+        initialValues = getFormValues();
+        host.values = initialValues;
         checkValidity();
     }
 
@@ -271,15 +275,19 @@
         if (!newValues) {
             form.reset();
         } else {
-            // TODO
-            // [...form.elements].forEach((e) => {
-            //     const name = e.name;
-            //     if ((name && !values[name]) || e.type === "checkbox") {
-            //         const elementValue = e.type === "checkbox" ? e.checked : e.value;
-            //         values[name] = elementValue;
-            //     }
-            // });
+            [...form.elements].forEach((e) => {
+                const name = e.name;
+
+                if (e.type === "checkbox") {
+                    e.checked = newValues[name];
+                } else {
+                    e.value = newValues[name];
+                }
+            });
         }
+
+        initialValues = getFormValues();
+        host.values = initialValues;
     }
 </script>
 

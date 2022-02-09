@@ -525,98 +525,336 @@ describe('<inform-el', () => {
 
     });
 
-    it('has a "dirty" property and a "values" property and sets dirty classes', async () => {
-        const informEl = await fixture(`
-                <inform-el>
-                    <form>
-                        <inform-field id="inform-field1">
-                            <input type="text" name="field1" value="initial-value"/>
-                        </inform-field>
-                        <inform-field id="inform-field2">
-                            <input type="text" name="field2" />
-                        </inform-field>
+    it('works with checkboxes and radio buttons', async () => {
 
-                        <button type="submit">Submit</button>
-                    </form>
-                </inform-el>
-        `);
+    });
 
-        const input1 = informEl.querySelector('[name="field1"]');
-        const field1 = informEl.querySelector('#inform-field1');
-        const field2 = informEl.querySelector('#inform-field2');
-        const form = informEl.querySelector('form');
+    it('works with <select/>', async () => {
 
-        expect(informEl.dirty).to.equal(false);
-        expect(informEl.values).to.eql({ 'field1': 'initial-value', 'field2': '' });
-        expect(informEl).not.to.have.class('dirty');
-        expect(field1).not.to.have.class('dirty');
-        expect(field2).not.to.have.class('dirty');
+    });
 
-        type(input1, 'something', true);
+    describe('reset', () => {
+        describe('when reseting the form', () => {
 
-        expect(informEl.dirty).to.equal(true);
-        expect(informEl.values).to.eql({ 'field1': 'something', 'field2': '' });
-        expect(informEl).to.have.class('dirty');
-        expect(field1).to.have.class('dirty');
-        expect(field2).not.to.have.class('dirty');
+            it('resets the form values', async () => {
 
-        // Back to initial value => not dirty anymore
-        type(input1, 'initial-value', true);
+            });
 
-        expect(informEl.dirty).to.equal(false);
-        expect(informEl.values).to.eql({ 'field1': '' });
-        expect(informEl).not.to.have.class('dirty');
-        expect(field1).not.to.have.class('dirty');
-        expect(field2).not.to.have.class('dirty');
+            it('removes the dirty flags', async () => {
 
-        form.reset();
-        // Never dirty after reset
-        expect(informEl.dirty).to.equal(false);
-        expect(informEl.values).to.eql({ 'field1': 'initial-value', 'field2': '' });
-        expect(informEl).not.to.have.class('dirty');
-        expect(field1).not.to.have.class('dirty');
-        expect(field2).not.to.have.class('dirty');
-        expect(input1.value).to.equal('initial-value');
+            });
 
-        // Reset also works on informEl
-        informEl.reset({ 'field1': 'something2' });
-        // Not dirty after reset
-        expect(informEl.dirty).to.equal(false);
-        expect(informEl.values).to.eql({ 'field1': 'something2', 'field2': '' });
-        expect(informEl).not.to.have.class('dirty');
-        expect(field1).not.to.have.class('dirty');
-        expect(field2).not.to.have.class('dirty');
-        expect(input1.value).to.equal('something2');
+            it('removes the touched flags', async () => {
+
+            });
+        });
+
+        describe('when resetting <inform-el>', () => {
+
+            // Same as above +
+            it('resets to the form initial values when no arguments', async () => {
+
+            });
+
+            it('sets new values when provided ', async () => {
+
+            });
+        });
+    });
+
+    describe('dirty check', () => {
+
+        describe('with text field', () => {
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="text" name="field" value="initial-value"/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: 'initial-value',
+                    setValue: (input, val) => {
+                        type(input, val, true);
+                    }
+                });
+            });
+
+            describe('with no initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="text" name="field" />
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: '',
+                    setValue: (input, val) => {
+                        type(input, val, true);
+                    }
+                });
+            });
+        });
+
+        describe('with checkbox field', () => {
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="checkbox" name="field" checked/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: true,
+                    setValue: (input, val) => {
+                        input.checked = val;
+                    }
+                });
+            });
+
+            describe('with no initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="checkbox" name="field" />
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: false,
+                    setValue: (input, val) => {
+                        input.checked = val;
+                    }
+                });
+            });
+        });
+
+        describe('with radio field', () => {
+
+        });
+
+        describe('with select field', () => {
+
+        });
+
+        describe('without a <inform-field> wrapper', () => {
+
+        });
+
+        let informEl;
+        let control;
+        let informField;
+        let form;
+        function expectDirty(expectedValue) {
+            expect(informEl.dirty).to.equal(true);
+            expect(informEl.values).to.eql({ field: expectedValue });
+            expect(informEl).to.have.class('dirty');
+            expect(informField).to.have.class('dirty');
+        }
+
+        function expectNotDirty(expectedValue) {
+            expect(informEl.dirty).to.equal(false);
+            expect(informEl.values).to.eql({ field: expectedValue });
+            expect(informEl).not.to.have.class('dirty');
+            expect(informField).not.to.have.class('dirty');
+        }
+
+        function runTests({ html, initialValue, setValue }) {
+            beforeEach(async () => {
+                informEl = await fixture(html);
+
+                control = informEl.querySelector('#control');
+                informField = informEl.querySelector('inform-field');
+                form = informEl.querySelector('form');
+            });
 
 
-        // Change the value
-        type(input1, 'something', true);
+            function setDirtyAndCheck() {
+                expectNotDirty(initialValue);
 
-        expect(informEl.dirty).to.equal(true);
-        expect(informEl.values).to.eql({ 'field1': 'something', 'field2': '' });
-        expect(informEl).to.have.class('dirty');
-        expect(field1).to.have.class('dirty');
-        expect(field2).not.to.have.class('dirty');
+                // Change the value
+                setValue(control, 'something');
 
-        // Back to the reset value => not dirty anymore
-        type(input1, 'something2', true);
+                expectDirty('something');
+            }
 
-        expect(informEl.dirty).to.equal(false);
-        expect(informEl.values).to.eql({ 'field1': 'something2', 'field2': '' });
-        expect(informEl).not.to.have.class('dirty');
-        expect(field1).not.to.have.class('dirty');
-        expect(field2).not.to.have.class('dirty');
+            it('sets the dirty flags when changed', async () => {
+                setDirtyAndCheck();
 
-        informEl.reset();
+            });
 
-        // Never dirty after reset
-        expect(informEl.dirty).to.equal(false);
-        expect(informEl.values).to.eql({ 'field1': 'initial-value', 'field2': '' });
-        expect(informEl).not.to.have.class('dirty');
-        expect(field1).not.to.have.class('dirty');
-        expect(field2).not.to.have.class('dirty');
-        expect(input1.value).to.equal('initial-value');
+            it('resets the dirty flags when back to the initial value', async () => {
+                setDirtyAndCheck();
+
+                // Now back to initial value
+                setValue(control, initialValue);
+
+                expectNotDirty(initialValue);
+            });
+
+            it('resets the dirty flags when resetting with no parameter', async () => {
+                setDirtyAndCheck();
+
+                informEl.reset();
+
+                expectNotDirty(initialValue);
+
+            });
+
+            it('resets the dirty flags when resetting with new values', async () => {
+                setDirtyAndCheck();
+
+                informEl.reset({ field: 'some new value' });
+
+                expectNotDirty('some new value');
+            });
+
+            it('resets the dirty flags when resetting the form directly', async () => {
+                setDirtyAndCheck();
+
+                form.reset();
+                await elementUpdated(informEl);
+
+                expectNotDirty(initialValue);
+            });
+
+            it('resets the dirty flags when back to previous reset values', async () => {
+                setDirtyAndCheck();
+
+                informEl.reset({ field: 'some new value' });
+
+                expectNotDirty('some new value');
+
+                // Change the value
+                setValue(control, 'something');
+
+                expectDirty('something');
+
+                // Now back to previous reset value
+                setValue(control, 'some new value');
+
+                expectNotDirty('some new value');
+            });
+        }
+
 
 
     });
+
+    // it('has a "dirty" property and a "values" property and sets dirty classes', async () => {
+    //     const informEl = await fixture(`
+    //             <inform-el>
+    //                 <form>
+    //                     <inform-field id="inform-field1">
+    //                         <input type="text" name="field1" value="initial-value"/>
+    //                     </inform-field>
+    //                     <inform-field id="inform-field2">
+    //                         <input type="checkbox" name="field2" />
+    //                     </inform-field>
+
+    //                     <button type="submit">Submit</button>
+    //                 </form>
+    //             </inform-el>
+    //     `);
+
+    //     const input1 = informEl.querySelector('[name="field1"]');
+    //     const field1 = informEl.querySelector('#inform-field1');
+    //     const field2 = informEl.querySelector('#inform-field2');
+    //     const form = informEl.querySelector('form');
+
+    //     expect(informEl.dirty).to.equal(false);
+    //     expect(informEl.values).to.eql({ field1: initialValue, field2: false });
+    //     expect(informEl).not.to.have.class('dirty');
+    //     expect(field1).not.to.have.class('dirty');
+    //     expect(field2).not.to.have.class('dirty');
+
+    //     console.log('changing');
+    //     type(input1, 'something', true);
+
+    //     awa;
+    //     expect(informEl.dirty).to.equal(true);
+    //     expect(informEl.values).to.eql({ field1: 'something', field2: false });
+    //     expect(informEl).to.have.class('dirty');
+    //     expect(field1).to.have.class('dirty');
+    //     expect(field2).not.to.have.class('dirty');
+
+    //     // Back to initial value => not dirty anymore
+    //     type(input1, initialValue, true);
+
+    //     expect(informEl.dirty).to.equal(false);
+    //     expect(informEl.values).to.eql({ field1: '' });
+    //     expect(informEl).not.to.have.class('dirty');
+    //     expect(field1).not.to.have.class('dirty');
+    //     expect(field2).not.to.have.class('dirty');
+
+    //     form.reset();
+    //     // Never dirty after reset
+    //     expect(informEl.dirty).to.equal(false);
+    //     expect(informEl.values).to.eql({ field1: initialValue, field2: false });
+    //     expect(informEl).not.to.have.class('dirty');
+    //     expect(field1).not.to.have.class('dirty');
+    //     expect(field2).not.to.have.class('dirty');
+    //     expect(input1.value).to.equal(initialValue);
+
+    //     // Reset also works on informEl
+    //     informEl.reset({ field1: 'something2', field2: true });
+
+    //     // Not dirty after reset
+    //     expect(informEl.dirty).to.equal(false);
+    //     expect(informEl.values).to.eql({ field1: 'something2', field2: true });
+    //     expect(informEl).not.to.have.class('dirty');
+    //     expect(field1).not.to.have.class('dirty');
+    //     expect(field2).not.to.have.class('dirty');
+    //     expect(input1.value).to.equal('something2');
+
+
+    //     // Change the value
+    //     type(input1, 'something', true);
+
+    //     expect(informEl.dirty).to.equal(true);
+    //     expect(informEl.values).to.eql({ field1: 'something', field2: true });
+    //     expect(informEl).to.have.class('dirty');
+    //     expect(field1).to.have.class('dirty');
+    //     expect(field2).not.to.have.class('dirty');
+
+    //     // Back to the reset value => not dirty anymore
+    //     type(input1, 'something2', true);
+
+    //     expect(informEl.dirty).to.equal(false);
+    //     expect(informEl.values).to.eql({ field1: 'something2', field2: true });
+    //     expect(informEl).not.to.have.class('dirty');
+    //     expect(field1).not.to.have.class('dirty');
+    //     expect(field2).not.to.have.class('dirty');
+
+    //     informEl.reset();
+
+    //     // Never dirty after reset
+    //     expect(informEl.dirty).to.equal(false);
+    //     expect(informEl.values).to.eql({ field1: initialValue, field2: false });
+    //     expect(informEl).not.to.have.class('dirty');
+    //     expect(field1).not.to.have.class('dirty');
+    //     expect(field2).not.to.have.class('dirty');
+    //     expect(input1.value).to.equal(initialValue);
+
+
+    // });
 });
