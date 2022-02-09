@@ -524,4 +524,99 @@ describe('<inform-el', () => {
     it('handles slot change', async () => {
 
     });
+
+    it('has a "dirty" property and a "values" property and sets dirty classes', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field id="inform-field1">
+                            <input type="text" name="field1" value="initial-value"/>
+                        </inform-field>
+                        <inform-field id="inform-field2">
+                            <input type="text" name="field2" />
+                        </inform-field>
+
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const input1 = informEl.querySelector('[name="field1"]');
+        const field1 = informEl.querySelector('#inform-field1');
+        const field2 = informEl.querySelector('#inform-field2');
+        const form = informEl.querySelector('form');
+
+        expect(informEl.dirty).to.equal(false);
+        expect(informEl.values).to.eql({ 'field1': 'initial-value', 'field2': '' });
+        expect(informEl).not.to.have.class('dirty');
+        expect(field1).not.to.have.class('dirty');
+        expect(field2).not.to.have.class('dirty');
+
+        type(input1, 'something', true);
+
+        expect(informEl.dirty).to.equal(true);
+        expect(informEl.values).to.eql({ 'field1': 'something', 'field2': '' });
+        expect(informEl).to.have.class('dirty');
+        expect(field1).to.have.class('dirty');
+        expect(field2).not.to.have.class('dirty');
+
+        // Back to initial value => not dirty anymore
+        type(input1, 'initial-value', true);
+
+        expect(informEl.dirty).to.equal(false);
+        expect(informEl.values).to.eql({ 'field1': '' });
+        expect(informEl).not.to.have.class('dirty');
+        expect(field1).not.to.have.class('dirty');
+        expect(field2).not.to.have.class('dirty');
+
+        form.reset();
+        // Never dirty after reset
+        expect(informEl.dirty).to.equal(false);
+        expect(informEl.values).to.eql({ 'field1': 'initial-value', 'field2': '' });
+        expect(informEl).not.to.have.class('dirty');
+        expect(field1).not.to.have.class('dirty');
+        expect(field2).not.to.have.class('dirty');
+        expect(input1.value).to.equal('initial-value');
+
+        // Reset also works on informEl
+        informEl.reset({ 'field1': 'something2' });
+        // Not dirty after reset
+        expect(informEl.dirty).to.equal(false);
+        expect(informEl.values).to.eql({ 'field1': 'something2', 'field2': '' });
+        expect(informEl).not.to.have.class('dirty');
+        expect(field1).not.to.have.class('dirty');
+        expect(field2).not.to.have.class('dirty');
+        expect(input1.value).to.equal('something2');
+
+
+        // Change the value
+        type(input1, 'something', true);
+
+        expect(informEl.dirty).to.equal(true);
+        expect(informEl.values).to.eql({ 'field1': 'something', 'field2': '' });
+        expect(informEl).to.have.class('dirty');
+        expect(field1).to.have.class('dirty');
+        expect(field2).not.to.have.class('dirty');
+
+        // Back to the reset value => not dirty anymore
+        type(input1, 'something2', true);
+
+        expect(informEl.dirty).to.equal(false);
+        expect(informEl.values).to.eql({ 'field1': 'something2', 'field2': '' });
+        expect(informEl).not.to.have.class('dirty');
+        expect(field1).not.to.have.class('dirty');
+        expect(field2).not.to.have.class('dirty');
+
+        informEl.reset();
+
+        // Never dirty after reset
+        expect(informEl.dirty).to.equal(false);
+        expect(informEl.values).to.eql({ 'field1': 'initial-value', 'field2': '' });
+        expect(informEl).not.to.have.class('dirty');
+        expect(field1).not.to.have.class('dirty');
+        expect(field2).not.to.have.class('dirty');
+        expect(input1.value).to.equal('initial-value');
+
+
+    });
 });

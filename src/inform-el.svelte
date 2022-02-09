@@ -97,6 +97,9 @@
     }
     function handleInput(e) {
         e.stopPropagation();
+
+        checkDirty();
+
         checkValidity();
         host.dispatchEvent(new CustomEvent("input", { detail: { values: getFormValues() }, bubbles: true }));
     }
@@ -110,11 +113,15 @@
         host.dispatchEvent(new CustomEvent("change", { detail: { values: getFormValues() }, bubbles: true }));
     }
 
-    function handleReset() {
+    function handleFormReset() {
         host.querySelectorAll("[touched]").forEach((e) => {
             e.removeAttribute("touched");
         });
 
+        host.classList.remove("dirty");
+        host.dirty = false;
+        host.querySelectorAll(".dirty").forEach((e) => e.classList.remove("dirty"));
+        host.values = getFormValues();
         checkValidity();
     }
 
@@ -139,6 +146,33 @@
 
     function toKebabCase(str) {
         return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+    }
+
+    function checkDirty() {
+        const newValues = getFormValues();
+        let dirty = false;
+        Object.keys(newValues).forEach((key) => {
+            const informField = form.elements[key].closest("inform-field");
+            if (newValues[key] !== host.values[key]) {
+                dirty = true;
+
+                if (informField) {
+                    informField.classList.add("dirty");
+                }
+            } else if (informField) {
+                informField.classList.remove("dirty");
+            }
+        });
+
+        host.dirty = dirty;
+
+        if (dirty) {
+            host.classList.add("dirty");
+        } else {
+            host.classList.remove("dirty");
+        }
+
+        host.values = newValues;
     }
     function checkValidity() {
         const errors = host.validationHandler ? host.validationHandler({ values: getFormValues() }) : null;
@@ -198,15 +232,19 @@
         }
         form.noValidate = true;
 
+        host.reset = publicReset;
         form.addEventListener("submit", handleSubmit);
         form.addEventListener("input", handleInput);
         form.addEventListener("change", handleChange);
-        form.addEventListener("reset", handleReset);
+        form.addEventListener("reset", handleFormReset);
 
         submitButton = form.querySelector('[type="submit"]');
 
         // Wait for children to be mounted before checking validity
         await tick();
+
+        host.dirty = false;
+        host.values = getFormValues();
         checkValidity();
     }
 
@@ -218,9 +256,31 @@
             form.removeEventListener("change", handleChange);
             form.removeEventListener("input", handleInput);
             form.removeEventListener("submit", handleSubmit);
-            form.removeEventListener("reset", handleReset);
+            form.removeEventListener("reset", handleFormReset);
         };
     });
+
+    //
+    // Public methods
+    //
+    function publicReset(newValues) {
+        host.classList.remove("dirty");
+        host.dirty = false;
+        host.querySelectorAll(".dirty").forEach((e) => e.classList.remove("dirty"));
+
+        if (!newValues) {
+            form.reset();
+        } else {
+            // TODO
+            // [...form.elements].forEach((e) => {
+            //     const name = e.name;
+            //     if ((name && !values[name]) || e.type === "checkbox") {
+            //         const elementValue = e.type === "checkbox" ? e.checked : e.value;
+            //         values[name] = elementValue;
+            //     }
+            // });
+        }
+    }
 </script>
 
 <div bind:this={container} on:customsubmit={handleSubmit}>
