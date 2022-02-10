@@ -32,5 +32,8 @@
       "src"
     ],
     "transform": {}
+  },
+  "dependencies": {
+    "just-kebab-case": "^4.0.1"
   }
 }

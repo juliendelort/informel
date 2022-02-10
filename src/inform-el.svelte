@@ -3,6 +3,7 @@
     export let action = null;
     export let method = "POST";
 
+    import kebabCase from "just-kebab-case";
     import { onMount, tick } from "svelte";
     import { get_current_component } from "svelte/internal";
 
@@ -144,13 +145,9 @@
         if (isValid) {
             return "";
         }
-        const validityAttribute = toKebabCase(getValidityKey(element));
+        const validityAttribute = kebabCase(getValidityKey(element));
 
         return informField.getAttribute(validityAttribute) ?? informField.getAttribute("default-error") ?? element.validationMessage;
-    }
-
-    function toKebabCase(str) {
-        return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
     }
 
     function checkDirty() {
