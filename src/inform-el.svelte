@@ -75,9 +75,11 @@
         [...form.elements].forEach((e) => {
             const name = e.name;
 
-            if ((name && !values[name]) || e.type === "checkbox") {
+            if (e.type === "checkbox") {
                 const elementValue = e.type === "checkbox" ? e.checked : e.value;
                 values[name] = elementValue;
+            } else if (e.type === "radio" && name && !values[name]) {
+                values[name] = "";
             }
         });
 
@@ -155,7 +157,10 @@
         const newValues = getFormValues();
         let dirty = false;
         Object.keys(newValues).forEach((key) => {
-            const informField = form.elements[key].closest("inform-field");
+            // For radio buttons we could get an array here
+            const formElement = form.elements[key] instanceof RadioNodeList ? form.elements[key][0] : form.elements[key];
+            const informField = formElement.closest("inform-field");
+
             if (newValues[key] !== initialValues[key]) {
                 dirty = true;
 
@@ -280,6 +285,8 @@
 
                 if (e.type === "checkbox") {
                     e.checked = newValues[name];
+                } else if (e.type === "radio") {
+                    e.checked = newValues[name] === e.value;
                 } else {
                     e.value = newValues[name];
                 }

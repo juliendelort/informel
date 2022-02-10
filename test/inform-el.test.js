@@ -1,16 +1,7 @@
 import { fixture, expect, elementUpdated, nextFrame } from '@open-wc/testing';
-
-
+import { type, setCb, randomString } from './test-utils';
 import '../public/build/bundle.js';
 
-const type = (input, text, blur) => {
-    input.value = text;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    if (blur) {
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-
-};
 
 describe('<inform-el', () => {
     it('sets the form to novalidate', async () => {
@@ -565,6 +556,11 @@ describe('<inform-el', () => {
     describe('dirty check', () => {
 
         describe('with text field', () => {
+            const setValue = (informEl, val) => {
+                type(informEl.querySelector('#control'), val, true);
+            };
+            const generateValue = () => randomString();
+
             describe('with a initial value', () => {
 
                 runTests({
@@ -579,9 +575,9 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: 'initial-value',
-                    setValue: (input, val) => {
-                        type(input, val, true);
-                    }
+                    setValue,
+                    generateValue
+
                 });
             });
 
@@ -599,14 +595,17 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: '',
-                    setValue: (input, val) => {
-                        type(input, val, true);
-                    }
+                    setValue,
+                    generateValue
                 });
             });
         });
 
         describe('with checkbox field', () => {
+            const setValue = (informEl, val) => {
+                setCb(informEl.querySelector('#control'), val, true);
+            };
+            const generateValue = (initialValue) => !initialValue;
             describe('with a initial value', () => {
 
                 runTests({
@@ -621,14 +620,12 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: true,
-                    setValue: (input, val) => {
-                        input.checked = val;
-                    }
+                    setValue,
+                    generateValue
                 });
             });
 
             describe('with no initial value', () => {
-
                 runTests({
                     html: `
                         <inform-el>
@@ -641,15 +638,64 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: false,
-                    setValue: (input, val) => {
-                        input.checked = val;
-                    }
+                    setValue,
+                    generateValue
                 });
             });
         });
 
         describe('with radio field', () => {
+            const setValue = (informEl, val) => {
+                if (val === "") {
+                    informEl.querySelectorAll('input').forEach(radio => radio.checked = false);
+                    informEl.querySelector('input').dispatchEvent(new Event('input', { bubbles: true }));
+                    informEl.querySelector('input').dispatchEvent(new Event('change', { bubbles: true }));
 
+                } else {
+                    setCb(informEl.querySelector(`[value="${val}"]`), true, true);
+
+                }
+            };
+            const generateValue = (initialValue) => initialValue === "val1" ? "val2" : "val1";
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input  type="radio" name="field" value="val1" checked/>
+                                    <input  type="radio" name="field" value="val2"/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: "val1",
+                    setValue,
+                    generateValue
+                });
+            });
+
+            describe('without a initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input type="radio" name="field" value="val1" />
+                                    <input type="radio" name="field" value="val2" />
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: "",
+                    setValue,
+                    generateValue
+                });
+            });
         });
 
         describe('with select field', () => {
@@ -678,7 +724,7 @@ describe('<inform-el', () => {
             expect(informField).not.to.have.class('dirty');
         }
 
-        function runTests({ html, initialValue, setValue }) {
+        function runTests({ html, initialValue, setValue, generateValue }) {
             beforeEach(async () => {
                 informEl = await fixture(html);
 
@@ -691,10 +737,12 @@ describe('<inform-el', () => {
             function setDirtyAndCheck() {
                 expectNotDirty(initialValue);
 
-                // Change the value
-                setValue(control, 'something');
+                const newValue = generateValue(initialValue);
 
-                expectDirty('something');
+                // Change the value
+                setValue(informEl, newValue);
+
+                expectDirty(newValue);
             }
 
             it('sets the dirty flags when changed', async () => {
@@ -706,7 +754,7 @@ describe('<inform-el', () => {
                 setDirtyAndCheck();
 
                 // Now back to initial value
-                setValue(control, initialValue);
+                setValue(informEl, initialValue);
 
                 expectNotDirty(initialValue);
             });
@@ -722,10 +770,12 @@ describe('<inform-el', () => {
 
             it('resets the dirty flags when resetting with new values', async () => {
                 setDirtyAndCheck();
+                const newValue = generateValue(initialValue);
 
-                informEl.reset({ field: 'some new value' });
 
-                expectNotDirty('some new value');
+                informEl.reset({ field: newValue });
+
+                expectNotDirty(newValue);
             });
 
             it('resets the dirty flags when resetting the form directly', async () => {
@@ -740,19 +790,24 @@ describe('<inform-el', () => {
             it('resets the dirty flags when back to previous reset values', async () => {
                 setDirtyAndCheck();
 
-                informEl.reset({ field: 'some new value' });
+                const resetValue = generateValue(initialValue);
 
-                expectNotDirty('some new value');
+                informEl.reset({ field: resetValue });
+
+                expectNotDirty(resetValue);
+
+                const newValue = generateValue(resetValue);
+
 
                 // Change the value
-                setValue(control, 'something');
+                setValue(informEl, newValue);
 
-                expectDirty('something');
+                expectDirty(newValue);
 
                 // Now back to previous reset value
-                setValue(control, 'some new value');
+                setValue(informEl, resetValue);
 
-                expectNotDirty('some new value');
+                expectNotDirty(resetValue);
             });
         }
 
