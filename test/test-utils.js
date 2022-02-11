@@ -92,3 +92,20 @@ export const setSelectValue = async (select, val) => {
 };
 
 export const generateSelectValue = (currentValue) => currentValue === "val1" ? "val2" : "val1";
+
+export function eventCheck(element, eventName) {
+    let listenerHasBeenCalled = false;
+    let eventDetail = null;
+
+    element.addEventListener(eventName, ({ detail }) => {
+        eventDetail = detail;
+        listenerHasBeenCalled = true;
+    });
+    return [
+        () => listenerHasBeenCalled,
+        () => eventDetail,
+        () => { // reset
+            eventDetail = null;
+            listenerHasBeenCalled = false;
+        }];
+}

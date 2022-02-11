@@ -9,7 +9,8 @@ import {
     setRadioValue,
     generateRadioValue,
     setSelectValue,
-    generateSelectValue
+    generateSelectValue,
+    eventCheck
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -649,86 +650,159 @@ describe('<inform-el', () => {
 
     });
 
-    it('triggers the submit event with the form values if the form is valid', async () => {
-        let receivedEventDetails = null;
-        const informEl = await fixture(`
-                <inform-el no-error-disable>
-                    <form>
-                        <inform-field>
-                            <input type="text" name="some-name" required/>
-                        </inform-field>
-                        <button type="submit">Submit</button>
-                    </form>
-                </inform-el>
-        `);
 
-        const input = informEl.querySelector('[name="some-name"]');
-        const submitButton = informEl.querySelector('[type="submit"]');
 
-        await type(input, 'a', true);
-        await clear(input);
-        expect(submitButton).not.to.have.attribute('disabled'); //no-error-disable
+    describe('input and change events', () => {
 
-        informEl.addEventListener('submit', ({ detail }) => {
-            receivedEventDetails = detail;
+        it('works with text input', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input id="control" type="text" name="some-name"/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setTextInputValue,
+                generateValue: generateTextInputValue,
+                text: true
+            });
         });
 
-        submitButton.click();
-        await nextFrame();
-
-        expect(receivedEventDetails).to.be.null;
-
-        // Fix the form
-        await type(input, 'something');
-
-        submitButton.click();
-        await nextFrame();
-        expect(receivedEventDetails).to.eql({ values: { 'some-name': 'something' } });
-
-    });
-
-    it('triggers the change and input events with the form values', async () => {
-        let changeEventDetails = null;
-        let inputEventDetails = null;
-        const informEl = await fixture(`
-                <inform-el no-error-disable>
-                    <form>
-                        <inform-field>
-                            <input type="text" name="some-name" required/>
-                        </inform-field>
-                        <button type="submit">Submit</button>
-                    </form>
-                </inform-el>
-        `);
-
-        const input = informEl.querySelector('[name="some-name"]');
-        const submitButton = informEl.querySelector('[type="submit"]');
-        expect(submitButton).not.to.have.attribute('disabled'); //no-error-disable
-
-        informEl.addEventListener('change', ({ detail }) => {
-            changeEventDetails = detail;
+        it('works with checkbox', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input id="control" type="checkbox" name="some-name"/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setCheckboxValue,
+                generateValue: generateCheckboxValue,
+                text: false
+            });
         });
 
-        informEl.addEventListener('input', ({ detail }) => {
-            inputEventDetails = detail;
+        it('works with radio button', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field id="control">
+                                <input  type="radio" name="some-name" value="val1"/>
+                                <input  type="radio" name="some-name" value="val2"/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setRadioValue,
+                generateValue: generateRadioValue,
+                text: false
+            });
         });
 
-        await type(input, 'something', false); // Only input
-        await nextFrame();
+        it('works with select', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <select id="control" name="some-name">
+                                <option value="">--Please choose an option--</option>
+                                <option value="val1">Value1</option>
+                                <option value="val2">Value2</option>
+                                <option value="val3">Value3</option>
+                            </select>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setSelectValue,
+                generateValue: generateSelectValue,
+                text: false
+            });
+        });
+        async function runTests({ html, setValue, generateValue, text }) {
+            const informEl = await fixture(html);
+            const control = informEl.querySelector('#control');
 
-        expect(inputEventDetails).to.eql({ values: { 'some-name': 'something' } });
-        expect(changeEventDetails).to.be.null;
+            const [, changeDetails, resetChange] = eventCheck(informEl, 'change');
+            const [, inputDetails, resetInput] = eventCheck(informEl, 'input');
 
-        inputEventDetails = null; // reset
-        await clear(input);
-        await type(input, 'something else', true); // Both input and change
-        await nextFrame();
+            if (text) {
+                const input = informEl.querySelector('#control');
+                await type(input, 'something', false); // Only input
+                await nextFrame();
+                expect(inputDetails()).to.eql({ values: { 'some-name': 'something' } });
+                expect(changeDetails()).to.be.null;
+                resetInput();
+                resetChange();
+                await clear(input);
+            }
 
-        expect(inputEventDetails).to.eql({ values: { 'some-name': 'something else' } });
-        expect(changeEventDetails).to.eql({ values: { 'some-name': 'something else' } });
+            const newValue = generateValue();
+            await setValue(control, newValue); // Both input and change
+            await nextFrame();
+
+            expect(inputDetails()).to.eql({ values: { 'some-name': newValue } });
+            expect(changeDetails()).to.eql({ values: { 'some-name': newValue } });
+        }
     });
 
     it('handles slot change', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="form1field" />
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        // now change the form
+        const newForm = document.createElement('form');
+        newForm.innerHTML = `
+            <inform-field default-error="test error">
+                <input type="text" name="form2field" pattern="^.{20,}$"/>
+            </inform-field>
+            <button type="submit">Submit</button>
+        `;
+
+        const oldForm = informEl.querySelector('form');
+        oldForm.parentElement.removeChild(oldForm);
+
+        informEl.appendChild(newForm);
+
+        await nextFrame();
+
+        // New form received the novalidate attribute
+        expect(newForm).to.have.attribute('novalidate');
+
+        // We are listening to events on the new form
+        const newInput = informEl.querySelector('[name="form2field"]');
+
+        const [changeCalled, changeDetails] = eventCheck(informEl, 'change');
+
+        await type(newInput, 'hello', true);
+
+        expect(changeCalled()).to.equal(true);
+        expect(changeDetails()).to.eql({ values: { form2field: 'hello' } });
+
+        // Errors are displayed (pattern)
+        expect(informEl).to.have.class('invalid');
+        const informField = informEl.querySelector('inform-field');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('test error');
 
     });
 
@@ -1078,6 +1152,49 @@ describe('<inform-el', () => {
             });
         }
 
+    });
+
+    describe('submit', () => {
+        it('triggers the submit event with the form values if the form is valid', async () => {
+            let receivedEventDetails = null;
+            const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+            const input = informEl.querySelector('[name="some-name"]');
+            const submitButton = informEl.querySelector('[type="submit"]');
+
+            await type(input, 'a', true);
+            await clear(input);
+
+            informEl.addEventListener('submit', ({ detail }) => {
+                receivedEventDetails = detail;
+            });
+
+            submitButton.click();
+            await nextFrame();
+
+            expect(receivedEventDetails).to.be.null;
+
+            // Fix the form
+            await type(input, 'something');
+
+            submitButton.click();
+            await nextFrame();
+            expect(receivedEventDetails).to.eql({ values: { 'some-name': 'something' } });
+
+        });
+
+        it('sends FormData if any value if of type File', async () => {
+
+        });
     });
 
 
