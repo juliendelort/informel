@@ -1,5 +1,5 @@
 <script>
-    export let noErrorDisable = null;
+    export let errorDisableSubmit = null;
     export let action = null;
     export let method = "POST";
 
@@ -14,6 +14,7 @@
     let defaultSlot;
     let submitting;
     let initialValues;
+    let errorDisableSubmitIsPresent;
 
     async function sendSubmitRequest(submitter) {
         if (action) {
@@ -101,7 +102,6 @@
     }
     function handleInput(e) {
         e.stopPropagation();
-
         checkDirty();
 
         checkValidity();
@@ -206,22 +206,18 @@
             host.classList.remove("invalid");
         }
 
-        if (!submitting && !getNoErrorDisable() && submitButton) {
+        if (!submitting && errorDisableSubmitIsPresent && submitButton) {
             submitButton.disabled = !valid;
         }
 
         return valid;
     }
 
-    function getNoErrorDisable() {
-        return noErrorDisable !== null && noErrorDisable !== undefined;
-    }
-
     // error-disable-submit
     $: {
-        noErrorDisable; // Make this block reactive to a change on errorDisableSubmit
+        errorDisableSubmitIsPresent = errorDisableSubmit !== null && errorDisableSubmit !== undefined; // Make this block reactive to a change on errorDisableSubmit
         if (submitButton) {
-            if (getNoErrorDisable()) {
+            if (!errorDisableSubmitIsPresent) {
                 submitButton.disabled = false;
             } else {
                 checkValidity();

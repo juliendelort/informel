@@ -1,7 +1,17 @@
 import { fixture, expect, elementUpdated, nextFrame } from '@open-wc/testing';
-import { type, randomString, clear } from './test-utils';
+import {
+    type,
+    clear,
+    generateTextInputValue,
+    setTextInputValue,
+    setCheckboxValue,
+    generateCheckboxValue,
+    setRadioValue,
+    generateRadioValue,
+    setSelectValue,
+    generateSelectValue
+} from './test-utils';
 import '../public/build/bundle.js';
-import { sendKeys } from '@web/test-runner-commands';
 
 
 describe('<inform-el', () => {
@@ -23,130 +33,322 @@ describe('<inform-el', () => {
     });
 
 
-    it('"invalid" class is set when form is invalid', async () => {
-        const informEl = await fixture(`
-            <inform-el>
-                <form>
-                    <input type="text" name="some-name" required/>
-                    <input type="text" name="some-description" required/>
-                    <button type="submit">Submit</button>
-                </form>
-            </inform-el>
-        `);
+    describe('"invalid" class is set when form is invalid', () => {
 
-        // Form is invalid and submit button is disabled
-        expect(informEl).to.have.class('invalid');
-        expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
-
-
-        await type(informEl.querySelector('[name="some-name"]'), "value1");
-
-        // Still invalid
-        expect(informEl).to.have.class('invalid');
-        expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
-
-
-        await type(informEl.querySelector('[name="some-description"]'), "value2");
-
-        // Valid now
-        expect(informEl).not.to.have.class('invalid');
-        expect(informEl.querySelector('[type="submit"]')).not.to.have.attr('disabled');
-
-
-        // Remove value => invalid
-        await clear(informEl.querySelector('[name="some-description"]'));
-        expect(informEl).to.have.class('invalid');
-        expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
-
-    });
-
-    describe('handles no-error-disable', () => {
-
-        it('works with attribute not set initially', async () => {
-            // Attribute not set initially
-            const informEl = await fixture(`
-                <inform-el>
-                    <form>
-                        <input type="text" name="some-name" required/>
-                        <button type="submit">Submit</button>
-                    </form>
-                </inform-el>
-            `);
-
-            // Form is invalid: button is disabled
-            expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
-
-            // Set no-error-disable
-            informEl.setAttribute('no-error-disable', '');
-            expect(informEl.querySelector('[type="submit"]')).not.to.have.attr('disabled');
-
-
+        it('works with text input', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <input id="control1" type="text" name="some-name" required/>
+                            <input id="control2" type="text" name="some-description" required/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setTextInputValue,
+                validValue: generateTextInputValue(),
+                invalidValue: ''
+            });
         });
 
-        it('works with attribute initially set', async () => {
-            // Attribute initially set
-            const informEl = await fixture(`
-                <inform-el no-error-disable>
-                    <form>
-                        <input type="text" name="some-name" required/>
-                        <button type="submit">Submit</button>
-                    </form>
-                </inform-el>
-            `);
+        it('works with checkboxes', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <input id="control1" type="checkbox" name="some-name" required/>
+                            <input id="control2" type="checkbox" name="some-description" required/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setCheckboxValue,
+                validValue: true,
+                invalidValue: false
+            });
+        });
 
+        it('works with select', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <select id="control1" name="field" required>
+                                <option value="">--Please choose an option--</option>
+                                <option value="val1">Value1</option>
+                                <option value="val2">Value2</option>
+                                <option value="val3">Value3</option>
+                            </select>
+                             <select id="control2" name="field" required>
+                                <option value="">--Please choose an option--</option>
+                                <option value="val1">Value1</option>
+                                <option value="val2">Value2</option>
+                                <option value="val3">Value3</option>
+                            </select>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setSelectValue,
+                validValue: 'val2',
+                invalidValue: ''
+            });
+        });
 
-            // Form is invalid but button is enabled
+        async function runTests({ html, setValue, validValue, invalidValue }) {
+            const informEl = await fixture(html);
+            const control1 = informEl.querySelector('#control1');
+            const control2 = informEl.querySelector('#control2');
+
+            // Form is invalid and submit button is disabled
             expect(informEl).to.have.class('invalid');
-            expect(informEl.querySelector('[type="submit"]')).not.to.have.attr('disabled');
+
+            await setValue(control1, validValue);
+
+            // Still invalid
+            expect(informEl).to.have.class('invalid');
 
 
-            // Remove no-error-disable => the button should be disabled
-            informEl.removeAttribute('no-error-disable');
-            expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
+            await setValue(control2, validValue);
 
 
-            // Make the form valid => the button should be enabled
-            await type(informEl.querySelector('[name="some-name"]'), "something");
+            // Valid now
+            expect(informEl).not.to.have.class('invalid');
 
-            // await type(informEl.querySelector('[name="some-name"]'), "v");
-            expect(informEl.querySelector('[type="submit"]')).not.to.have.attr('disabled');
+
+            // Remove value => invalid
+            await setValue(control2, invalidValue);
+            expect(informEl).to.have.class('invalid');
+        }
+
+    });
+
+    describe('handles error-disable-submit', () => {
+
+        describe('with text input', () => {
+            runTests({
+                html: `
+                        <form>
+                            <input id="control" type="text" name="some-name" required/>
+                            <button type="submit">Submit</button>
+                        </form>
+                `,
+
+                setValue: setTextInputValue,
+                validValue: generateTextInputValue(),
+                invalidValue: ''
+            });
 
         });
 
+        describe('with checbox', () => {
+            runTests({
+                html: `
+                        <form>
+                            <input id="control" type="checkbox" name="some-name" required/>
+                            <button type="submit">Submit</button>
+                        </form>
+                `,
+
+                setValue: setCheckboxValue,
+                validValue: true,
+                invalidValue: false
+            });
+
+        });
+
+        describe('with select', async () => {
+            await runTests({
+                html: `
+                        <form>
+                            <select id="control" name="field" required>
+                                <option value="">--Please choose an option--</option>
+                                <option value="val1">Value1</option>
+                                <option value="val2">Value2</option>
+                                <option value="val3">Value3</option>
+                            </select>
+                            <button type="submit">Submit</button>
+                        </form>
+                `,
+                setValue: setSelectValue,
+                validValue: 'val2',
+                invalidValue: ''
+            });
+        });
+
+        async function runTests({ html, setValue, validValue, invalidValue }) {
+            it('works with attribute not set initially', async () => {
+                // Attribute not set initially
+                const informEl = await fixture(`
+                    <inform-el>
+                        ${html}
+                    </inform-el>
+                `);
+
+                // Form is invalid but button is not disabled
+                expect(informEl.querySelector('[type="submit"]')).not.to.have.attr('disabled');
+
+                // Set error-disable-submit
+                informEl.setAttribute('error-disable-submit', '');
+                expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
+            });
+
+            it('works with attribute initially set', async () => {
+                // Attribute initially set
+                const informEl = await fixture(`
+                    <inform-el error-disable-submit>
+                        ${html}
+                    </inform-el>
+                `);
+
+                const control = informEl.querySelector('#control');
+
+
+                // Form is invalid and button is disabled
+                expect(informEl).to.have.class('invalid');
+                expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
+
+                // Make the form valid => the button should be enabled
+                await setValue(control, validValue);
+
+                // await type(informEl.querySelector('[name="some-name"]'), "v");
+                expect(informEl.querySelector('[type="submit"]')).not.to.have.attr('disabled');
+
+
+                // Make the form invalid again
+                await setValue(control, invalidValue);
+                expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
+
+
+                // Remove error-disable-submit => the button should be enabled
+                informEl.removeAttribute('error-disable-submit');
+                expect(informEl.querySelector('[type="submit"]')).not.to.have.attr('disabled');
+
+            });
+
+        }
+
     });
 
-    it('sets the "touched" attribute on <inform-field> on change', async () => {
-        const informEl = await fixture(`
-            <inform-el>
-                <form>
-                    <inform-field id="field1">
-                        <input type="text" name="some-name" required/>
-                    </inform-field>
-                    <inform-field id="field2">
-                        <input type="text" name="some-description" required/>
-                    </inform-field>
-                    <button type="submit">Submit</button>
-                </form>
-            </inform-el>
-        `);
+    describe('sets the "touched" attribute on <inform-field> on change', () => {
 
-        expect(informEl.querySelector('[touched]')).not.to.exist;
+        it('works with text input', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field id="field1">
+                                <input class="control1" type="text" name="some-name" required/>
+                            </inform-field>
+                            <inform-field id="field2">
+                                <input class="control2" type="text" name="some-description" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setTextInputValue,
+                generateValue: generateTextInputValue
+            });
+        });
 
-        await type(informEl.querySelector('[name="some-name"]'), "value1", true);
+        it('works with checkbox', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field id="field1">
+                                <input class="control1" type="checkbox" name="some-name" required/>
+                            </inform-field>
+                            <inform-field id="field2">
+                                <input class="control2" type="checkbox" name="some-description" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setCheckboxValue,
+                generateValue: generateCheckboxValue
+            });
+        });
 
-        expect(informEl.querySelector('#field1')).to.have.attr('touched');
-        expect(informEl.querySelector('#field2')).not.to.have.attr('touched');
+        it('works with radio buttons', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field id="field1"  class="control1">
+                                <input type="radio" name="field" value="val1" />
+                                <input type="radio" name="field" value="val2" />
+                            </inform-field>
+                            <inform-field id="field2"  class="control2">
+                                <input type="radio" name="field" value="val1" />
+                                <input type="radio" name="field" value="val2" />
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setRadioValue,
+                generateValue: generateRadioValue
+            });
+        });
 
-        await type(informEl.querySelector('[name="some-description"]'), "value2", true);
+        it('works with select', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field id="field1" >
+                                <select class="control1" name="field" required>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                            </inform-field>
+                            <inform-field id="field2">
+                                <select class="control2" name="field" required>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                setValue: setSelectValue,
+                generateValue: generateSelectValue
+            });
+        });
 
-        expect(informEl.querySelector('#field1')).to.have.attr('touched');
-        expect(informEl.querySelector('#field2')).to.have.attr('touched');
+        async function runTests({ html, setValue, generateValue }) {
+            const informEl = await fixture(html);
+            const control1 = informEl.querySelector('.control1');
+            const control2 = informEl.querySelector('.control2');
 
-        // Reset the form: classes should be removed
-        informEl.querySelector('form').reset();
-        expect(informEl.querySelector('[touched]')).not.to.exist;
+            expect(informEl.querySelector('[touched]')).not.to.exist;
+
+            await setValue(control1, generateValue());
+
+            expect(informEl.querySelector('#field1')).to.have.attr('touched');
+            expect(informEl.querySelector('#field2')).not.to.have.attr('touched');
+
+            await setValue(control2, generateValue());
+
+            expect(informEl.querySelector('#field1')).to.have.attr('touched');
+            expect(informEl.querySelector('#field2')).to.have.attr('touched');
+
+            // Reset the form: classes should be removed
+            informEl.querySelector('form').reset();
+            expect(informEl.querySelector('[touched]')).not.to.exist;
+        }
 
     });
+
 
     it('sets the error on <inform-field>', async () => {
         const informEl = await fixture(`
@@ -341,113 +543,110 @@ describe('<inform-el', () => {
 
     });
 
-    it('shows the proper error', async () => {
-        // validation handler first, then validity attribute, then "error-message" attribute, then native validation message
-        const informEl = await fixture(`
-                <inform-el>
-                    <form>
-                        <inform-field type-mismatch="Type mismatch!" default-error="This field is invalid!" >
-                            <input type="email" name="some-name" required/>
-                        </inform-field>
-                        <button type="submit">Submit</button>
-                    </form>
-                </inform-el>
-        `);
-        const informField = informEl.querySelector('inform-field');
-        const input = informEl.querySelector('[name="some-name"]');
+    describe('shows the proper error', async () => {
 
-        informEl.validationHandler = ({ values }) => {
-            const result = {};
-            if (values['some-name'] === 'ab') {
-                result['some-name'] = 'my custom error message';
+        it('renders inline if no slot', async () => {
+            await runTests({
+                html: `
+                    <inform-el>
+                        <form>
+                            <inform-field type-mismatch="Type mismatch!" default-error="This field is invalid!" >
+                                <input type="email" name="some-name" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                getErrorContainer: (informField) => informField.shadowRoot.getRootNode().querySelector('[role="alert"]'),
+                getNativeContainer: (informField) => informField.shadowRoot.getRootNode().querySelector('[role="alert"]'),
+                slot: false
+
+            });
+        });
+
+        it('renders in the slot', async () => {
+            await runTests({
+                html: `
+                     <inform-el>
+                        <form>
+                            <inform-field type-mismatch="Type mismatch!" default-error="This field is invalid!" >
+                                <input type="email" name="some-name" required/>
+                                <span slot="error" id="error-slot"/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+                getErrorContainer: (informField) => informField.querySelector('#error-slot'),
+                getNativeContainer: (informField) => informField.shadowRoot.getRootNode().querySelector('[role="alert"]'),
+                slot: true
+
+            });
+        });
+
+        async function runTests({ html, getErrorContainer, getNativeContainer, slot }) {
+            // validation handler first, then validity attribute, then "error-message" attribute, then native validation message
+            const informEl = await fixture(html);
+            const informField = informEl.querySelector('inform-field');
+            const input = informEl.querySelector('[name="some-name"]');
+
+            informEl.validationHandler = ({ values }) => {
+                const result = {};
+                if (values['some-name'] === 'ab') {
+                    result['some-name'] = 'my custom error message';
+                }
+                return result;
+            };
+
+            informEl.validationHandler = ({ values }) => {
+                const result = {};
+                if (values['some-name'] === 'ab') {
+                    result['some-name'] = 'my custom error message';
+                }
+                return result;
+            };
+
+            // Not in format email
+            await type(input, 'a', true);
+            if (slot) {
+                expect(getNativeContainer(informField)).not.to.exist;
             }
-            return result;
-        };
+            expect(getErrorContainer(informField)).to.have.rendered.text('Type mismatch!');
 
-        // Not in format email
-        await type(input, 'a', true);
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('Type mismatch!');
-
-        // Custom error
-        await clear(input);
-        await type(input, 'ab');
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
-
-        // General error
-        await clear(input);
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('This field is invalid!');
-
-        // Remove default-error => default to validation 
-        informField.removeAttribute('default-error');
-
-        await type(input, 'a');
-        await clear(input);
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.have.rendered.text('This field is invalid!');
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
-
-        // Valid
-        await type(input, 'some@else');
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
-
-    });
-
-    it('shows the proper error in the slot', async () => {
-        // validation handler first, then validity attribute, then "error-message" attribute, then native validation message
-        const informEl = await fixture(`
-                <inform-el>
-                    <form>
-                        <inform-field type-mismatch="Type mismatch!" default-error="This field is invalid!" >
-                            <input type="email" name="some-name" required/>
-                            <span slot="error" id="error-slot"/>
-                        </inform-field>
-                        <button type="submit">Submit</button>
-                    </form>
-                </inform-el>
-        `);
-        const informField = informEl.querySelector('inform-field');
-        const input = informEl.querySelector('[name="some-name"]');
-        const errorSlot = informEl.querySelector('#error-slot');
-
-        informEl.validationHandler = ({ values }) => {
-            const result = {};
-            if (values['some-name'] === 'ab') {
-                result['some-name'] = 'my custom error message';
+            // Custom error
+            await clear(input);
+            await type(input, 'ab');
+            if (slot) {
+                expect(getNativeContainer(informField)).not.to.exist;
             }
-            return result;
-        };
+            expect(getErrorContainer(informField)).to.have.rendered.text('my custom error message');
 
-        // Not in format email
-        await type(input, 'a', true);
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
-        expect(errorSlot).to.have.rendered.text('Type mismatch!');
+            // General error
+            await clear(input);
+            if (slot) {
+                expect(getNativeContainer(informField)).not.to.exist;
+            }
+            expect(getErrorContainer(informField)).to.have.rendered.text('This field is invalid!');
 
-        // Custom error
-        await clear(input);
-        await type(input, 'ab');
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
-        expect(errorSlot).to.have.rendered.text('my custom error message');
+            // Remove default-error => default to validation 
+            informField.removeAttribute('default-error');
+            await type(input, 'a');
+            await clear(input);
+            if (slot) {
+                expect(getNativeContainer(informField)).not.to.exist;
+            }
+            expect(getErrorContainer(informField)).not.to.have.rendered.text('This field is invalid!');
+            expect(getErrorContainer(informField)).to.have.rendered.text(input.validationMessage);
 
-        // General error
-        await clear(input);
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
-        expect(errorSlot).to.have.rendered.text('This field is invalid!');
+            // Valid
+            await type(input, 'some@else');
+            expect(getNativeContainer(informField)).not.to.exist;
+            if (slot) {
+                expect(getErrorContainer(informField)).to.have.rendered.text('');
+            }
 
-        // Remove default-error => default to validation 
-        informField.removeAttribute('default-error');
-        await type(input, 'a');
-        await clear(input);
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
-        expect(errorSlot).not.to.have.rendered.text('This field is invalid!');
-        expect(errorSlot).to.have.rendered.text(input.validationMessage);
+        }
 
-        // Valid
-        await type(input, 'some@else');
-        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
-        expect(errorSlot).to.have.rendered.text('');
     });
 
     it('triggers the submit event with the form values if the form is valid', async () => {
@@ -485,8 +684,6 @@ describe('<inform-el', () => {
         submitButton.click();
         await nextFrame();
         expect(receivedEventDetails).to.eql({ values: { 'some-name': 'something' } });
-
-
 
     });
 
@@ -575,13 +772,6 @@ describe('<inform-el', () => {
     describe('dirty check', () => {
 
         describe('with text field', () => {
-            const setValue = async (informEl, val) => {
-                await clear(informEl.querySelector('#control'));
-                if (val) {
-                    await type(informEl.querySelector('#control'), val, true);
-                }
-            };
-            const generateValue = () => randomString();
 
             describe('with a initial value', () => {
 
@@ -597,8 +787,8 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: 'initial-value',
-                    setValue,
-                    generateValue
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue
 
                 });
             });
@@ -617,20 +807,13 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: '',
-                    setValue,
-                    generateValue
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue
                 });
             });
         });
 
         describe('with checkbox field', () => {
-            const setValue = (informEl, val) => {
-                const checkbox = informEl.querySelector('#control');
-                if (checkbox.checked !== val) {
-                    checkbox.click();
-                }
-            };
-            const generateValue = (initialValue) => !initialValue;
             describe('with a initial value', () => {
 
                 runTests({
@@ -645,8 +828,8 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: true,
-                    setValue,
-                    generateValue
+                    setValue: setCheckboxValue,
+                    generateValue: generateCheckboxValue
                 });
             });
 
@@ -663,34 +846,20 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: false,
-                    setValue,
-                    generateValue
+                    setValue: setCheckboxValue,
+                    generateValue: generateCheckboxValue
                 });
             });
         });
 
         describe('with radio field', () => {
-            const setValue = (informEl, val) => {
-                if (val === "") {
-                    // Just uncheck all the radio buttons
-                    informEl.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
-                    // Send the input+change event on the first one to trigger dirtycheck
-                    informEl.querySelector('input[type="radio"]').dispatchEvent(new Event('input', { bubbles: true }));
-                    informEl.querySelector('input[type="radio"]').dispatchEvent(new Event('change', { bubbles: true }));
-
-                } else {
-                    informEl.querySelector(`[value="${val}"]`).click();
-
-                }
-            };
-            const generateValue = (initialValue) => initialValue === "val1" ? "val2" : "val1";
             describe('with a initial value', () => {
 
                 runTests({
                     html: `
                         <inform-el>
                             <form>
-                                <inform-field>
+                                <inform-field id="control">
                                     <input  type="radio" name="field" value="val1" checked/>
                                     <input  type="radio" name="field" value="val2"/>
                                 </inform-field>
@@ -699,8 +868,8 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: "val1",
-                    setValue,
-                    generateValue
+                    setValue: setRadioValue,
+                    generateValue: generateRadioValue
                 });
             });
 
@@ -710,7 +879,7 @@ describe('<inform-el', () => {
                     html: `
                         <inform-el>
                             <form>
-                                <inform-field>
+                                <inform-field id="control">
                                     <input type="radio" name="field" value="val1" />
                                     <input type="radio" name="field" value="val2" />
                                 </inform-field>
@@ -719,73 +888,111 @@ describe('<inform-el', () => {
                         </inform-el>
                     `,
                     initialValue: "",
-                    setValue,
-                    generateValue
+                    setValue: setRadioValue,
+                    generateValue: generateRadioValue
                 });
             });
         });
 
         describe('with select field', () => {
-            const setValue = async (informEl, val) => {
-                informEl.querySelector('#control').focus();
-
-                await sendKeys({
-                    press: 'Space'
-                });
-
-                informEl.querySelector(`[value="${val}"]`).click();
-            };
-            const generateValue = (initialValue) => initialValue === "val1" ? "val2" : "val1";
-
             describe('without a initial value', () => {
 
                 runTests({
                     html: `
-                        <inform-el>
-                            <form>
-                                <inform-field>
-                                    <select id="control" name="field" >
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <select id="control" name="field" >
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2">Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                    initialValue: "",
+                    setValue: setSelectValue,
+                    generateValue: generateSelectValue
+                });
+            });
+
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <select id="control" name="field" value="val2">
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2">Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                    initialValue: "",
+                    setValue: setSelectValue,
+                    generateValue: generateSelectValue
+                });
+            });
+            describe('without a <inform-field> wrapper', () => {
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <select id="control" name="field" value="val2">
                                         <option value="">--Please choose an option--</option>
                                         <option value="val1">Value1</option>
                                         <option value="val2">Value2</option>
                                         <option value="val3">Value3</option>
                                     </select>
-                                </inform-field>
-                                <button type="submit">Submit</button>
-                            </form>
-                        </inform-el>
-                    `,
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
                     initialValue: "",
-                    setValue,
-                    generateValue
+                    setValue: setSelectValue,
+                    generateValue: generateSelectValue,
+                    skipInformField: true
                 });
             });
 
         });
 
-        describe('without a <inform-field> wrapper', () => {
 
-        });
 
         let informEl;
         let control;
         let informField;
         let form;
-        function expectDirty(expectedValue) {
-            expect(informEl.dirty).to.equal(true);
-            expect(informEl.values).to.eql({ field: expectedValue });
-            expect(informEl).to.have.class('dirty');
-            expect(informField).to.have.class('dirty');
-        }
 
-        function expectNotDirty(expectedValue) {
-            expect(informEl.dirty).to.equal(false);
-            expect(informEl.values).to.eql({ field: expectedValue });
-            expect(informEl).not.to.have.class('dirty');
-            expect(informField).not.to.have.class('dirty');
-        }
 
-        function runTests({ html, initialValue, setValue, generateValue }) {
+        function runTests({ html, initialValue, setValue, generateValue, skipInformField }) {
+            function expectDirty(expectedValue) {
+                expect(informEl.dirty).to.equal(true);
+                expect(informEl.values).to.eql({ field: expectedValue });
+                expect(informEl).to.have.class('dirty');
+                if (!skipInformField) {
+                    expect(informField).to.have.class('dirty');
+                }
+            }
+
+            function expectNotDirty(expectedValue) {
+                expect(informEl.dirty).to.equal(false);
+                expect(informEl.values).to.eql({ field: expectedValue });
+                expect(informEl).not.to.have.class('dirty');
+                if (!skipInformField) {
+                    expect(informField).not.to.have.class('dirty');
+                }
+            }
+
             beforeEach(async () => {
                 informEl = await fixture(html);
 
@@ -800,7 +1007,7 @@ describe('<inform-el', () => {
                 const newValue = generateValue(initialValue);
 
                 // Change the value
-                await setValue(informEl, newValue);
+                await setValue(control, newValue);
 
                 expectDirty(newValue);
             }
@@ -814,7 +1021,7 @@ describe('<inform-el', () => {
                 await setDirtyAndCheck();
 
                 // Now back to initial value
-                await setValue(informEl, initialValue);
+                await setValue(control, initialValue);
 
                 expectNotDirty(initialValue);
             });
@@ -860,12 +1067,12 @@ describe('<inform-el', () => {
 
 
                 // Change the value
-                await setValue(informEl, newValue);
+                await setValue(control, newValue);
 
                 expectDirty(newValue);
 
                 // Now back to previous reset value
-                await setValue(informEl, resetValue);
+                await setValue(control, resetValue);
 
                 expectNotDirty(resetValue);
             });
