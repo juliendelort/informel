@@ -517,15 +517,15 @@ describe('<inform-el', () => {
         expect(informField).to.have.attribute('error', input.validationMessage);
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
 
-        expect(input.validity.customError).to.equal(false);
-        expect(input.validity.patternMismatch).to.equal(true);
+        expect(input.validity.customError).to.be.false;
+        expect(input.validity.patternMismatch).to.be.true;
 
         await clear(input);
         await type(input, 'ab'); // Should be a custom error only
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
         expect(informField).to.have.attribute('error', 'my custom error message');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
-        expect(form.checkValidity()).to.equal(false);
+        expect(form.checkValidity()).to.be.false;
         expect(informEl).to.have.class('invalid');
 
         await clear(input);
@@ -538,7 +538,7 @@ describe('<inform-el', () => {
         await type(input, 'ef'); // Should be no error
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
         expect(informField).not.to.have.attribute('error');
-        expect(form.checkValidity()).to.equal(true);
+        expect(form.checkValidity()).to.be.true;
         expect(informEl).not.to.have.class('invalid');
 
 
@@ -796,7 +796,7 @@ describe('<inform-el', () => {
 
         await type(newInput, 'hello', true);
 
-        expect(changeCalled()).to.equal(true);
+        expect(changeCalled()).to.be.true;
         expect(changeDetails()).to.eql({ values: { form2field: 'hello' } });
 
         // Errors are displayed (pattern)
@@ -806,17 +806,8 @@ describe('<inform-el', () => {
 
     });
 
-    it('works with checkboxes and radio buttons', async () => {
-
-    });
-
-    it('works with <select/>', async () => {
-
-    });
-
     describe('reset', () => {
         describe('when reseting the form', () => {
-
             it('resets the form values', async () => {
 
             });
@@ -828,18 +819,94 @@ describe('<inform-el', () => {
             it('removes the touched flags', async () => {
 
             });
+
         });
 
         describe('when resetting <inform-el>', () => {
-
-            // Same as above +
-            it('resets to the form initial values when no arguments', async () => {
-
+            describe('with text field', () => {
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <input id="control" type="text" name="field" value="some value"/>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                            `,
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue
+                });
             });
 
-            it('sets new values when provided ', async () => {
+            function runTests({ html, setValue, generateValue }) {
 
-            });
+                // Same as above +
+                it('resets to the form initial values when no arguments', async () => {
+                    const informEl = await fixture(html);
+                    const control = informEl.querySelector('#control');
+
+                    expect(informEl.values).to.eql({ field: 'some value' });
+
+                    const newValue = generateValue();
+                    await setValue(control, newValue);
+
+                    expect(informEl.values).to.eql({ field: newValue });
+
+                    informEl.reset();
+
+
+                    // back to initial value
+                    expect(informEl.values).to.eql({ field: 'some value' });
+                });
+
+                it('sets new values when provided ', async () => {
+                    const informEl = await fixture(html);
+
+                    expect(informEl.values).to.eql({ field: 'some value' });
+
+                    informEl.reset({ field: 'some new value' });
+
+                    expect(informEl.values).to.eql({ field: 'some new value' });
+                });
+
+                it('removes the dirty flags', async () => {
+                    const informEl = await fixture(html);
+                    const control = informEl.querySelector('#control');
+                    expect(informEl.dirty).to.be.false;
+
+                    const newValue = generateValue();
+                    await setValue(control, newValue);
+
+                    expect(informEl.dirty).to.be.true;
+
+                    informEl.reset();
+
+                    expect(informEl.dirty).to.be.false;
+
+                });
+
+                it('removes the touched flags', async () => {
+                    const informEl = await fixture(html);
+                    const informField = informEl.querySelector('inform-field');
+                    const control = informEl.querySelector('#control');
+                    expect(informField).not.to.have.attribute('touched');
+
+                    const newValue = generateValue();
+                    await setValue(control, newValue);
+
+                    expect(informField).to.have.attribute('touched');
+
+
+                    informEl.reset();
+
+                    expect(informField).not.to.have.attribute('touched');
+
+                });
+            }
+
+
         });
     });
 
@@ -1050,7 +1117,7 @@ describe('<inform-el', () => {
 
         function runTests({ html, initialValue, setValue, generateValue, skipInformField }) {
             function expectDirty(expectedValue) {
-                expect(informEl.dirty).to.equal(true);
+                expect(informEl.dirty).to.be.true;
                 expect(informEl.values).to.eql({ field: expectedValue });
                 expect(informEl).to.have.class('dirty');
                 if (!skipInformField) {
@@ -1059,7 +1126,7 @@ describe('<inform-el', () => {
             }
 
             function expectNotDirty(expectedValue) {
-                expect(informEl.dirty).to.equal(false);
+                expect(informEl.dirty).to.be.false;
                 expect(informEl.values).to.eql({ field: expectedValue });
                 expect(informEl).not.to.have.class('dirty');
                 if (!skipInformField) {
@@ -1155,6 +1222,9 @@ describe('<inform-el', () => {
     });
 
     describe('submit', () => {
+        it('sends all fields to touched when submitting', async () => {
+
+        });
         it('triggers the submit event with the form values if the form is valid', async () => {
             let receivedEventDetails = null;
             const informEl = await fixture(`

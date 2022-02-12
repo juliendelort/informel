@@ -93,7 +93,7 @@
 
         const submitter = e.submitter || e.detail.submitter; // If event is customsubmit, we need to check e.detail.submitter
 
-        host.querySelectorAll("inform-field").forEach((e) => e.classList.add("touched"));
+        host.querySelectorAll("inform-field").forEach((e) => e.setAttribute("touched", ""));
         if (checkValidity()) {
             host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
             await sendSubmitRequest(submitter);
