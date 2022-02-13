@@ -10,9 +10,20 @@
     let errorSlot;
     let errorSlotHasContent;
     let touchedIsPresent;
+    let submitOnChangeIsPresent;
 
-    function getSubmitOnChange() {
-        return submitOnChange !== null && submitOnChange !== undefined;
+    $: {
+        error;
+        // On error, update slot
+        updateErrorSlot();
+    }
+
+    $: {
+        touchedIsPresent = touched !== null && touched !== undefined;
+    }
+
+    $: {
+        submitOnChangeIsPresent = submitOnChange !== null && submitOnChange !== undefined;
     }
 
     function handleInput() {
@@ -21,7 +32,7 @@
 
     function handleChange(e) {
         host.dispatchEvent(new CustomEvent("change", { detail: null, bubbles: true, composed: true }));
-        if (getSubmitOnChange()) {
+        if (submitOnChangeIsPresent) {
             host.dispatchEvent(new CustomEvent("customsubmit", { detail: { submitter: e.target }, bubbles: true, composed: true }));
         }
     }
@@ -43,15 +54,6 @@
             errorSlot.removeEventListener("slotchange", updateErrorSlot);
         };
     });
-
-    $: {
-        // On error, update slot
-        updateErrorSlot(error);
-    }
-
-    $: {
-        touchedIsPresent = touched !== null && touched !== undefined;
-    }
 </script>
 
 <div on:input={handleInput} on:change={handleChange} bind:this={rootElement}>

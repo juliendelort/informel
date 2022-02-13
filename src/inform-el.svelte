@@ -3,7 +3,7 @@
     export let action = null;
     export let method = "POST";
 
-    import kebabCase from "just-kebab-case";
+    import { valuesToFormData, getFieldError } from "./utils";
     import { onMount, tick } from "svelte";
     import { get_current_component } from "svelte/internal";
 
@@ -15,6 +15,67 @@
     let submitting;
     let initialValues;
     let errorDisableSubmitIsPresent;
+    let invalid = false;
+    let currentValues = {};
+    let dirty = false;
+
+    $: {
+        // error-disable-submit
+        errorDisableSubmitIsPresent = errorDisableSubmit !== null && errorDisableSubmit !== undefined; // Make this block reactive to a change on errorDisableSubmit
+    }
+
+    $: {
+        // Submitting => add class
+        if (submitting) {
+            host.classList.add("submitting");
+        } else {
+            host.classList.remove("submitting");
+        }
+    }
+
+    $: {
+        // Submit button enabled
+        if (submitButton) {
+            submitButton.disabled = submitting || (invalid && errorDisableSubmitIsPresent);
+        }
+    }
+
+    $: {
+        // When currentValue changes => dirty check + validity check
+        currentValues;
+        checkDirty();
+        checkValidity();
+        host.values = currentValues;
+    }
+
+    $: {
+        dirty;
+        updateHostDirtyState();
+    }
+
+    $: {
+        invalid;
+        updateHostInvalidState();
+    }
+
+    function updateHostDirtyState() {
+        host.dirty = dirty;
+
+        if (dirty) {
+            host.classList.add("dirty");
+        } else {
+            host.classList.remove("dirty");
+        }
+    }
+
+    function updateHostInvalidState() {
+        // Invalid : add class
+        if (invalid) {
+            host.classList.add("invalid");
+        } else {
+            host.classList.remove("invalid");
+        }
+    }
 
     async function sendSubmitRequest(submitter) {
         if (action) {
@@ -22,7 +83,7 @@
             try {
                 const hasFiles = Object.values(values).some((v) => v instanceof File);
 
-                host.dispatchEvent(new CustomEvent("requestStart", { detail: { values: getFormValues() }, bubbles: true }));
+                host.dispatchEvent(new CustomEvent("requestStart", { detail: { values }, bubbles: true }));
                 submitting = true;
                 submitter.disabled = true;
 
@@ -34,6 +95,7 @@
                         },
                         body: hasFiles ? valuesToFormData(values) : JSON.stringify(values),
                     });
+
                     const response = await result.json();
                     if (result.ok) {
                         host.dispatchEvent(new CustomEvent("requestSuccess", { detail: { response, status: result.status, values }, bubbles: true }));
@@ -49,26 +111,9 @@
                 submitting = false;
                 submitter.disabled = false;
 
-                host.dispatchEvent(new CustomEvent("requestEnd", { detail: values, bubbles: true, composed: true }));
+                host.dispatchEvent(new CustomEvent("requestEnd", { detail: { values }, bubbles: true }));
             }
         }
-    }
-
-    $: {
-        if (submitting) {
-            host.classList.add("submitting");
-        } else {
-            host.classList.remove("submitting");
-        }
-    }
-
-    function valuesToFormData(values) {
-        const result = new FormData();
-        for (let key in values) {
-            result.append(key, values[key]);
-        }
-
-        return result;
     }
 
     function getFormValues() {
@@ -94,17 +139,18 @@
         const submitter = e.submitter || e.detail.submitter; // If event is customsubmit, we need to check e.detail.submitter
 
         host.querySelectorAll("inform-field").forEach((e) => e.setAttribute("touched", ""));
-        if (checkValidity()) {
+
+        if (!invalid) {
             host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
             await sendSubmitRequest(submitter);
             form.reset();
         }
     }
+
     function handleInput(e) {
         e.stopPropagation();
-        checkDirty();
+        currentValues = getFormValues();
 
-        checkValidity();
         host.dispatchEvent(new CustomEvent("input", { detail: { values: getFormValues() }, bubbles: true }));
     }
 
@@ -122,44 +168,25 @@
             e.removeAttribute("touched");
         });
 
-        host.classList.remove("dirty");
-        host.dirty = false;
         host.querySelectorAll(".dirty").forEach((e) => e.classList.remove("dirty"));
         await tick(); // wait for the form to be actually reset before getting the values;
-        host.values = getFormValues();
 
-        checkValidity();
-    }
-
-    function getValidityKey(element) {
-        for (let key in element.validity) {
-            if (element.validity[key]) {
-                return key;
-            }
-        }
-    }
-
-    function getFieldError(element, informField) {
-        const isValid = element.checkValidity();
-
-        if (isValid) {
-            return "";
-        }
-        const validityAttribute = kebabCase(getValidityKey(element));
-
-        return informField.getAttribute(validityAttribute) ?? informField.getAttribute("default-error") ?? element.validationMessage;
+        initialValues = getFormValues();
+        currentValues = initialValues;
     }
 
     function checkDirty() {
-        const newValues = getFormValues();
-        let dirty = false;
-        Object.keys(newValues).forEach((key) => {
+        if (!form) {
+            return;
+        }
+        let someDirty = false;
+        Object.keys(currentValues).forEach((key) => {
             // For radio buttons we could get an array here
             const formElement = form.elements[key] instanceof RadioNodeList ? form.elements[key][0] : form.elements[key];
             const informField = formElement.closest("inform-field");
 
-            if (newValues[key] !== initialValues[key]) {
-                dirty = true;
+            if (currentValues[key] !== initialValues[key]) {
+                someDirty = true;
 
                 if (informField) {
                     informField.classList.add("dirty");
@@ -169,28 +196,24 @@
             }
         });
 
-        host.dirty = dirty;
-
-        if (dirty) {
-            host.classList.add("dirty");
-        } else {
-            host.classList.remove("dirty");
-        }
-
-        host.values = newValues;
+        dirty = someDirty;
     }
     function checkValidity() {
-        const errors = host.validationHandler ? host.validationHandler({ values: getFormValues() }) : null;
+        if (!form) {
+            return;
+        }
+
+        const customValidationErrors = host.validationHandler ? host.validationHandler({ values: getFormValues() }) : null;
 
         const elements = [...form.elements];
 
         elements.forEach((element) => {
             // Set native error
-            element.setCustomValidity(errors?.[element.name] ?? "");
+            element.setCustomValidity(customValidationErrors?.[element.name] ?? "");
 
             const informField = element.closest("inform-field");
             if (informField) {
-                const errorPropValue = errors?.[element.name] ?? getFieldError(element, informField);
+                const errorPropValue = customValidationErrors?.[element.name] ?? getFieldError(element, informField);
                 if (errorPropValue) {
                     informField.setAttribute("error", errorPropValue);
                 } else {
@@ -199,30 +222,7 @@
             }
         });
 
-        const valid = form.checkValidity();
-        if (!valid) {
-            host.classList.add("invalid");
-        } else {
-            host.classList.remove("invalid");
-        }
-
-        if (!submitting && errorDisableSubmitIsPresent && submitButton) {
-            submitButton.disabled = !valid;
-        }
-
-        return valid;
-    }
-
-    // error-disable-submit
-    $: {
-        errorDisableSubmitIsPresent = errorDisableSubmit !== null && errorDisableSubmit !== undefined; // Make this block reactive to a change on errorDisableSubmit
-        if (submitButton) {
-            if (!errorDisableSubmitIsPresent) {
-                submitButton.disabled = false;
-            } else {
-                checkValidity();
-            }
-        }
+        invalid = !form.checkValidity();
     }
 
     async function initSlot() {
@@ -244,10 +244,8 @@
         // Wait for children to be mounted before checking validity
         await tick();
 
-        host.dirty = false;
         initialValues = getFormValues();
-        host.values = initialValues;
-        checkValidity();
+        currentValues = initialValues;
     }
 
     onMount(() => {
@@ -267,7 +265,6 @@
     //
     function publicReset(newValues) {
         host.classList.remove("dirty");
-        host.dirty = false;
         host.querySelectorAll(".dirty").forEach((e) => e.classList.remove("dirty"));
 
         if (!newValues) {
@@ -284,10 +281,9 @@
                     e.value = newValues[name];
                 }
             });
+            initialValues = getFormValues();
+            currentValues = initialValues;
         }
-
-        initialValues = getFormValues();
-        host.values = initialValues;
     }
 </script>
 

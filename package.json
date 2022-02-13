@@ -24,6 +24,7 @@
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
+    "sinon": "^13.0.1",
     "sirv-cli": "^2.0.2",
     "svelte": "^3.0.0"
   },
@@ -34,8 +35,5 @@
       "src"
     ],
     "transform": {}
-  },
-  "dependencies": {
-    "just-kebab-case": "^4.0.1"
   }
 }

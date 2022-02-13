@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
 
     let tasks = [];
+    let informEl;
 
     async function refreshTasks() {
         const result = await fetch("https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task");
@@ -14,6 +15,7 @@
         refreshTasks();
     }
     onMount(() => {
+        informEl.validationHandler = ({ values }) => {};
         refreshTasks();
     });
 
@@ -37,10 +39,21 @@
 </script>
 
 <div>
-    <inform-el action="https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task" on:requestSuccess={handleAddSuccess} on:submit={handleAdd} on:requestError={handleAddError}>
+    <inform-el
+        action="https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task"
+        error-disable-submit
+        on:requestSuccess={handleAddSuccess}
+        on:submit={handleAdd}
+        on:requestError={handleAddError}
+        bind:this={informEl}
+    >
         <form>
             <inform-field>
-                <input type="text" name="title" pattern={`^.{20,}$`} />
+                <input type="email" name="title" required />
+            </inform-field>
+            <inform-field>
+                <input type="radio" name="field" value="val1" />
+                <input type="radio" name="field" value="val2" />
             </inform-field>
             <button type="submit">Create task</button>
         </form>
@@ -59,7 +72,7 @@
             </div>
             {#if !task.new}
                 <div class="task-done">
-                    <inform-el action={`https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task/${task.id}`} method="PUT">
+                    <inform-el action={`https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task/${task.id}`} method="PUT" id="toto">
                         <form>
                             <inform-field submit-on-change>
                                 <input type="checkbox" name="done" checked={task.done} />

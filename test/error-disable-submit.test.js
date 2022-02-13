@@ -1,4 +1,4 @@
-import { fixture, expect } from '@open-wc/testing';
+import { fixture, expect, nextFrame } from '@open-wc/testing';
 import {
     generateTextInputValue,
     setTextInputValue,
@@ -74,6 +74,7 @@ describe('error-disable-submit', () => {
 
             // Set error-disable-submit
             informEl.setAttribute('error-disable-submit', '');
+
             expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
         });
 

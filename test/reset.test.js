@@ -1,4 +1,4 @@
-import { fixture, expect, nextFrame } from '@open-wc/testing';
+import { fixture, expect, nextFrame, elementUpdated } from '@open-wc/testing';
 import {
     generateTextInputValue,
     setTextInputValue,
@@ -188,7 +188,7 @@ describe('reset', () => {
                 expect(informEl.values).to.eql({ field: newValue });
 
                 informEl.reset();
-
+                await nextFrame();
 
                 // back to initial value
                 expect(informEl.values).to.eql({ field: initialValue });
@@ -201,6 +201,7 @@ describe('reset', () => {
 
                 const newValue = generateValue(initialValue);
                 informEl.reset({ field: newValue });
+                await nextFrame();
 
                 expect(informEl.values).to.eql({ field: newValue });
             });
@@ -216,6 +217,7 @@ describe('reset', () => {
                 expect(informEl.dirty).to.be.true;
 
                 informEl.reset();
+                await nextFrame();
 
                 expect(informEl.dirty).to.be.false;
 
@@ -233,8 +235,8 @@ describe('reset', () => {
 
                     expect(informField).to.have.attribute('touched');
 
-
                     informEl.reset();
+                    await nextFrame();
 
                     expect(informField).not.to.have.attribute('touched');
 

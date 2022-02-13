@@ -93,6 +93,22 @@ describe('input and change events', () => {
             text: false
         });
     });
+
+    it('works without inform-field', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <input id="control" type="text" name="some-name"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            generateValue: generateTextInputValue,
+            text: true
+        });
+    });
     async function runTests({ html, setValue, generateValue, text }) {
         const informEl = await fixture(html);
         const control = informEl.querySelector('#control');

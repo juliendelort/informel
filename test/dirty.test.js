@@ -1,4 +1,4 @@
-import { fixture, expect, elementUpdated } from '@open-wc/testing';
+import { fixture, expect, elementUpdated, nextFrame } from '@open-wc/testing';
 import {
     generateTextInputValue,
     setTextInputValue,
@@ -272,6 +272,7 @@ describe('dirty check', () => {
             await setDirtyAndCheck();
 
             informEl.reset();
+            await nextFrame();
 
             expectNotDirty(initialValue);
 
@@ -281,8 +282,8 @@ describe('dirty check', () => {
             await setDirtyAndCheck();
             const newValue = generateValue(initialValue);
 
-
             informEl.reset({ field: newValue });
+            await nextFrame();
 
             expectNotDirty(newValue);
         });
@@ -291,7 +292,7 @@ describe('dirty check', () => {
             await setDirtyAndCheck();
 
             form.reset();
-            await elementUpdated(informEl);
+            await nextFrame();
 
             expectNotDirty(initialValue);
         });
@@ -302,6 +303,7 @@ describe('dirty check', () => {
             const resetValue = generateValue(initialValue);
 
             informEl.reset({ field: resetValue });
+            await nextFrame();
 
             expectNotDirty(resetValue);
 
