@@ -59,7 +59,7 @@
 <div on:input={handleInput} on:change={handleChange} bind:this={rootElement}>
     <slot />
     {#if error && !errorSlotHasContent && touchedIsPresent}
-        <span class="form-field-error" role="alert">{error}</span>
+        <div class="form-field-error" role="alert">{error}</div>
     {/if}
     <slot name="error" />
 </div>
