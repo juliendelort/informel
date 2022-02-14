@@ -1,7 +1,5 @@
 <script>
     export let errorDisableSubmit = null;
-    export let action = null;
-    export let method = "POST";
 
     import { valuesToFormData, getFieldError } from "./utils";
     import { onMount, tick } from "svelte";
@@ -78,22 +76,33 @@
     }
 
     async function sendSubmitRequest(submitter) {
-        if (action) {
+        if (form.getAttribute("action")) {
+            // form.action is always set, we need to check if there is an attribute explicitely defined
+            console.log("****sending", form.action, form.method, form.getAttribute("action"));
             const values = getFormValues();
             try {
                 const hasFiles = Object.values(values).some((v) => v instanceof File);
+                const isGet = form.method.toLowerCase() === "get";
+                const url = new URL(form.action);
+
+                if (isGet) {
+                    // No body for get request
+                    Object.keys(values).forEach((key) => {
+                        url.searchParams.set(key, values[key]);
+                    });
+                }
 
                 host.dispatchEvent(new CustomEvent("requestStart", { detail: { values }, bubbles: true }));
                 submitting = true;
                 submitter.disabled = true;
 
                 try {
-                    const result = await fetch(action, {
-                        method,
+                    const result = await fetch(url.toString(), {
+                        method: form.method,
                         headers: {
                             ...(!hasFiles && { "Content-Type": "application/json" }),
                         },
-                        body: hasFiles ? valuesToFormData(values) : JSON.stringify(values),
+                        ...(!isGet && { body: hasFiles ? valuesToFormData(values) : JSON.stringify(values) }),
                     });
 
                     const response = await result.json();

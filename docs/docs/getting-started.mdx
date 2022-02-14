@@ -2,6 +2,7 @@
 sidebar_position: 1
 hide_title: true
 custom_edit_url: null
+title: "Getting Started"
 ---
 
 <h1 style={{ display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Balsamiq sans" }}>
@@ -10,6 +11,16 @@ custom_edit_url: null
     {/* <h1 style='font-family: "Balsamiq Sans"'>informel</h1> */}
     {/* <span style='font-family: "Balsamiq Sans";'>informel</span> */}
 </h1>
+
+`informel` is a Web Component that wraps your native HTML forms and gives them super powers.  
+Features:
+
+✅ &nbsp;Easily obtain form values  
+✅ &nbsp;Automatically show validation errors  
+✅ &nbsp;Native & custom validation rules  
+✅ &nbsp;Easily track form validity state through classes  
+✅ &nbsp;Keep track of whether your form is dirty or not  
+✅ &nbsp;**Auto submission via AJAX call, using `action` and `method` attributes**
 
 ## Installation
 
@@ -21,6 +32,8 @@ Add the following script to your HTML page
 <script src="https://unpkg.com/informel"></script>
 ```
 
+You can then start using `<inform-el />` and `<inform-field />` elements anywhere in your HTML!.
+
 ### NPM/Yarn Installation
 
 Install the package:
@@ -30,11 +43,13 @@ npm i informel
 yarn add informel
 ```
 
-Then import informel at the root level of your app:
+Then import `informel` at the root level of your app:
 
 ```javascript
 import "informel";
 ```
+
+You can then start using `<inform-el />` and `<inform-field />` elements anywhere in your HTML!.
 
 ## Usage
 
@@ -52,7 +67,10 @@ Just wrap your native form in `<inform-el />`:
 </inform-el>
 ```
 
-Then you can listen to the `submit` event which gives you the form values:
+:::tip Don't forget the `<form>` element as `<informel>` heavily relies on native form features!
+:::
+
+Then you can listen to the `submit` event on `<inform-el>` which gives you the form values:
 
 ```javascript
 document.querySelector("inform-el").addEventListener("submit", ({ detail: { values } }) => {
@@ -80,12 +98,17 @@ In order to automatically show validation errors, wrap your fields in `<inform-f
 </inform-el>
 ```
 
+Try submitting the empty form below to see the errors:
+
 <iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/5Lfdzsew/4/embedded/result,html/"></iframe>
 
 `informel` leverages [native form validation features](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation)
 and displays [native validation messages](https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement/validationMessage) by default.
 
-**TODO: add complex example with different input types, patterns etc...**
+Here is a more elaborated example that showcases some of `informel` features:
+
+:::tip You are still in full control of the styling and layout of your forms.
+:::
 
 On top of that, `informel` accepts custom validation rules, as well as custom error messages. For more information, see [error customization](/docs/error-customization).
 

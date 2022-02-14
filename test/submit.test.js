@@ -16,6 +16,9 @@ import sinon from 'sinon';
 import '../public/build/bundle.js';
 
 
+const formUrl = '/some/url';
+const expectedUrl = new URL(formUrl, window.location.href);
+
 describe('submit', () => {
     it('sets all fields to touched and shows errors if invalid', async () => {
         const informEl = await fixture(`
@@ -98,8 +101,8 @@ describe('submit', () => {
         });
         it('sends an ajax call if the form is valid', async () => {
             const informEl = await fixture(`
-                    <inform-el action="/some/url" >
-                        <form>
+                    <inform-el>
+                        <form action="${formUrl}" method="POST">
                             <inform-field>
                                 <input type="text" name="field" required/>
                             </inform-field>
@@ -118,8 +121,8 @@ describe('submit', () => {
 
             submitButton.click();
 
-            expect(window.fetch).to.have.been.calledWith('/some/url', {
-                method: 'POST',
+            expect(window.fetch).to.have.been.calledWith(expectedUrl.toString(), {
+                method: 'post',
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -135,8 +138,8 @@ describe('submit', () => {
 
         it('considers the method attribute', async () => {
             const informEl = await fixture(`
-                    <inform-el action="/some/url" method="GET">
-                        <form>
+                    <inform-el>
+                        <form  action="${formUrl}" method="GET">
                             <inform-field>
                                 <input type="text" name="field" required/>
                             </inform-field>
@@ -152,26 +155,25 @@ describe('submit', () => {
 
             submitButton.click();
 
-            expect(window.fetch).to.have.been.calledWith('/some/url', {
-                method: 'GET',
+            expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?field=a`, {
+                method: 'get',
                 headers: {
                     "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ field: 'a' })
+                }
             });
         });
 
         it('sets the "submitting" class and disables submit button while submitting', async () => {
             const informEl = await fixture(`
-                    <inform-el action="/some/url" >
-                        <form>
+                    <inform-el>
+                        <form action="${formUrl}" method="POST">
                             <inform-field>
-                                <input type="text" name="field" required/>
+                                <input type="text" name="field" required />
                             </inform-field>
                             <button type="submit">Submit</button>
                         </form>
                     </inform-el>
-            `);
+                `);
 
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
@@ -201,15 +203,15 @@ describe('submit', () => {
 
         it('emits requestSuccess if the call succeeds', async () => {
             const informEl = await fixture(`
-                    <inform-el action="/some/url" >
-                        <form>
-                            <inform-field>
-                                <input type="text" name="field" required/>
-                            </inform-field>
-                            <button type="submit">Submit</button>
-                        </form>
+                <inform-el>
+                <form action="${formUrl}" >
+                    <inform-field>
+                        <input type="text" name="field" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
                     </inform-el>
-            `);
+                `);
 
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
@@ -233,15 +235,15 @@ describe('submit', () => {
         });
         it('emits requestError if the call fails', async () => {
             const informEl = await fixture(`
-                    <inform-el action="/some/url" >
-                        <form>
-                            <inform-field>
-                                <input type="text" name="field" required/>
-                            </inform-field>
-                            <button type="submit">Submit</button>
-                        </form>
+                <inform-el>
+                <form action="${formUrl}" method="POST">
+                    <inform-field>
+                        <input type="text" name="field" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
                     </inform-el>
-            `);
+                `);
 
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
@@ -265,15 +267,15 @@ describe('submit', () => {
 
         it('emits requestError in case of exception', async () => {
             const informEl = await fixture(`
-                    <inform-el action="/some/url" >
-                        <form>
-                            <inform-field>
-                                <input type="text" name="field" required/>
-                            </inform-field>
-                            <button type="submit">Submit</button>
-                        </form>
+                <inform-el>
+                <form action="${formUrl}" >
+                    <inform-field>
+                        <input type="text" name="field" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
                     </inform-el>
-            `);
+                `);
 
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
@@ -296,14 +298,14 @@ describe('submit', () => {
 
         it('considers submit-on-change on inform-field', async () => {
             const informEl = await fixture(`
-                    <inform-el action="/some/url" >
-                        <form>
-                            <inform-field submit-on-change>
-                                <input type="checkbox" name="field" />
-                            </inform-field>
-                        </form>
+                <inform-el>
+                <form action="${formUrl}" >
+                    <inform-field submit-on-change>
+                        <input type="checkbox" name="field" />
+                    </inform-field>
+                </form>
                     </inform-el>
-            `);
+                `);
 
             const checkbox = informEl.querySelector('input[type="checkbox"]');
 
@@ -318,8 +320,8 @@ describe('submit', () => {
 
             checkbox.click();
 
-            expect(window.fetch).to.have.been.calledWith('/some/url', {
-                method: 'POST',
+            expect(window.fetch).to.have.been.calledWith(expectedUrl.toString(), {
+                method: 'post',
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -340,16 +342,16 @@ describe('submit', () => {
         });
         it('sends FormData if any value if of type File', async () => {
             const informEl = await fixture(`
-                <inform-el action="/some/url" >
-                    <form>
-                        <inform-field>
-                            <input type="text" name="textfield" />
-                        </inform-field>
-                        <input type="file" name="filefield" />
-                        <button type="submit">Submit</button>
-                    </form>
+                <inform-el>
+                <form action="${formUrl}" >
+                    <inform-field>
+                        <input type="text" name="textfield" />
+                    </inform-field>
+                    <input type="file" name="filefield" />
+                    <button type="submit">Submit</button>
+                </form>
                 </inform-el>
-            `);
+                `);
 
             const textInput = informEl.querySelector('input[type="text"]');
             const submitButton = informEl.querySelector('[type="submit"]');
@@ -373,4 +375,4 @@ describe('submit', () => {
     });
 
 
-});
+});;
