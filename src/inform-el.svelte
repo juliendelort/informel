@@ -78,7 +78,6 @@
     async function sendSubmitRequest(submitter) {
         if (form.getAttribute("action")) {
             // form.action is always set, we need to check if there is an attribute explicitely defined
-            console.log("****sending", form.action, form.method, form.getAttribute("action"));
             const values = getFormValues();
             try {
                 const hasFiles = Object.values(values).some((v) => v instanceof File);

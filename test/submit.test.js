@@ -268,7 +268,7 @@ describe('submit', () => {
         it('emits requestError in case of exception', async () => {
             const informEl = await fixture(`
                 <inform-el>
-                <form action="${formUrl}" >
+                <form action="${formUrl}" method="post">
                     <inform-field>
                         <input type="text" name="field" required />
                     </inform-field>
@@ -299,7 +299,7 @@ describe('submit', () => {
         it('considers submit-on-change on inform-field', async () => {
             const informEl = await fixture(`
                 <inform-el>
-                <form action="${formUrl}" >
+                <form action="${formUrl}"  method="post" >
                     <inform-field submit-on-change>
                         <input type="checkbox" name="field" />
                     </inform-field>
@@ -343,7 +343,7 @@ describe('submit', () => {
         it('sends FormData if any value if of type File', async () => {
             const informEl = await fixture(`
                 <inform-el>
-                <form action="${formUrl}" >
+                <form action="${formUrl}"  method="post">
                     <inform-field>
                         <input type="text" name="textfield" />
                     </inform-field>
@@ -361,11 +361,11 @@ describe('submit', () => {
 
 
             const callArgs = window.fetch.getCall(0).args;
-            expect(callArgs[0]).to.equal('/some/url');
+            expect(callArgs[0]).to.equal(expectedUrl.toString());
 
             const { method, headers, body } = callArgs[1];
 
-            expect(method).to.equal('POST');
+            expect(method).to.equal('post');
             expect(headers).to.eql({});
 
             expect(body).to.be.instanceOf(FormData);
