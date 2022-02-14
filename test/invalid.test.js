@@ -77,11 +77,14 @@ describe('"invalid" class is set when form is invalid', () => {
 
         // Form is invalid and submit button is disabled
         expect(informEl).to.have.class('invalid');
+        expect(informEl.invalid).to.be.true;
 
         await setValue(control1, validValue);
 
         // Still invalid
         expect(informEl).to.have.class('invalid');
+        expect(informEl.invalid).to.be.true;
+
 
 
         await setValue(control2, validValue);
@@ -89,11 +92,15 @@ describe('"invalid" class is set when form is invalid', () => {
 
         // Valid now
         expect(informEl).not.to.have.class('invalid');
+        expect(informEl.invalid).to.be.false;
+
 
 
         // Remove value => invalid
         await setValue(control2, invalidValue);
         expect(informEl).to.have.class('invalid');
+        expect(informEl.invalid).to.be.true;
+
     }
 
 });

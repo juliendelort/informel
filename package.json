@@ -1,6 +1,6 @@
 {
   "name": "informel",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "public/build/bundle.js",
   "files": [
     "public/build/*"

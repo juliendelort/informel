@@ -10,32 +10,16 @@
     let host = get_current_component(); // can also be container.parentNode.host
     let container;
     let defaultSlot;
-    let submitting;
     let initialValues;
     let errorDisableSubmitIsPresent;
-    let invalid = false;
     let currentValues = {};
     let dirty = false;
+    let submitting = false;
+    let invalid = false;
 
     $: {
         // error-disable-submit
         errorDisableSubmitIsPresent = errorDisableSubmit !== null && errorDisableSubmit !== undefined; // Make this block reactive to a change on errorDisableSubmit
-    }
-
-    $: {
-        // Submitting => add class
-        if (submitting) {
-            host.classList.add("submitting");
-        } else {
-            host.classList.remove("submitting");
-        }
-    }
-
-    $: {
-        // Submit button enabled
-        if (submitButton) {
-            submitButton.disabled = submitting || (invalid && errorDisableSubmitIsPresent);
-        }
     }
 
     $: {
@@ -56,6 +40,18 @@
         updateHostInvalidState();
     }
 
+    $: {
+        submitting;
+        updateHostSubmittingState();
+    }
+
+    $: {
+        // Submit button enabled
+        if (submitButton) {
+            submitButton.disabled = submitting || (invalid && errorDisableSubmitIsPresent);
+        }
+    }
+
     function updateHostDirtyState() {
         host.dirty = dirty;
 
@@ -67,11 +63,23 @@
     }
 
     function updateHostInvalidState() {
+        host.invalid = invalid;
+
         // Invalid : add class
         if (invalid) {
             host.classList.add("invalid");
         } else {
             host.classList.remove("invalid");
+        }
+    }
+
+    function updateHostSubmittingState() {
+        host.submitting = submitting;
+        // Submitting => add class
+        if (submitting) {
+            host.classList.add("submitting");
+        } else {
+            host.classList.remove("submitting");
         }
     }
 
