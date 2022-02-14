@@ -1,0 +1,96 @@
+---
+sidebar_position: 1
+hide_title: true
+custom_edit_url: null
+---
+
+<h1 style={{ display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Balsamiq sans" }}>
+    <img width="10%" height="10%" src="/img/logo.svg" />
+    <span style={{ marginLeft: "20px", paddingTop: "5px" }}>informel</span>
+    {/* <h1 style='font-family: "Balsamiq Sans"'>informel</h1> */}
+    {/* <span style='font-family: "Balsamiq Sans";'>informel</span> */}
+</h1>
+
+## Installation
+
+### CDN Installation
+
+Add the following script to your HTML page
+
+```html
+<script src="https://unpkg.com/informel"></script>
+```
+
+### NPM/Yarn Installation
+
+Install the package:
+
+```bash
+npm i informel
+yarn add informel
+```
+
+Then import informel at the root level of your app:
+
+```javascript
+import "informel";
+```
+
+## Usage
+
+### Basic Usage
+
+Just wrap your native form in `<inform-el />`:
+
+```html
+<inform-el>
+    <form>
+        <input type="text" name="firstName" placeholder="First name" />
+        <input type="text" name="lastName" placeholder="Last name" />
+        <button type="submit">Submit</button>
+    </form>
+</inform-el>
+```
+
+Then you can listen to the `submit` event which gives you the form values:
+
+```javascript
+document.querySelector("inform-el").addEventListener("submit", ({ detail: { values } }) => {
+    console.log("Submitted:", values);
+});
+```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/hkpm5b2n/10/embedded/result,html,js/"></iframe>
+
+### Show validation errors
+
+In order to automatically show validation errors, wrap your fields in `<inform-field />`.
+
+```html
+<inform-el>
+    <form>
+        <inform-field>
+            <input type="text" name="firstName" placeholder="First name" required />
+        </inform-field>
+        <inform-field>
+            <input type="text" name="lastName" placeholder="Last name" required />
+        </inform-field>
+        <button type="submit">Submit</button>
+    </form>
+</inform-el>
+```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/5Lfdzsew/4/embedded/result,html/"></iframe>
+
+`informel` leverages [native form validation features](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation)
+and displays [native validation messages](https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement/validationMessage) by default.
+
+**TODO: add complex example with different input types, patterns etc...**
+
+On top of that, `informel` accepts custom validation rules, as well as custom error messages. For more information, see [error customization](/docs/error-customization).
+
+## Send an Ajax request on submit
+
+## Dirty check
+
+## Form reset

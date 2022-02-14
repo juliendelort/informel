@@ -14,6 +14,7 @@
     --ifm-color-primary-lighter: #444f61;
     --ifm-color-primary-lightest: #4d5a6d;
     --ifm-code-font-size: 95%;
+    --ifm-link-decoration: underline;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -42,4 +43,9 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
 @font-face {
     font-family: "Balsamiq Sans";
     src: url("/fonts/BalsamiqSans-Regular.ttf");
+}
+
+.navbar__title {
+    font-family: "Balsamiq Sans";
+    padding-top: 5px;
 }
