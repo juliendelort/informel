@@ -245,7 +245,7 @@
         form = defaultSlot.assignedElements()[0];
 
         if (!form || form.tagName.toLowerCase() !== "form") {
-            throw new Error("<inform-el> must have a <form> element as direct child");
+            console.error("<inform-el> must have a <form> element as direct child");
         }
         form.noValidate = true;
 
