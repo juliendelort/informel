@@ -305,11 +305,11 @@ describe('submit', () => {
         it('considers submit-on-change on inform-field', async () => {
             const informEl = await fixture(`
                 <inform-el>
-                <form action="${formUrl}"  method="post" >
-                    <inform-field submit-on-change>
-                        <input type="checkbox" name="field" />
-                    </inform-field>
-                </form>
+                    <form action="${formUrl}"  method="post" >
+                        <inform-field submit-on-change>
+                            <input type="checkbox" name="field" />
+                        </inform-field>
+                    </form>
                     </inform-el>
                 `);
 
@@ -377,6 +377,55 @@ describe('submit', () => {
             expect(body).to.be.instanceOf(FormData);
             expect(body.get('textfield')).to.equal('a');
             expect(body.get('filefield')).to.be.instanceOf(File);
+        });
+
+        it('transforms values if submitTransform is provided', async () => {
+
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form action="${formUrl}" method="POST">
+                            <inform-field>
+                                <input type="text" name="field" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            informEl.submitTransform = (values) => {
+                return {
+                    field: values.field + ' transformed',
+                    field2: values.field
+                };
+            };
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+
+            const [, submitDetails] = eventCheck(informEl, 'submit');
+            const [, requestStartDetails] = eventCheck(informEl, 'requestStart');
+            const [, requestEndDetails] = eventCheck(informEl, 'requestEnd');
+
+            await type(input, 'a', true);
+
+            submitButton.click();
+
+            expect(submitDetails()).to.eql({ values: { field: 'a' } });
+
+
+            expect(window.fetch).to.have.been.calledWith(expectedUrl.toString(), {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ field: 'a transformed', field2: 'a' })
+            });
+
+            await nextFrame();
+
+
+            expect(requestStartDetails()).to.eql({ values: { field: 'a transformed', field2: 'a' } });
+            expect(requestEndDetails()).to.eql({ values: { field: 'a transformed', field2: 'a' } });
         });
     });
 

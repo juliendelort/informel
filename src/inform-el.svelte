@@ -86,7 +86,9 @@
     async function sendSubmitRequest(submitter) {
         if (form.getAttribute("action")) {
             // form.action is always set, we need to check if there is an attribute explicitely defined
-            const values = getFormValues();
+            const rawValues = getFormValues();
+
+            const values = host.submitTransform && typeof host.submitTransform === "function" ? host.submitTransform(rawValues) : rawValues;
             try {
                 const hasFiles = Object.values(values).some((v) => v instanceof File);
                 const isGet = form.method.toLowerCase() === "get";
@@ -219,7 +221,7 @@
             return;
         }
 
-        const customValidationErrors = host.validationHandler ? host.validationHandler({ values: getFormValues() }) : null;
+        const customValidationErrors = host.validationHandler && typeof host.validationHandler === "function" ? host.validationHandler({ values: getFormValues() }) : null;
 
         const elements = [...form.elements];
 
