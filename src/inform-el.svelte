@@ -2,7 +2,7 @@
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError, diff } from "./utils";
+    import { valuesToFormData, getFieldError } from "./utils";
     import { onMount, tick } from "svelte";
     import { get_current_component } from "svelte/internal";
 

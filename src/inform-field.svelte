@@ -66,6 +66,10 @@
 
 <style>
     .form-field-error {
-        color: red;
+        color: var(--error-color, red);
+        margin: var(--error-margin, 0 0 0 0);
+        font-size: var(--error-font-size, 1rem);
+        font-family: var(--error-font-family, 1rem);
+        display: var(--error-display, block);
     }
 </style>
