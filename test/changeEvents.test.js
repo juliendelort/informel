@@ -24,13 +24,15 @@ describe('input and change events', () => {
                             <inform-field>
                                 <input id="control" type="text" name="some-name"/>
                             </inform-field>
+                             <input  type="text" name="other" value="nochange"/>
                             <button type="submit">Submit</button>
                         </form>
                     </inform-el>
                 `,
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
-            text: true
+            text: true,
+            initialValue: ''
         });
     });
 
@@ -42,13 +44,15 @@ describe('input and change events', () => {
                             <inform-field>
                                 <input id="control" type="checkbox" name="some-name"/>
                             </inform-field>
+                            <input  type="text" name="other" value="nochange"/>
                             <button type="submit">Submit</button>
                         </form>
                     </inform-el>
                 `,
             setValue: setCheckboxValue,
             generateValue: generateCheckboxValue,
-            text: false
+            text: false,
+            initialValue: false
         });
     });
 
@@ -61,13 +65,15 @@ describe('input and change events', () => {
                                 <input  type="radio" name="some-name" value="val1"/>
                                 <input  type="radio" name="some-name" value="val2"/>
                             </inform-field>
+                            <input  type="text" name="other" value="nochange"/>
                             <button type="submit">Submit</button>
                         </form>
                     </inform-el>
                 `,
             setValue: setRadioValue,
             generateValue: generateRadioValue,
-            text: false
+            text: false,
+            initialValue: ''
         });
     });
 
@@ -78,19 +84,21 @@ describe('input and change events', () => {
                         <form>
                             <inform-field>
                                 <select id="control" name="some-name">
-                                <option value="">--Please choose an option--</option>
-                                <option value="val1">Value1</option>
-                                <option value="val2">Value2</option>
-                                <option value="val3">Value3</option>
-                            </select>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
                             </inform-field>
+                            <input  type="text" name="other" value="nochange"/>
                             <button type="submit">Submit</button>
                         </form>
                     </inform-el>
                 `,
             setValue: setSelectValue,
             generateValue: generateSelectValue,
-            text: false
+            text: false,
+            initialValue: ''
         });
     });
 
@@ -100,16 +108,18 @@ describe('input and change events', () => {
                     <inform-el>
                         <form>
                             <input id="control" type="text" name="some-name"/>
+                            <input  type="text" name="other" value="nochange"/>
                             <button type="submit">Submit</button>
                         </form>
                     </inform-el>
                 `,
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
-            text: true
+            text: true,
+            initialValue: ''
         });
     });
-    async function runTests({ html, setValue, generateValue, text }) {
+    async function runTests({ html, setValue, generateValue, text, initialValue }) {
         const informEl = await fixture(html);
         const control = informEl.querySelector('#control');
 
@@ -120,7 +130,13 @@ describe('input and change events', () => {
             const input = informEl.querySelector('#control');
             await type(input, 'something', false); // Only input
             await nextFrame();
-            expect(inputDetails()).to.eql({ values: { 'some-name': 'something' } });
+            expect(inputDetails()).to.eql({
+                values: {
+                    'some-name': 'something',
+                    other: 'nochange'
+                },
+                changedField: 'some-name'
+            });
             expect(changeDetails()).to.be.null;
             resetInput();
             resetChange();
@@ -131,7 +147,19 @@ describe('input and change events', () => {
         await setValue(control, newValue); // Both input and change
         await nextFrame();
 
-        expect(inputDetails()).to.eql({ values: { 'some-name': newValue } });
-        expect(changeDetails()).to.eql({ values: { 'some-name': newValue } });
+        expect(inputDetails()).to.eql({
+            values: {
+                'some-name': newValue,
+                other: 'nochange'
+            },
+            changedField: 'some-name'
+        });
+        expect(changeDetails()).to.eql({
+            values: {
+                'some-name': newValue,
+                other: 'nochange'
+            },
+            changedField: 'some-name'
+        });
     }
 });

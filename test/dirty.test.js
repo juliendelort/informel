@@ -7,7 +7,9 @@ import {
     setRadioValue,
     generateRadioValue,
     setSelectValue,
-    generateSelectValue
+    generateSelectValue,
+    type,
+    clear
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -321,5 +323,43 @@ describe('dirty check', () => {
             expectNotDirty(resetValue);
         });
     }
+
+    it('doesn\'t make file inputs dirty for no reason', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field id="textfield">
+                        <input id="control" type="text" name="field" />
+                    </inform-field>
+                    <inform-field id="filefield">
+                        <input id="control" type="file" name="file" />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+
+
+        const input = informEl.querySelector('#control');
+        const textfield = informEl.querySelector('#textfield');
+        const filefield = informEl.querySelector('#filefield');
+
+        expect(informEl.dirty).to.be.false;
+        expect(textfield).not.to.have.class('dirty');
+        expect(filefield).not.to.have.class('dirty');
+
+        await type(input, 'something');
+
+        expect(informEl.dirty).to.be.true;
+        expect(textfield).to.have.class('dirty');
+        expect(filefield).not.to.have.class('dirty');
+
+        await clear(input);
+
+        expect(informEl.dirty).to.be.false;
+        expect(textfield).not.to.have.class('dirty');
+        expect(filefield).not.to.have.class('dirty');
+
+    });
 
 });

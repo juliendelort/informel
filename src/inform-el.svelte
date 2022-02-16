@@ -1,7 +1,8 @@
 <script>
     export let errorDisableSubmit = null;
+    export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError } from "./utils";
+    import { valuesToFormData, getFieldError, diff } from "./utils";
     import { onMount, tick } from "svelte";
     import { get_current_component } from "svelte/internal";
 
@@ -16,10 +17,16 @@
     let dirty = false;
     let submitting = false;
     let invalid = false;
+    let resetOnSubmitIsPresent;
 
     $: {
         // error-disable-submit
         errorDisableSubmitIsPresent = errorDisableSubmit !== null && errorDisableSubmit !== undefined; // Make this block reactive to a change on errorDisableSubmit
+    }
+
+    $: {
+        // reset-on-submit
+        resetOnSubmitIsPresent = resetOnSubmit !== null && resetOnSubmit !== undefined; // Make this block reactive to a change on resetOnSubmit
     }
 
     $: {
@@ -145,6 +152,8 @@
                 values[name] = elementValue;
             } else if (e.type === "radio" && name && !values[name]) {
                 values[name] = "";
+            } else if (e.type === "file" && !values[name]?.size) {
+                delete values[name];
             }
         });
 
@@ -161,15 +170,27 @@
         if (!invalid) {
             host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
             await sendSubmitRequest(submitter);
-            form.reset();
+            if (resetOnSubmitIsPresent) {
+                form.reset();
+            }
         }
     }
 
     function handleInput(e) {
         e.stopPropagation();
+
         currentValues = getFormValues();
 
-        host.dispatchEvent(new CustomEvent("input", { detail: { values: getFormValues() }, bubbles: true }));
+        // console.log("****input", { newValues: { ...newValues }, currentValues: { ...currentValues }, changed: diff(newValues, currentValues) });
+        host.dispatchEvent(
+            new CustomEvent("input", {
+                detail: {
+                    values: { ...currentValues },
+                    changedField: e.target.name,
+                },
+                bubbles: true,
+            })
+        );
     }
 
     function handleChange(e) {
@@ -178,7 +199,19 @@
         const formField = e.target;
         formField.setAttribute("touched", "");
 
-        host.dispatchEvent(new CustomEvent("change", { detail: { values: getFormValues() }, bubbles: true }));
+        const newValues = getFormValues();
+
+        host.dispatchEvent(
+            new CustomEvent("change", {
+                detail: {
+                    values: { ...currentValues },
+                    changedField: e.target.name,
+                },
+                bubbles: true,
+            })
+        );
+
+        currentValues = newValues;
     }
 
     async function handleFormReset() {
@@ -264,6 +297,8 @@
 
         initialValues = getFormValues();
         currentValues = initialValues;
+
+        host.dispatchEvent(new CustomEvent("informel-ready", { bubbles: true }));
     }
 
     onMount(() => {
@@ -295,7 +330,8 @@
                     e.checked = newValues[name];
                 } else if (e.type === "radio") {
                     e.checked = newValues[name] === e.value;
-                } else {
+                } else if (e.type !== "file") {
+                    // can't change file input value
                     e.value = newValues[name];
                 }
             });

@@ -70,13 +70,11 @@ describe('submit', () => {
         await clear(input);
 
         const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
-        const [resetHasBeenCalled] = eventCheck(form, 'reset');
 
         submitButton.click();
         await nextFrame();
 
         expect(submitHasBeenCalled()).to.be.false;
-        expect(resetHasBeenCalled()).to.be.false;
 
         // Fix the form
         await type(input, 'something');
@@ -84,11 +82,88 @@ describe('submit', () => {
         submitButton.click();
         await nextFrame();
         expect(submitDetails()).to.eql({ values: { 'some-name': 'something' } });
-        expect(resetHasBeenCalled()).to.be.true;
-        expect(input.value).to.equal('');
-        expect(informEl.values).to.eql({ 'some-name': '' });
+    });
+
+    describe('reset-on-submit', () => {
+        it('does\'nt reset if not present', async () => {
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input type="text" name="some-name" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+            const form = informEl.querySelector('form');
 
 
+            const [submitHasBeenCalled, , resetSubmit] = eventCheck(informEl, 'submit');
+            const [resetHasBeenCalled, , resetReset] = eventCheck(form, 'reset');
+
+            await type(input, 'something', true);
+
+            submitButton.click();
+            await nextFrame();
+
+            expect(submitHasBeenCalled()).to.be.true;
+
+            // Not resetted
+            expect(resetHasBeenCalled()).to.be.false;
+            expect(input.value).to.equal('something');
+            expect(informEl.dirty).to.be.true;
+
+            // Set the attribute
+            informEl.setAttribute('reset-on-submit', '');
+
+            resetSubmit();
+            resetReset();
+            submitButton.click();
+            await nextFrame();
+            // Resetted this time
+            expect(resetHasBeenCalled()).to.be.true;
+            expect(input.value).to.equal('');
+            expect(informEl.dirty).to.be.false;
+
+        });
+
+        it('resets if  present', async () => {
+            const informEl = await fixture(`
+                    <inform-el reset-on-submit>
+                        <form>
+                            <inform-field>
+                                <input type="text" name="some-name" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+            const form = informEl.querySelector('form');
+
+
+            const [submitHasBeenCalled] = eventCheck(informEl, 'submit');
+            const [resetHasBeenCalled] = eventCheck(form, 'reset');
+
+            await type(input, 'something', true);
+
+            submitButton.click();
+            await nextFrame();
+
+            expect(submitHasBeenCalled()).to.be.true;
+
+            // Resetted
+            expect(resetHasBeenCalled()).to.be.true;
+            expect(input.value).to.equal('');
+            expect(informEl.dirty).to.be.false;
+
+        });
     });
 
     describe('submit action', () => {
@@ -346,38 +421,7 @@ describe('submit', () => {
             expect(checkbox).not.to.have.attribute('disabled');
 
         });
-        it('sends FormData if any value if of type File', async () => {
-            const informEl = await fixture(`
-                <inform-el>
-                <form action="${formUrl}"  method="post">
-                    <inform-field>
-                        <input type="text" name="textfield" />
-                    </inform-field>
-                    <input type="file" name="filefield" />
-                    <button type="submit">Submit</button>
-                </form>
-                </inform-el>
-                `);
 
-            const textInput = informEl.querySelector('input[type="text"]');
-            const submitButton = informEl.querySelector('[type="submit"]');
-
-            await type(textInput, 'a', true);
-            submitButton.click();
-
-
-            const callArgs = window.fetch.getCall(0).args;
-            expect(callArgs[0]).to.equal(expectedUrl.toString());
-
-            const { method, headers, body } = callArgs[1];
-
-            expect(method).to.equal('post');
-            expect(headers).to.eql({});
-
-            expect(body).to.be.instanceOf(FormData);
-            expect(body.get('textfield')).to.equal('a');
-            expect(body.get('filefield')).to.be.instanceOf(File);
-        });
 
         it('transforms values if submitTransform is provided', async () => {
 
@@ -426,6 +470,48 @@ describe('submit', () => {
 
             expect(requestStartDetails()).to.eql({ values: { field: 'a transformed', field2: 'a' } });
             expect(requestEndDetails()).to.eql({ values: { field: 'a transformed', field2: 'a' } });
+        });
+
+        it('sends FormData if any value if of type File', async () => {
+            const informEl = await fixture(`
+                <inform-el>
+                <form action="${formUrl}"  method="post">
+                    <inform-field>
+                        <input type="text" name="textfield" />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+                </inform-el>
+            `);
+
+            const textInput = informEl.querySelector('input[type="text"]');
+            const submitButton = informEl.querySelector('[type="submit"]');
+
+            await type(textInput, 'a', true);
+
+            const theFile = new File([], 'something');
+
+            informEl.submitTransform = (values) => {
+                return {
+                    ...values,
+                    field2: theFile
+                };
+            };
+            submitButton.click();
+
+
+            const callArgs = window.fetch.getCall(0).args;
+            expect(callArgs[0]).to.equal(expectedUrl.toString());
+
+            const { method, headers, body } = callArgs[1];
+
+            expect(method).to.equal('post');
+            expect(headers).to.eql({});
+
+            expect(body).to.be.instanceOf(FormData);
+            expect(body.get('textfield')).to.equal('a');
+            expect(body.get('field2')).to.be.instanceOf(File);
+            expect(body.get('field2').name).to.equal(theFile.name);
         });
     });
 

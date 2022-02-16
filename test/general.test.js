@@ -124,13 +124,34 @@ describe('general tests', () => {
         await type(newInput, 'hello', true);
 
         expect(changeCalled()).to.be.true;
-        expect(changeDetails()).to.eql({ values: { form2field: 'hello' } });
+        expect(changeDetails()).to.eql({ values: { form2field: 'hello' }, changedField: 'form2field' });
 
         // Errors are displayed (pattern)
         expect(informEl).to.have.class('invalid');
         const informField = informEl.querySelector('inform-field');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('test error');
 
+    });
+
+    it('emits informel-ready event when ready', async () => {
+        const container = await fixture(`
+            <div></div>
+        `);
+
+        const [readyHasBeenCalled] = eventCheck(container, 'informel-ready');
+        container.innerHTML = `
+            <inform-el>
+                <form>
+                    <inform-field>
+                        <input type="text" name="form1field" />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `;
+
+        await nextFrame();
+        expect(readyHasBeenCalled()).to.be.true;
     });
 
     // it('removes empty values', async () => {
