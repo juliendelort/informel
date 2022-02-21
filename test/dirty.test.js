@@ -222,18 +222,18 @@ describe('dirty check', () => {
         function expectDirty(expectedValue) {
             expect(informEl.dirty).to.be.true;
             expect(informEl.values).to.eql({ field: expectedValue });
-            expect(informEl).to.have.class('dirty');
+            expect(informEl).to.have.attribute('dirty');
             if (!skipInformField) {
-                expect(informField).to.have.class('dirty');
+                expect(informField).to.have.attribute('dirty');
             }
         }
 
         function expectNotDirty(expectedValue) {
             expect(informEl.dirty).to.be.false;
             expect(informEl.values).to.eql({ field: expectedValue });
-            expect(informEl).not.to.have.class('dirty');
+            expect(informEl).not.to.have.attribute('dirty');
             if (!skipInformField) {
-                expect(informField).not.to.have.class('dirty');
+                expect(informField).not.to.have.attribute('dirty');
             }
         }
 
@@ -345,20 +345,20 @@ describe('dirty check', () => {
         const filefield = informEl.querySelector('#filefield');
 
         expect(informEl.dirty).to.be.false;
-        expect(textfield).not.to.have.class('dirty');
-        expect(filefield).not.to.have.class('dirty');
+        expect(textfield).not.to.have.attribute('dirty');
+        expect(filefield).not.to.have.attribute('dirty');
 
         await type(input, 'something');
 
         expect(informEl.dirty).to.be.true;
-        expect(textfield).to.have.class('dirty');
-        expect(filefield).not.to.have.class('dirty');
+        expect(textfield).to.have.attribute('dirty');
+        expect(filefield).not.to.have.attribute('dirty');
 
         await clear(input);
 
         expect(informEl.dirty).to.be.false;
-        expect(textfield).not.to.have.class('dirty');
-        expect(filefield).not.to.have.class('dirty');
+        expect(textfield).not.to.have.attribute('dirty');
+        expect(filefield).not.to.have.attribute('dirty');
 
     });
 

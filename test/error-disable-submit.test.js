@@ -90,7 +90,7 @@ describe('error-disable-submit', () => {
 
 
             // Form is invalid and button is disabled
-            expect(informEl).to.have.class('invalid');
+            expect(informEl).to.have.attribute('invalid');
             expect(informEl.querySelector('[type="submit"]')).to.have.attr('disabled');
 
             // Make the form valid => the button should be enabled

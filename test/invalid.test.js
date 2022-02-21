@@ -76,13 +76,13 @@ describe('"invalid" class is set when form is invalid', () => {
         const control2 = informEl.querySelector('#control2');
 
         // Form is invalid and submit button is disabled
-        expect(informEl).to.have.class('invalid');
+        expect(informEl).to.have.attribute('invalid');
         expect(informEl.invalid).to.be.true;
 
         await setValue(control1, validValue);
 
         // Still invalid
-        expect(informEl).to.have.class('invalid');
+        expect(informEl).to.have.attribute('invalid');
         expect(informEl.invalid).to.be.true;
 
 
@@ -91,14 +91,14 @@ describe('"invalid" class is set when form is invalid', () => {
 
 
         // Valid now
-        expect(informEl).not.to.have.class('invalid');
+        expect(informEl).not.to.have.attribute('invalid');
         expect(informEl.invalid).to.be.false;
 
 
 
         // Remove value => invalid
         await setValue(control2, invalidValue);
-        expect(informEl).to.have.class('invalid');
+        expect(informEl).to.have.attribute('invalid');
         expect(informEl.invalid).to.be.true;
 
     }

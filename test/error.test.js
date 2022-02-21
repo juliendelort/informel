@@ -208,7 +208,7 @@ describe('error', () => {
         expect(informField).to.have.attribute('error');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
         expect(form.checkValidity()).to.be.false;
-        expect(informEl).to.have.class('invalid');
+        expect(informEl).to.have.attribute('invalid');
 
         await clear(input);
         await type(input, 'cd'); // Should be both => still renders the custom one
@@ -223,7 +223,7 @@ describe('error', () => {
         expect(informField).not.to.have.attribute('error-message');
         expect(informField).not.to.have.attribute('error');
         expect(form.checkValidity()).to.be.true;
-        expect(informEl).not.to.have.class('invalid');
+        expect(informEl).not.to.have.attribute('invalid');
 
 
     });

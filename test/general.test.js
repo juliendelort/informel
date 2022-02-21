@@ -20,7 +20,7 @@ describe('general tests', () => {
         expect(informEl.querySelector('form[novalidate]')).to.exist;
 
         // Form is valid
-        expect(informEl).not.to.have.class('invalid');
+        expect(informEl).not.to.have.attribute('invalid');
         expect(informEl.querySelector('[type="submit"]')).not.to.have.attr('disabled');
     });
 
@@ -134,7 +134,7 @@ describe('general tests', () => {
         expect(changeDetails()).to.eql({ values: { form2field: 'hello' }, changedField: 'form2field' });
 
         // Errors are displayed (pattern)
-        expect(informEl).to.have.class('invalid');
+        expect(informEl).to.have.attribute('invalid');
         const informField = informEl.querySelector('inform-field');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('test error');
 

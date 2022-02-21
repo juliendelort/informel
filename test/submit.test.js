@@ -251,7 +251,7 @@ describe('submit', () => {
             const fetchPromise = new Promise((resolve) => resolveFetch = resolve);
             window.fetch.returns(fetchPromise);
 
-            expect(informEl).not.to.have.class('submitting');
+            expect(informEl).not.to.have.attribute('submitting');
             expect(informEl.submitting).to.be.false;
 
             expect(submitButton).not.to.have.attribute('disabled');
@@ -259,14 +259,14 @@ describe('submit', () => {
             submitButton.click();
             await nextFrame();
 
-            expect(informEl).to.have.class('submitting');
+            expect(informEl).to.have.attribute('submitting');
             expect(informEl.submitting).to.be.true;
 
             expect(submitButton).to.have.attribute('disabled');
             resolveFetch();
             await nextFrame();
 
-            expect(informEl).not.to.have.class('submitting');
+            expect(informEl).not.to.have.attribute('submitting');
             expect(informEl.submitting).to.be.false;
 
             expect(submitButton).not.to.have.attribute('disabled');

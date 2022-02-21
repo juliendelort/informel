@@ -63,9 +63,9 @@
         host.dirty = dirty;
 
         if (dirty) {
-            host.classList.add("dirty");
+            host.setAttribute("dirty", "");
         } else {
-            host.classList.remove("dirty");
+            host.removeAttribute("dirty");
         }
     }
 
@@ -74,9 +74,9 @@
 
         // Invalid : add class
         if (invalid) {
-            host.classList.add("invalid");
+            host.setAttribute("invalid", "");
         } else {
-            host.classList.remove("invalid");
+            host.removeAttribute("invalid");
         }
     }
 
@@ -84,9 +84,9 @@
         host.submitting = submitting;
         // Submitting => add class
         if (submitting) {
-            host.classList.add("submitting");
+            host.setAttribute("submitting", "");
         } else {
-            host.classList.remove("submitting");
+            host.removeAttribute("submitting");
         }
     }
 
@@ -217,7 +217,7 @@
             e.removeAttribute("touched");
         });
 
-        host.querySelectorAll(".dirty").forEach((e) => e.classList.remove("dirty"));
+        host.querySelectorAll("[dirty]").forEach((e) => e.removeAttribute("dirty"));
         await tick(); // wait for the form to be actually reset before getting the values;
 
         initialValues = getFormValues();
@@ -238,10 +238,10 @@
                 someDirty = true;
 
                 if (informField) {
-                    informField.classList.add("dirty");
+                    informField.setAttribute("dirty", "");
                 }
             } else if (informField) {
-                informField.classList.remove("dirty");
+                informField.removeAttribute("dirty");
             }
         });
 
@@ -327,8 +327,8 @@
     // Public methods
     //
     function publicReset(newValues) {
-        host.classList.remove("dirty");
-        host.querySelectorAll(".dirty").forEach((e) => e.classList.remove("dirty"));
+        host.removeAttribute("dirty");
+        host.querySelectorAll("[dirty]").forEach((e) => e.removeAttribute("dirty"));
 
         if (!newValues) {
             form.reset();
