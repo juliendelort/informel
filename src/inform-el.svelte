@@ -212,12 +212,15 @@
         currentValues = newValues;
     }
 
-    async function handleFormReset() {
+    function resetTouched() {
         host.querySelectorAll("[touched]").forEach((e) => {
             e.removeAttribute("touched");
         });
+    }
 
-        host.querySelectorAll("[dirty]").forEach((e) => e.removeAttribute("dirty"));
+    async function handleFormReset() {
+        resetTouched();
+
         await tick(); // wait for the form to be actually reset before getting the values;
 
         initialValues = getFormValues();
@@ -327,12 +330,10 @@
     // Public methods
     //
     function publicReset(newValues) {
-        host.removeAttribute("dirty");
-        host.querySelectorAll("[dirty]").forEach((e) => e.removeAttribute("dirty"));
-
         if (!newValues) {
             form.reset();
         } else {
+            resetTouched();
             [...form.elements].forEach((e) => {
                 const name = e.name;
                 setControlValue(e, newValues[name]);

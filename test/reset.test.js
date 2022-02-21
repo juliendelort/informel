@@ -204,6 +204,7 @@ describe('reset', () => {
                 await nextFrame();
 
                 expect(informEl.values).to.eql({ field: newValue });
+                expect(informEl.dirty).to.be.false;
             });
 
             it('removes the dirty flags', async () => {
@@ -224,7 +225,20 @@ describe('reset', () => {
             });
 
             if (hasInformField) {
-                it('removes the touched flags', async () => {
+                it('removes the touched flags and dirty flags when resetting with no value', async () => {
+                    await removeTouchedDirtyTest((informEl) => {
+                        informEl.reset();
+                    });
+
+                });
+
+                it('removes the touched flags and dirty flags when resetting with a new value', async () => {
+                    await removeTouchedDirtyTest((informEl) => {
+                        informEl.reset({ field: generateValue(initialValue) });
+                    });
+                });
+
+                async function removeTouchedDirtyTest(reset) {
                     const informEl = await fixture(html);
                     const informField = informEl.querySelector('inform-field');
                     const control = informEl.querySelector('#control');
@@ -234,13 +248,15 @@ describe('reset', () => {
                     await setValue(control, newValue);
 
                     expect(informField).to.have.attribute('touched');
+                    expect(informField).to.have.attribute('dirty');
 
-                    informEl.reset();
+                    reset(informEl);
+
                     await nextFrame();
 
                     expect(informField).not.to.have.attribute('touched');
-
-                });
+                    expect(informField).not.to.have.attribute('dirty');
+                }
             }
         });
     }
