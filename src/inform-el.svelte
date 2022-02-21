@@ -317,7 +317,7 @@
             control.checked = value;
         } else if (control.type === "radio") {
             control.checked = value === control.value;
-        } else if (control.type !== "file") {
+        } else if (control.type !== "file" || value === "") {
             // can't change file input value
             control.value = value;
         }
