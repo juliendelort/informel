@@ -1,15 +1,7 @@
-import { fixture, expect, elementUpdated, nextFrame } from '@open-wc/testing';
+import { fixture, expect, nextFrame } from '@open-wc/testing';
 import {
     type,
     clear,
-    generateTextInputValue,
-    setTextInputValue,
-    setCheckboxValue,
-    generateCheckboxValue,
-    setRadioValue,
-    generateRadioValue,
-    setSelectValue,
-    generateSelectValue,
     eventCheck
 } from './test-utils';
 import sinon from 'sinon';

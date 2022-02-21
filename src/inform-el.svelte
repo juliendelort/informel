@@ -180,8 +180,6 @@
         e.stopPropagation();
 
         currentValues = getFormValues();
-
-        // console.log("****input", { newValues: { ...newValues }, currentValues: { ...currentValues }, changed: diff(newValues, currentValues) });
         host.dispatchEvent(
             new CustomEvent("input", {
                 detail: {
@@ -285,6 +283,7 @@
         form.noValidate = true;
 
         host.reset = publicReset;
+        host.setValues = publicSetValues;
         form.addEventListener("submit", handleSubmit);
         form.addEventListener("input", handleInput);
         form.addEventListener("change", handleChange);
@@ -313,6 +312,17 @@
         };
     });
 
+    function setControlValue(control, value) {
+        if (control.type === "checkbox") {
+            control.checked = value;
+        } else if (control.type === "radio") {
+            control.checked = value === control.value;
+        } else if (control.type !== "file") {
+            // can't change file input value
+            control.value = value;
+        }
+    }
+
     //
     // Public methods
     //
@@ -325,19 +335,32 @@
         } else {
             [...form.elements].forEach((e) => {
                 const name = e.name;
-
-                if (e.type === "checkbox") {
-                    e.checked = newValues[name];
-                } else if (e.type === "radio") {
-                    e.checked = newValues[name] === e.value;
-                } else if (e.type !== "file") {
-                    // can't change file input value
-                    e.value = newValues[name];
-                }
+                setControlValue(e, newValues[name]);
             });
             initialValues = getFormValues();
             currentValues = initialValues;
         }
+    }
+
+    function publicSetValues(newValues) {
+        Object.keys(newValues).forEach((key) => {
+            const value = newValues[key];
+            const control = form.elements[key];
+            if (control) {
+                setControlValue(control, value);
+
+                control.dispatchEvent(
+                    new CustomEvent("input", {
+                        bubbles: true,
+                    })
+                );
+                control.dispatchEvent(
+                    new CustomEvent("change", {
+                        bubbles: true,
+                    })
+                );
+            }
+        });
     }
 </script>
 
