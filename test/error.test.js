@@ -1,4 +1,4 @@
-import { fixture, expect, elementUpdated } from '@open-wc/testing';
+import { fixture, expect, elementUpdated, nextFrame } from '@open-wc/testing';
 import {
     type,
     clear
@@ -224,8 +224,38 @@ describe('error', () => {
         expect(informField).not.to.have.attribute('error');
         expect(form.checkValidity()).to.be.true;
         expect(informEl).not.to.have.attribute('invalid');
+    });
 
+    it('considers validationHandler event if submitted immediately', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" value="a"/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const form = informEl.querySelector('form');
+        const informField = informEl.querySelector('inform-field');
+        const input = informEl.querySelector('[name="some-name"]');
+        const submitButton = informEl.querySelector('[type="submit"]');
 
+        informEl.validationHandler = ({ values }) => {
+            const result = {};
+            if (values['some-name'] === 'a') {
+                result['some-name'] = 'my custom error message';
+            }
+            return result;
+        };
+
+        submitButton.click();
+        await nextFrame();
+
+        expect(informField).to.have.attribute('error');
+        expect(informField).to.have.attribute('touched');
+        expect(informField).to.have.attribute('error-message', 'my custom error message');
     });
 });
 

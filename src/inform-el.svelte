@@ -167,6 +167,7 @@
 
         host.querySelectorAll("inform-field").forEach((e) => e.setAttribute("touched", ""));
 
+        checkValidity();
         if (!invalid) {
             host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
             await sendSubmitRequest(submitter);
