@@ -26,6 +26,23 @@ describe('"invalid" class is set when form is invalid', () => {
         });
     });
 
+    it('works with textarea', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <textarea id="control1" name="some-name" required></textarea>
+                            <textarea id="control2" name="some-description" required></textarea>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            validValue: generateTextInputValue(),
+            invalidValue: ''
+        });
+    });
+
     it('works with checkboxes', async () => {
         await runTests({
             html: `

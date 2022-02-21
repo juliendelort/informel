@@ -36,6 +36,26 @@ describe('input and change events', () => {
         });
     });
 
+    it('works with textarea', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <textarea id="control" name="some-name"></textarea>
+                            </inform-field>
+                             <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            generateValue: generateTextInputValue,
+            text: true,
+            initialValue: ''
+        });
+    });
+
     it('works with checkbox', async () => {
         await runTests({
             html: `

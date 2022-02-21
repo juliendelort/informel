@@ -96,6 +96,45 @@ describe('dirty check', () => {
         });
     });
 
+    describe('with textarea field', () => {
+        describe('with a initial value', () => {
+
+            runTests({
+                html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <textarea id="control" name="field">initial value</textarea>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                initialValue: 'initial value',
+                setValue: setTextInputValue,
+                generateValue: generateTextInputValue
+            });
+        });
+
+        describe('with no initial value', () => {
+            runTests({
+                html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <textarea id="control" name="field"></textarea>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                initialValue: '',
+                setValue: setTextInputValue,
+                generateValue: generateTextInputValue
+            });
+        });
+    });
+
     describe('with radio field', () => {
         describe('with a initial value', () => {
 

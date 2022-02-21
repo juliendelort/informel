@@ -33,6 +33,26 @@ describe('sets the "touched" attribute on <inform-field> on change', () => {
         });
     });
 
+    it('works with textarea', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field id="field1">
+                                <textarea class="control1"  name="some-name" required></textarea>
+                            </inform-field>
+                            <inform-field id="field2">
+                                <textarea class="control2" name="some-description" required></textarea>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            generateValue: generateTextInputValue
+        });
+    });
+
     it('works with checkbox', async () => {
         await runTests({
             html: `

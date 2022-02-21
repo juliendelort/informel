@@ -15,14 +15,35 @@ describe('reset', () => {
     describe('with text field', () => {
         runTests({
             html: `
-                            <inform-el>
-                                <form>
-                                    <inform-field>
-                                        <input id="control" type="text" name="field" value="some value"/>
-                                    </inform-field>
-                                    <button type="submit">Submit</button>
-                                </form>
-                            </inform-el>
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input id="control" type="text" name="field" value="some value"/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                            `,
+            setValue: setTextInputValue,
+            generateValue: generateTextInputValue,
+            initialValue: 'some value',
+
+
+            hasInformField: true
+        });
+    });
+
+    describe('with textarea', () => {
+        runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <textarea id="control" name="field" >some value</textarea>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
                             `,
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
