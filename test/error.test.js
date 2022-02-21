@@ -69,6 +69,12 @@ describe('error', () => {
                 return result;
             };
 
+            // Not touched: no error displayed
+            expect(getNativeContainer(informField)).not.to.exist;
+            if (slot) {
+                expect(getErrorContainer(informField)).to.have.rendered.text('');
+            }
+
             // Not in format email
             await type(input, 'a', true);
             if (slot) {
@@ -183,9 +189,13 @@ describe('error', () => {
             return result;
         };
 
+        // Not touched yet, not in error
+        expect(informField).not.to.have.attribute('error');
+
         await type(input, 'a', true); // Should be native only
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
-        expect(informField).to.have.attribute('error', input.validationMessage);
+        expect(informField).to.have.attribute('error-message', input.validationMessage);
+        expect(informField).to.have.attribute('error');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
 
         expect(input.validity.customError).to.be.false;
@@ -194,7 +204,8 @@ describe('error', () => {
         await clear(input);
         await type(input, 'ab'); // Should be a custom error only
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
-        expect(informField).to.have.attribute('error', 'my custom error message');
+        expect(informField).to.have.attribute('error-message', 'my custom error message');
+        expect(informField).to.have.attribute('error');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
         expect(form.checkValidity()).to.be.false;
         expect(informEl).to.have.class('invalid');
@@ -202,12 +213,14 @@ describe('error', () => {
         await clear(input);
         await type(input, 'cd'); // Should be both => still renders the custom one
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
-        expect(informField).to.have.attribute('error', 'my custom error message');
+        expect(informField).to.have.attribute('error-message', 'my custom error message');
+        expect(informField).to.have.attribute('error');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
 
         await clear(input);
         await type(input, 'ef'); // Should be no error
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(informField).not.to.have.attribute('error-message');
         expect(informField).not.to.have.attribute('error');
         expect(form.checkValidity()).to.be.true;
         expect(informEl).not.to.have.class('invalid');

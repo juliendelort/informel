@@ -1,5 +1,5 @@
 <script>
-    export let error = "";
+    export let errorMessage = "";
     export let touched = null;
     export let submitOnChange = null;
     import { onMount } from "svelte";
@@ -13,8 +13,14 @@
     let submitOnChangeIsPresent;
 
     $: {
-        error;
-        // On error, update slot
+        // Update error attribute
+        if (errorMessage && touchedIsPresent) {
+            host.setAttribute("error", "");
+        } else {
+            host.removeAttribute("error", "");
+        }
+
+        // Update slot content when errorMessage or touched has changed
         updateErrorSlot();
     }
 
@@ -38,11 +44,12 @@
     }
 
     function updateErrorSlot() {
+        // Update slot content
         const errorSlotChild = errorSlot?.assignedElements()?.[0];
         errorSlotHasContent = !!errorSlotChild;
 
-        if (errorSlotChild) {
-            errorSlotChild.textContent = error;
+        if (errorSlotChild && touchedIsPresent) {
+            errorSlotChild.textContent = errorMessage;
         }
     }
 
@@ -58,8 +65,8 @@
 
 <div on:input={handleInput} on:change={handleChange} bind:this={rootElement}>
     <slot />
-    {#if error && !errorSlotHasContent && touchedIsPresent}
-        <div class="form-field-error" role="alert">{error}</div>
+    {#if errorMessage && !errorSlotHasContent && touchedIsPresent}
+        <div class="form-field-error" role="alert">{errorMessage}</div>
     {/if}
     <slot name="error" />
 </div>

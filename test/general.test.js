@@ -29,7 +29,7 @@ describe('general tests', () => {
             <inform-el>
                 <form>
                 <inform-field >
-                    <input type="text" name="some-name" required/>
+                    <input type="text" name="some-name" required pattern="^ab$"/>
                 </inform-field>
                 <button type="submit">Submit</button>
                 </form>
@@ -39,11 +39,18 @@ describe('general tests', () => {
         const input = informEl.querySelector('[name="some-name"]');
         const informField = informEl.querySelector('inform-field');
 
-        expect(informField).to.have.attribute('error', input.validationMessage);
-
-        // Set a value => no more error
-        await type(input, 'value1');
+        // Only set error when touched
         expect(informField).not.to.have.attribute('error');
+        expect(informField).to.have.attribute('error-message', input.validationMessage);
+
+        await type(input, 'a', true); // touched but still in error
+        expect(informField).to.have.attribute('error');
+        expect(informField).to.have.attribute('error-message', input.validationMessage);
+
+        // no more error
+        await type(input, 'b', true);
+        expect(informField).not.to.have.attribute('error');
+        expect(informField).not.to.have.attribute('error-message');
     });
 
     it('only shows the error when touched', async () => {
@@ -80,7 +87,7 @@ describe('general tests', () => {
 
         // No more error 
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
-        expect(informField).not.to.have.attribute('error');
+        expect(informField).not.to.have.attribute('error-message');
 
 
     });

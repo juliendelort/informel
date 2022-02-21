@@ -266,9 +266,9 @@
             if (informField) {
                 const errorPropValue = customValidationErrors?.[element.name] ?? getFieldError(element, informField);
                 if (errorPropValue) {
-                    informField.setAttribute("error", errorPropValue);
+                    informField.setAttribute("error-message", errorPropValue);
                 } else {
-                    informField.removeAttribute("error");
+                    informField.removeAttribute("error-message");
                 }
             }
         });
