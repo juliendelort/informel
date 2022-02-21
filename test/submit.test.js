@@ -259,6 +259,33 @@ describe('submit', () => {
             });
         });
 
+        it('works with search params already in the url', async () => {
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form  action="${formUrl}?already=present" method="GET">
+                            <inform-field>
+                                <input type="text" name="field" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+
+            await type(input, 'a', true);
+
+            submitButton.click();
+
+            expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?already=present&field=a`, {
+                method: 'get',
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+        });
+
         it('sets the "submitting" class and disables submit button while submitting', async () => {
             const informEl = await fixture(`
                     <inform-el>
