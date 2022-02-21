@@ -76,7 +76,7 @@
         color: var(--error-color, red);
         margin: var(--error-margin, 0 0 0 0);
         font-size: var(--error-font-size, 1rem);
-        font-family: var(--error-font-family, 1rem);
+        font-family: var(--error-font-family, inherit);
         display: var(--error-display, block);
     }
 </style>

@@ -5,6 +5,8 @@ custom_edit_url: null
 title: "Getting Started"
 ---
 
+import InformFieldErrorPartialExample from "./_inform-field-error-partial-example.mdx";
+
 <h1 style={{ display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Balsamiq sans" }}>
     <img width="10%" height="10%" src="/img/logo.svg" />
     <span style={{ marginLeft: "20px", paddingTop: "5px" }}>informel</span>
@@ -67,7 +69,7 @@ Just wrap your native form in `<inform-el />`:
 </inform-el>
 ```
 
-:::tip Don't forget the `<form>` element as `<informel>` heavily relies on native form features!
+:::tip Don't forget the `<form>` element as `<inform-el>` heavily relies on native form features!
 :::
 
 Then you can listen to the `submit` event on `<inform-el>` which gives you the form values:
@@ -78,41 +80,22 @@ document.querySelector("inform-el").addEventListener("submit", ({ detail: { valu
 });
 ```
 
-<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/hkpm5b2n/10/embedded/result,html,js/"></iframe>
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/hkpm5b2n/14/embedded/result,html,js/"></iframe>
 
 ### Show validation errors
 
 In order to automatically show validation errors, wrap your fields in `<inform-field />`.
 
-```html
-<inform-el>
-    <form>
-        <inform-field>
-            <input type="text" name="firstName" placeholder="First name" required />
-        </inform-field>
-        <inform-field>
-            <input type="text" name="lastName" placeholder="Last name" required />
-        </inform-field>
-        <button type="submit">Submit</button>
-    </form>
-</inform-el>
-```
-
-Try submitting the empty form below to see the errors:
-
-<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/5Lfdzsew/4/embedded/result,html/"></iframe>
-
-:::tip `informel` leverages [native form validation features](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation) and displays [native validation messages](https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement/validationMessage) by default.
-:::
+<InformFieldErrorPartialExample />
 
 Here is a more elaborated example that showcases some of `informel` features:
 
-<iframe width="100%" height="800" src="//jsfiddle.net/juliendelort/rwz9gxu2/93/embedded/result,html,js,css"></iframe>
+<iframe width="100%" height="800" src="//jsfiddle.net/juliendelort/rwz9gxu2/95/embedded/result,html,js,css"></iframe>
 
 :::tip You are still in full control of the styling and layout of your forms.
 :::
 
-On top of that, `informel` accepts custom validation rules, as well as custom error messages. For more information, see [error customization](/docs/error-customization).
+On top of that, `informel` accepts custom validation rules, as well as custom error messages. For more information, see [validation rules & error messages](/docs/validation-rules).
 
 ## Send an Ajax request on submit
 

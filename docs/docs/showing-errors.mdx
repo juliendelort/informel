@@ -1,0 +1,60 @@
+---
+sidebar_position: 1
+hide_title: true
+custom_edit_url: null
+title: "Showing validation errors"
+---
+
+import InformFieldErrorPartialExample from "./_inform-field-error-partial-example.mdx";
+
+# Showing validation errors
+
+When wrapping form controls in `<inform-field/>`, validation errors are automatically displayed:
+
+-   When attempting to submit the form
+-   Or when the field has been "touched"
+
+See the example below:
+
+<InformFieldErrorPartialExample />
+
+## Customizing errors
+
+### CSS variables
+
+It is possible to style the errors shown by `<inform-field />` by using the following CSS variables:
+
+-   `--error-color`: Color of the error text. Default: `red`. Accepts any valid value for CSS `color:` property.
+-   `--error-margin`: Margin of the error text. Default: `0 0 0 0`. Accepts any valid value for CSS `margin:` property.
+-   `--error-font-size`: Font size of the error text. Default: `1rem`. Accepts any valid value for CSS `font-size:` property.
+-   `--error-font-family`: Font size of the error text. Default: `inherit`. Accepts any valid value for CSS `font-family:` property.
+-   `--error-display`: Font size of the error text. Default: `block`. Accepts any valid value for CSS `display:` property.
+
+It is possilbe to set those CSS variable, either globally on `<inform-el />` (applies to all fields), or individually on a `<inform-field />` element.
+
+Example:
+
+```css
+inform-el {
+    --error-color: blue;
+    --error-margin: 0 0 0 10px;
+    --error-display: inline-block;
+    --error-font-size: 0.75rem;
+    --error-font-family: "courier new";
+}
+```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/xzc4tnga/14/embedded/result,html,css,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
+### Custom error slot
+
+It is also possible to come with your own DOM element for showing the error, by providing an error slot:
+
+```html
+<inform-field>
+    <input type="text" name="firstName" placeholder="First name" required />
+    <span slot="error" role="alert" />
+</inform-field>
+```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/co8nwqey/7/embedded/result,html,css,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
