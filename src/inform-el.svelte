@@ -30,7 +30,7 @@
     }
 
     $: {
-        // When currentValue changes => dirty check + validity check
+        // When currentValue or initialValues change => dirty check + validity check
         currentValues;
         checkDirty();
         checkValidity();
@@ -163,7 +163,7 @@
         e.preventDefault();
         e.stopPropagation();
 
-        const submitter = e.submitter || e.detail.submitter; // If event is customsubmit, we need to check e.detail.submitter
+        const submitter = e.submitter || e.detail.submitter; // If event is customsubmit (attribute submit-on-change on inform0-field), we need to check e.detail.submitter
 
         host.querySelectorAll("inform-field").forEach((e) => e.setAttribute("touched", ""));
 
@@ -173,6 +173,11 @@
             if (resetOnSubmitIsPresent) {
                 form.reset();
             }
+
+            // Remove touched + dirty statuses after submitting
+            resetTouched();
+            initialValues = currentValues;
+            checkDirty();
         }
     }
 

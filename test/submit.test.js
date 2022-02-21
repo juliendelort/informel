@@ -39,9 +39,9 @@ describe('submit', () => {
         expect(informField).to.have.attribute('touched');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
-
-
     });
+
+
     it('triggers the submit event with the form values if the form is valid', async () => {
         const informEl = await fixture(`
                 <inform-el>
@@ -76,6 +76,38 @@ describe('submit', () => {
         expect(submitDetails()).to.eql({ values: { 'some-name': 'something' } });
     });
 
+    it('removes dirty and touched after submitting', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const input = informEl.querySelector('[name="some-name"]');
+        const submitButton = informEl.querySelector('[type="submit"]');
+        const informField = informEl.querySelector('inform-field');
+
+        await type(input, 'a', true);
+
+        expect(informEl.dirty).to.be.true;
+        expect(informEl).to.have.attribute('dirty');
+        expect(informField).to.have.attribute('dirty');
+        expect(informField).to.have.attribute('touched');
+
+        submitButton.click();
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+        expect(informEl).not.to.have.attribute('dirty');
+        expect(informField).not.to.have.attribute('dirty');
+        expect(informField).not.to.have.attribute('touched');
+    });
+
     describe('reset-on-submit', () => {
         it('does\'nt reset if not present', async () => {
             const informEl = await fixture(`
@@ -106,8 +138,7 @@ describe('submit', () => {
 
             // Not resetted
             expect(resetHasBeenCalled()).to.be.false;
-            expect(input.value).to.equal('something');
-            expect(informEl.dirty).to.be.true;
+            expect(input).to.have.value('something');
 
             // Set the attribute
             informEl.setAttribute('reset-on-submit', '');
@@ -118,8 +149,7 @@ describe('submit', () => {
             await nextFrame();
             // Resetted this time
             expect(resetHasBeenCalled()).to.be.true;
-            expect(input.value).to.equal('');
-            expect(informEl.dirty).to.be.false;
+            expect(input).to.have.value('');
 
         });
 
@@ -152,8 +182,7 @@ describe('submit', () => {
 
             // Resetted
             expect(resetHasBeenCalled()).to.be.true;
-            expect(input.value).to.equal('');
-            expect(informEl.dirty).to.be.false;
+            expect(input).to.have.value('');
 
         });
     });
