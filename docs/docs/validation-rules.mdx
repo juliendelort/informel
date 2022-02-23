@@ -31,4 +31,18 @@ When a field is in error, the control's [validationMessage](https://developer.mo
 
 For example, on Google Chrome, `<input type="text" required />` will show `Please fill out this field.` while `<input type="checkbox" required />` will show `Please check this box if you want to proceed.`.
 
-There are different ways to customize this behavior.
+To customize this behavior, you can either use [validationHandler as shown above](validation-rules#custom-validation-rules), or use the following attributes on `<inform-field />`:
+
+-   `default-error`: a fixed error message displayed whenever the field is in error (regardless of the reason).
+-   For each property in the [native ValidityState object](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState), `<inform-field />` accepts a corresponding kebab-case attribute to specify the error message.
+    For example, if the field is `<input type="email" required />` and you want to show different errors when the value is not set or when the value doesn't have the right format,
+    you can use the `value-missing` and the [`type-mismatch`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/typeMismatch) attributes. See them in action here:
+
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/zngptexb/6/embedded/html,result/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
+When multiple errors are specified, the order of precedence is:
+
+1. Error returned by validationHandler
+2. `<inform-field />` ValidityState attribute
+3. `<inform-field />` "default-error" attribute
+4. The element native [validationMessage](https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement/validationMessage).

@@ -1,0 +1,43 @@
+---
+hide_title: true
+custom_edit_url: null
+title: "Listening for changes"
+---
+
+# Listening for changes
+
+`<inform-el />` relays the following native events, with some added information:
+
+-   [input](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event)
+-   [change](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event)
+
+Both events contain a [detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) field, which is an object with the following fields:
+
+-   `values` : the current form values.
+-   `changedField`: the name of the field that changed.
+
+Here is an example:
+
+```html
+<inform-el>
+    <form>
+        <label>
+            First Name
+            <input type="text" name="firstName" />
+        </label>
+        <label>
+            Last Name
+            <input type="text" name="lastName" />
+        </label>
+        <button type="submit">Submit</button>
+    </form>
+</inform-el>
+
+<script>
+    document.querySelector("inform-el").addEventListener("input", ({ detail: { values, changeField } }) => {
+        // After typing 'a' in "First Name":
+        console.log("Values:", values); // {firstName: 'a', lastName: ''}
+        console.log("Changed field:", changeField); // "firstName"
+    });
+</script>
+```
