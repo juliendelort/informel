@@ -11,10 +11,11 @@ title: "Validation rules & error messages"
 
 `informel` uses [the browser built-in form validation](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation#using_built-in_form_validation) by default, with attributes such as [required](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required), [minlength](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/minlength), [pattern](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern), `type="email"`, `type="url"` etc...
 
-Here is an example:
+Here is an example (try submitting the form):
 
-<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/w78zmyrs/24/embedded/result,html" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
-
+<iframe width="100%" height="500" src="//jsfiddle.net/juliendelort/w78zmyrs/25/embedded/result,html" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+<br />
+<br />
 On top of that, it is possible to specify custom validation rules, via the `validationHandler` property:
 
 ```javascript
@@ -23,7 +24,7 @@ document.querySelector("inform-el").validationHandler = ({ values }) => {
 };
 ```
 
-<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/cs9uqpt3/8/embedded/result,html,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/cs9uqpt3/11/embedded/result,html,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
 
 ## Custom error message
 
@@ -38,7 +39,7 @@ To customize this behavior, you can either use [validationHandler as shown above
     For example, if the field is `<input type="email" required />` and you want to show different errors when the value is not set or when the value doesn't have the right format,
     you can use the `value-missing` and the [`type-mismatch`](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/typeMismatch) attributes. See them in action here:
 
-<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/zngptexb/6/embedded/html,result/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+<iframe width="100%" height="500" src="//jsfiddle.net/juliendelort/zngptexb/8/embedded/html,result/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
 
 When multiple errors are specified, the order of precedence is:
 

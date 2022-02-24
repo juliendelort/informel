@@ -11,3 +11,19 @@ A form is "dirty" if any of its field has changed since:
 -   it was loaded
 -   or it was last reset
 -   or it was last submitted
+
+When the form is dirty:
+
+-   `<inform-el/>` has a `dirty` attribute: `<inform-el dirty />`.
+-   `<inform-el/>` has a `dirty` property:
+
+```js
+document.querySelector("inform-el").dirty; // true
+```
+
+The example below uses the dirty attribute and CSS to show a warning only when the form is dirty:
+
+<iframe width="100%" height="600" src="//jsfiddle.net/juliendelort/exm47c1b/5/embedded/result,html/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
+Try changing the first name: the warning appears.
+Try setting the first name back to "changeme": the warning disappears!
