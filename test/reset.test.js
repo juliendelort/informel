@@ -7,7 +7,8 @@ import {
     setRadioValue,
     generateRadioValue,
     setSelectValue,
-    generateSelectValue
+    generateSelectValue,
+    type
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -281,4 +282,49 @@ describe('reset', () => {
             }
         });
     }
+
+    describe('with multiple fields', () => {
+        it('reset fields that are not specified to their initial values', async () => {
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input type="text" name="field1" />
+                            </inform-field>
+                            <inform-field>
+                                <input  type="text" name="field2" value="field2 init"/>
+                            </inform-field>
+                            <inform-field>
+                                <input  type="text" name="field3"/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>`);
+
+            const field1Input = informEl.querySelector('[name="field1"]');
+            const field2Input = informEl.querySelector('[name="field2"]');
+            const field3Input = informEl.querySelector('[name="field3"]');
+
+            await type(field2Input, 'field2 changed');
+
+            informEl.reset({ field1: 'field1 reset' });
+            await nextFrame();
+
+            expect(field1Input).to.have.value('field1 reset');
+            expect(field2Input).to.have.value('field2 init');
+            expect(field3Input).to.have.value('');
+            expect(informEl.values).to.eql({ field1: 'field1 reset', field2: 'field2 init', field3: '' });
+
+            // Change values again and reset => back to the last reset
+            await type(field1Input, 'field1 second change');
+            informEl.reset({ field1: 'field1 reset' });
+
+            await nextFrame();
+
+            expect(field1Input).to.have.value('field1 reset');
+            expect(field2Input).to.have.value('field2 init');
+            expect(field3Input).to.have.value('');
+            expect(informEl.values).to.eql({ field1: 'field1 reset', field2: 'field2 init', field3: '' });
+        });
+    });
 });

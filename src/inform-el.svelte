@@ -342,7 +342,12 @@
             resetTouched();
             [...form.elements].forEach((e) => {
                 const name = e.name;
-                setControlValue(e, newValues[name]);
+                const value = newValues[name];
+                if (value !== undefined && value !== null) {
+                    setControlValue(e, value);
+                } else {
+                    setControlValue(e, initialValues[name]);
+                }
             });
             initialValues = getFormValues();
             currentValues = initialValues;
