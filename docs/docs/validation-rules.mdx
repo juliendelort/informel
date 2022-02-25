@@ -47,3 +47,9 @@ When multiple errors are specified, the order of precedence is:
 2. `<inform-field />` ValidityState attribute
 3. `<inform-field />` "default-error" attribute
 4. The element native [validationMessage](https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement/validationMessage).
+
+## Disabling the submit button on error
+
+When adding the `error-disable-submit` attribute on `<inform-el />`, the submit button is automatically disabled until all fields are valid:
+
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/af3xg54h/1/embedded/result,html/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>

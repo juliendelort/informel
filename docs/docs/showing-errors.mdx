@@ -13,6 +13,9 @@ When wrapping form controls in `<inform-field/>`, validation errors are automati
 -   When attempting to submit the form
 -   Or when the field has been "touched"
 
+This means that errors are not shown when initially loading the form even if some fields are invalid (for example when using the [required](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required) attribute).
+Errors are shown for a field after the user modifies it for the first time, or when trying to submit.
+
 See the example below:
 
 <InformFieldErrorPartialExample />
@@ -43,7 +46,7 @@ inform-el {
 }
 ```
 
-<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/xzc4tnga/14/embedded/result,html,css,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/xzc4tnga/18/embedded/result,html,css,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
 
 ### Custom error slot
 
@@ -56,4 +59,4 @@ It is also possible to come with your own DOM element for showing the error, by 
 </inform-field>
 ```
 
-<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/co8nwqey/7/embedded/result,html,css,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/co8nwqey/8/embedded/result,html,css,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
