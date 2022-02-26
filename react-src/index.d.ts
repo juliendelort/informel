@@ -11,6 +11,7 @@ export type SubmitTransform<FormValuesType, RequestType = FormValuesType> = (par
 
 export type InformElProps<FormValuesType, ResponseType, RequestType> = React.PropsWithChildren<{
     className?: string;
+    style?: React.CSSProperties;
     ["error-disable-submit"]?: boolean;
     ["reset-on-submit"]?: boolean;
     onInformelReady?: VoidFunction;
@@ -30,6 +31,17 @@ export type InformElComponent = <FormValuesType = FormValuesDefaultType, Respons
 export const InformEl: InformElComponent;
 
 export const InformField: React.FC<{
-    ["submit-on-change"]?: boolean;
     className?: string;
+    style?: React.CSSProperties;
+    ["default-error"]?: string;
+    ["bad-input"]?: string;
+    ["pattern-mismatch"]?: string;
+    ["range-overflow"]?: string;
+    ["range-underflow"]?: string;
+    ["step-mismatch"]?: string;
+    ["too-long"]?: string;
+    ["too-short"]?: string;
+    ["type-mismatch"]?: string;
+    ["value-missing"]?: string;
+
 }>;

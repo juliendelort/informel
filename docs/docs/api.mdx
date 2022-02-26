@@ -1,7 +1,7 @@
 ---
 hide_title: true
 custom_edit_url: null
-title: "API"
+title: 'API'
 ---
 
 # API
@@ -12,9 +12,12 @@ title: "API"
 
 -   `error-disable-submit` (boolean, true if present): Set this in order to automatically disable the submit button until the form is valid.
 -   `reset-on-submit` (boolean, true if present): Set this in order to automatically reset the form after submit.
--   `submitting` (boolean, true if present): This is automatically set while the form is sending an AJAX request (based on the `<form>` `action` and `method` attributes). Can be used to show a loading state.
--   `invalid` (boolean, true if present): This is automatically set while the form invalid.
--   `dirty` (boolean, true if present): This is automatically set while the form dirty.
+
+The attributes below are automatically set:
+
+-   `submitting` (boolean, true if present): Set while the form is sending an AJAX request (based on the `<form>` `action` and `method` attributes). Can be used to show a loading state.
+-   `invalid` (boolean, true if present): Set while the form invalid.
+-   `dirty` (boolean, true if present): Set while the form dirty.
 
 `action` and `method` are native forms attribute but must be specified on the `<form>` element, if applicable.
 
@@ -138,15 +141,15 @@ Function that receives the current form values and returns the errors in the for
 
 ```js
 {
-    fieldName: "Error description";
+    fieldName: 'Error description';
 }
 ```
 
 Example:
 
 ```js
-document.querySelector("inform-el").validationHandler = ({ values }) => ({
-    password_repeat: values.password !== values.password_repeat ? "Passwords must match!" : "",
+document.querySelector('inform-el').validationHandler = ({ values }) => ({
+    password_repeat: values.password !== values.password_repeat ? 'Passwords must match!' : '',
 });
 ```
 
@@ -161,9 +164,9 @@ data to send to the backend.
 Example:
 
 ```js
-document.querySelector("inform-el").submitTransform = (values) => ({
+document.querySelector('inform-el').submitTransform = (values) => ({
     ...values,
-    fullName: values.firstName + " " + values.lastName,
+    fullName: values.firstName + ' ' + values.lastName,
 });
 ```
 
@@ -172,5 +175,18 @@ document.querySelector("inform-el").submitTransform = (values) => ({
 ### Attributes
 
 -   `submit-on-change` (boolean, true if present): If present, the form will be submitted whenever this field has changed (as part the [change event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event))
+-   `default-error` (string): Error message to display when this field is in error, regardless of the error.
+-   `bad-input` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [badInput](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/badInput).
+-   `pattern-mismatch` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [patternMismatch](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/patternMismatch).
+-   `range-overflow` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [rangeOverflow](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/rangeOverflow).
+-   `range-underflow` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [rangeUnderflow](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/rangeUnderflow).
+-   `step-mismatch` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [stepMismatch](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/stepMismatch).
+-   `too-long` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [tooLong](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/tooLong).
+-   `too-short` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [tooShort](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/tooShort).
+-   `type-mismatch` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [typeMismatch](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/typeMismatch).
+-   `value-missing` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [valueMissing](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/valueMissing).
+
+The attributes below are automatically set:
+
 -   `touched` (boolean, true if present): If present, this field has been "touched" (blurred at least once), or a submission attempt has been made.
 -   `error` (boolean, true if present): If present, this field is invalid and the error is displayed (error is only displayed when the field has been touched).

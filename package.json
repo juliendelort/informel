@@ -1,6 +1,6 @@
 {
   "name": "informel",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "main": "public/build/bundle.js",
   "types": "react/index.d.ts",
   "repository": "https://github.com/juliendelort/informel",
