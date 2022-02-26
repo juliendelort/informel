@@ -1,9 +1,17 @@
 {
   "name": "informel",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "main": "public/build/bundle.js",
   "repository": "https://github.com/juliendelort/informel",
-  "homepage": "https://juliendelort.github.io/informel/",
+  "homepage": "https://juliendelort.github.io/informel",
+  "keywords": [
+    "form",
+    "forms",
+    "web component",
+    "validation",
+    "dirty",
+    "submit"
+  ],
   "files": [
     "public/build/*"
   ],
