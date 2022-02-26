@@ -6,18 +6,171 @@ title: "API"
 
 # API
 
-## Events
+## `<inform-el>`
 
-Add a table with:
+### Attributes
 
--   event name
--   element (inform-el, inform-field, form, input, etc...)
--   description
+-   `error-disable-submit` (boolean, true if present): Set this in order to automatically disable the submit button until the form is valid.
+-   `reset-on-submit` (boolean, true if present): Set this in order to automatically reset the form after submit.
+-   `submitting` (boolean, true if present): This is automatically set while the form is sending an AJAX request (based on the `<form>` `action` and `method` attributes). Can be used to show a loading state.
+-   `invalid` (boolean, true if present): This is automatically set while the form invalid.
+-   `dirty` (boolean, true if present): This is automatically set while the form dirty.
 
-## Attributes
+`action` and `method` are native forms attribute but must be specified on the `<form>` element, if applicable.
 
-Same a above, specify what is on `<form />` and what is on `<inform-el />` (table). Similar to https://testing-library.com/docs/react-testing-library/cheatsheet#queries
+### Events
 
-## Methods
+<table>
+    <thead>
+        <tr>
+            <th>event</th>
+            <th>content of detail field</th>
+            <th>description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>informel-ready</td>
+            <td>none</td>
+            <td>The component has been initialized and is ready to be used. Wait for this event before calling any method.</td>
+        </tr>
+        <tr>
+            <td>input</td>
+            <td>
+                <ul>
+                    <li>values: the form values</li>
+                    <li>changedField: the name of the field that changed</li>
+                </ul>
+            </td>
+            <td>
+                See <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event">input event</a>
+            </td>
+        </tr>
+        <tr>
+            <td>change</td>
+            <td>
+                <ul>
+                    <li>values: the form values</li>
+                    <li>changedField: the name of the field that changed</li>
+                </ul>
+            </td>
+            <td>
+                See <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event">change event</a>
+            </td>
+        </tr>
+        <tr>
+            <td>submit</td>
+            <td>
+                <ul>
+                    <li>values: the form values</li>
+                </ul>
+            </td>
+            <td>
+                See <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/submit_event">submit event</a>
+            </td>
+        </tr>
+        <tr>
+            <td>requestStart</td>
+            <td>
+                <ul>
+                    <li>values: the form values</li>
+                </ul>
+            </td>
+            <td>The form AJAX request (based on action and method form attributes) has started. Can be used to display a loading state.</td>
+        </tr>
+        <tr>
+            <td>requestEnd</td>
+            <td>
+                <ul>
+                    <li>values: the form values</li>
+                </ul>
+            </td>
+            <td>The form AJAX request (based on action and method form attributes) has ended. Can be used to hide the loading state.</td>
+        </tr>
+        <tr>
+            <td>requestSuccess</td>
+            <td>
+                <ul>
+                    <li>values: the form values</li>
+                    <li>response: the json response</li>
+                    <li>status: the http status</li>
+                </ul>
+            </td>
+            <td>The form AJAX request has succeeded (status 2XX)</td>
+        </tr>
+        <tr>
+            <td>requestError</td>
+            <td>
+                <ul>
+                    <li>values: the form values</li>
+                    <li>response: the json response</li>
+                    <li>status: the http status</li>
+                    <li>error: the exception if there was one</li>
+                </ul>
+            </td>
+            <td>The form AJAX request has failed (status != 2XX) or there was an exception</td>
+        </tr>
+    </tbody>
+</table>
 
-## Classes
+All the native events also bubble up to `<inform-el>`.
+
+### Methods
+
+#### `reset(newValues?)`
+
+Resets the form. If `newValues` is provided the form will be reset to the provided values.
+If no `newValues` are provided, the form will reset to the last reset value or to the initial values.
+
+The `dirty` and `invalid` and `touched` states are also reset.
+
+#### `setValues(newValues)`
+
+Sets form values, without resetting.
+
+### Properties
+
+The `submitting`, `dirty` and `invalid` attributes mentioned above are also exposed as properties.
+
+#### `validationHandler`
+
+Function that receives the current form values and returns the errors in the format:
+
+```js
+{
+    fieldName: "Error description";
+}
+```
+
+Example:
+
+```js
+document.querySelector("inform-el").validationHandler = ({ values }) => ({
+    password_repeat: values.password !== values.password_repeat ? "Passwords must match!" : "",
+});
+```
+
+The above will display the "Passwords must match!" error next to the `password_repeat` field if it's not
+identical to the `password` field.
+
+#### `submitTransform`
+
+Function called before submit. It receives the form values and returns the transformed
+data to send to the backend.
+
+Example:
+
+```js
+document.querySelector("inform-el").submitTransform = (values) => ({
+    ...values,
+    fullName: values.firstName + " " + values.lastName,
+});
+```
+
+## `<inform-field>`
+
+### Attributes
+
+-   `submit-on-change` (boolean, true if present): If present, the form will be submitted whenever this field has changed (as part the [change event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event))
+-   `touched` (boolean, true if present): If present, this field has been "touched" (blurred at least once), or a submission attempt has been made.
+-   `error` (boolean, true if present): If present, this field is invalid and the error is displayed (error is only displayed when the field has been touched).

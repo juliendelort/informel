@@ -6,6 +6,7 @@ title: "Getting Started"
 ---
 
 import InformFieldErrorPartialExample from "./_inform-field-error-partial-example.mdx";
+import JokesExample from "./_jokes_example.mdx";
 
 <h1 style={{ display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Balsamiq sans" }}>
     <img width="10%" height="10%" src="/img/logo.svg" />
@@ -14,7 +15,9 @@ import InformFieldErrorPartialExample from "./_inform-field-error-partial-exampl
     {/* <span style='font-family: "Balsamiq Sans";'>informel</span> */}
 </h1>
 
-`informel` is a Web Component that wraps your native HTML forms and gives them super powers.  
+`informel` is a Web Component that wraps your native HTML forms and gives them super powers.
+
+<br />
 Features:
 
 ✅ &nbsp;Easily obtain form values  
@@ -23,6 +26,8 @@ Features:
 ✅ &nbsp;Easily track form validity state through classes  
 ✅ &nbsp;Keep track of whether your form is dirty or not  
 ✅ &nbsp;**Auto submission via AJAX call, using `action` and `method` attributes**
+
+`informel` is a headless library: all the styling styling belongs to you!
 
 ## Installation
 
@@ -69,7 +74,8 @@ Just wrap your native form in `<inform-el />`:
 </inform-el>
 ```
 
-:::tip Don't forget the `<form>` element as `<inform-el>` heavily relies on native form features!
+:::danger Don't forget the `<form>` element!
+`<inform-el>` heavily relies on native Forms features!
 :::
 
 Then you can listen to the `submit` event on `<inform-el>` which gives you the form values:
@@ -90,19 +96,9 @@ In order to automatically show validation errors, wrap your fields in `<inform-f
 
 Here is a more elaborated example that showcases some of `informel` features:
 
-<iframe width="100%" height="800" src="//jsfiddle.net/juliendelort/rwz9gxu2/100/embedded/result,html,js,css"></iframe>
+<JokesExample />
 
 :::tip You are still in full control of the styling and layout of your forms.
 :::
 
 On top of that, `informel` accepts custom validation rules, as well as custom error messages. For more information, see [validation rules & error messages](/docs/validation-rules).
-
-## Send an Ajax request on submit
-
-## Dirty check
-
-## API (events, attributes and classes)
-
-## Limitations
-
-`<select multiple />` not supported.

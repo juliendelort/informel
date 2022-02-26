@@ -1,9 +1,109 @@
 ---
+sidebar_position: 6
 hide_title: true
 custom_edit_url: null
 title: "Submitting"
 ---
 
+import JokesExample from "./_jokes_example.mdx";
+
 # Submitting
 
+`informel` relies on the `<form />` being submitted. This happens when:
+
+-   Clicking on the submit button (`<button type="submit"></button>` or `<input type="submit" />`).
+-   Calling [form.requestSubmit()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/requestSubmit)
+
+:::danger form.submit()
+Calling [form.submit()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/submit) would also submit the form, but it would bypass all the checks performed by `informel`.
+:::
+
+The submission stops if some fields are in error.
+
+All fields become "touched" when attempting to submit the form and errors are displayed.
+
+## `submit` event
+
+When the form is valid and the form is submitted, the `submit` event is triggered and the form values are passed in the [event detail field](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)
+
+```js
+document.querySelector("inform-el").addEventListener("submit", ({ detail: { values } }) => {
+    console.log("Successfully submitted!", values);
+});
+```
+
+## Sending AJAX request on submit
+
+If the [action](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-action) and [method](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form#attr-method) attributes are specified
+on the form, `informel` will automatically send the corresponding AJAX request on submit.
+
+:::danger `action` and `method` are `<form/>` attributes, not `<inform-el />` attributes!
+:::
+
+See the example below:
+
+<JokesExample />
+
+Different events are emitted along the way:
+
+-   `requestStart`: The AJAX request has started. `detail` contains the following fields:
+    -   `values`: the form values.
+-   `requestSuccess`: The AJAX request has succeeded (status 2XX). `detail` contains the following fields:
+    -   `values`: the form values.
+    -   `response`: the json response.
+    -   `status`: the http status.
+-   `requestError`: The AJAX request has returned an error (status != 2XX) or there was an exception. `detail` contains the following fields:
+    -   `values`: the form values.
+    -   `response`: the json response.
+    -   `status`: the http status
+    -   `error`: if there was an exception, the error.
+-   `requestEnd`: The AJAX request has end, regardless of the result. `detail` contains the following fields:
+    -   `values`: the form values.
+
+## Sending files
+
+If any of the field is of type [File](https://developer.mozilla.org/en-US/docs/Web/API/File/File), the is sent with header [Content-Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type) `multipart/form-data`.
+Otherwise, the data is sent with header [Content-Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type) `application/json`.
+
+## Transforming form values before submitting
+
+`<inform-el>` has a `submitTransform()` method called before submission, if implemented.
+
+It receives the form values as parameter and must returns the parameters to send, as an object.
+
+Example:
+
+```js
+document.querySelector("inform-el").submitTransform = (values) => ({
+    ...values,
+    fullName: values.firstName + " " + values.lastName,
+});
+```
+
+## Restting the form after submission
+
+It is possible to automatically reset the form after submission by using the `reset-on-submit` attribute:
+
+```html
+<inform-el reset-on-submit> ... </inform-el>
+```
+
 ## submit-on-change
+
+`<inform-field />` supports `submit-on-change` field which will trigger form submission whenever the field has
+changed (received the [change event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event)).
+
+For example:
+
+```html
+<inform-el>
+    <form action={`https://todo.test/api/task/${task.id}`} method="post">
+        <inform-field submit-on-change>
+            <input type="checkbox" name="done" />
+        </inform-field>
+    </form>
+</inform-el>
+```
+
+The above sents a POST request to `https://todo.test/api/task/${task.id}` with body params `{done: true|false}` when
+the checkbox is toggled.
