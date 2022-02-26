@@ -1,6 +1,6 @@
 {
   "name": "informel",
-  "version": "0.0.19",
+  "version": "0.0.22",
   "main": "public/build/bundle.js",
   "repository": "https://github.com/juliendelort/informel",
   "homepage": "https://juliendelort.github.io/informel",
@@ -13,16 +13,22 @@
     "submit"
   ],
   "files": [
-    "public/build/*"
+    "public/build/*",
+    "react/*"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c && npm run build-react",
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear",
     "test": "web-test-runner \"test/**/*.test.js\" --node-resolve",
-    "test-all": "web-test-runner \"test/**/*.test.js\" --node-resolve --playwright --browsers chromium firefox webkit"
+    "test-all": "web-test-runner \"test/**/*.test.js\" --node-resolve --playwright --browsers chromium firefox webkit",
+    "build-react": "NODE_ENV=production babel react-src --out-dir react --copy-files"
   },
   "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
     "@esm-bundle/chai": "^4.3.4",
     "@open-wc/testing": "^3.0.0-next.5",
     "@rollup/plugin-commonjs": "^17.0.0",

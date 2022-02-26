@@ -210,8 +210,8 @@ describe('submit', () => {
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
 
-            const [, requestStartDetails] = eventCheck(informEl, 'requestStart');
-            const [, requestEndDetails] = eventCheck(informEl, 'requestEnd');
+            const [, requestStartDetails] = eventCheck(informEl, 'request-start');
+            const [, requestEndDetails] = eventCheck(informEl, 'request-end');
 
             await type(input, 'a', true);
 
@@ -330,7 +330,7 @@ describe('submit', () => {
 
         });
 
-        it('emits requestSuccess if the call succeeds', async () => {
+        it('emits request-success if the call succeeds', async () => {
             const informEl = await fixture(`
                 <inform-el>
                 <form action="${formUrl}" >
@@ -350,9 +350,9 @@ describe('submit', () => {
             await type(input, 'a', true);
             window.fetch.resolves({ json: () => Promise.resolve(expectedResponse), ok: true, status: 1234 });
 
-            const [, requestSuccessDetails] = eventCheck(informEl, 'requestSuccess');
-            const [requestErrorCalled] = eventCheck(informEl, 'requestError');
-            const [, requestEndDetails] = eventCheck(informEl, 'requestEnd');
+            const [, requestSuccessDetails] = eventCheck(informEl, 'request-success');
+            const [requestErrorCalled] = eventCheck(informEl, 'request-error');
+            const [, requestEndDetails] = eventCheck(informEl, 'request-end');
 
             submitButton.click();
             await nextFrame();
@@ -362,7 +362,7 @@ describe('submit', () => {
             expect(requestEndDetails()).to.eql({ values: { field: 'a' } });
 
         });
-        it('emits requestError if the call fails', async () => {
+        it('emits request-error if the call fails', async () => {
             const informEl = await fixture(`
                 <inform-el>
                 <form action="${formUrl}" method="POST">
@@ -382,9 +382,9 @@ describe('submit', () => {
             await type(input, 'a', true);
             window.fetch.resolves({ json: () => Promise.resolve(expectedResponse), ok: false, status: 1234 });
 
-            const [requestSuccessCalled] = eventCheck(informEl, 'requestSuccess');
-            const [, requestErrorDetails] = eventCheck(informEl, 'requestError');
-            const [, requestEndDetails] = eventCheck(informEl, 'requestEnd');
+            const [requestSuccessCalled] = eventCheck(informEl, 'request-success');
+            const [, requestErrorDetails] = eventCheck(informEl, 'request-error');
+            const [, requestEndDetails] = eventCheck(informEl, 'request-end');
 
             submitButton.click();
             await nextFrame();
@@ -394,7 +394,7 @@ describe('submit', () => {
             expect(requestEndDetails()).to.eql({ values: { field: 'a' } });
         });
 
-        it('emits requestError in case of exception', async () => {
+        it('emits request-error in case of exception', async () => {
             const informEl = await fixture(`
                 <inform-el>
                 <form action="${formUrl}" method="post">
@@ -413,9 +413,9 @@ describe('submit', () => {
             const expectedError = new Error('some error');
             window.fetch.throws(expectedError);
 
-            const [requestSuccessCalled] = eventCheck(informEl, 'requestSuccess');
-            const [, requestErrorDetails] = eventCheck(informEl, 'requestError');
-            const [, requestEndDetails] = eventCheck(informEl, 'requestEnd');
+            const [requestSuccessCalled] = eventCheck(informEl, 'request-success');
+            const [, requestErrorDetails] = eventCheck(informEl, 'request-error');
+            const [, requestEndDetails] = eventCheck(informEl, 'request-end');
 
             submitButton.click();
             await nextFrame();
@@ -438,8 +438,8 @@ describe('submit', () => {
 
             const checkbox = informEl.querySelector('input[type="checkbox"]');
 
-            const [, requestStartDetails] = eventCheck(informEl, 'requestStart');
-            const [, requestEndDetails] = eventCheck(informEl, 'requestEnd');
+            const [, requestStartDetails] = eventCheck(informEl, 'request-start');
+            const [, requestEndDetails] = eventCheck(informEl, 'request-end');
 
             let resolveFetch;
             const fetchPromise = new Promise((resolve) => resolveFetch = resolve);
@@ -495,8 +495,8 @@ describe('submit', () => {
             const input = informEl.querySelector('input');
 
             const [, submitDetails] = eventCheck(informEl, 'submit');
-            const [, requestStartDetails] = eventCheck(informEl, 'requestStart');
-            const [, requestEndDetails] = eventCheck(informEl, 'requestEnd');
+            const [, requestStartDetails] = eventCheck(informEl, 'request-start');
+            const [, requestEndDetails] = eventCheck(informEl, 'request-end');
 
             await type(input, 'a', true);
 

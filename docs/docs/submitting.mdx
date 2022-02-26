@@ -46,18 +46,18 @@ See the example below:
 
 Different events are emitted along the way:
 
--   `requestStart`: The AJAX request has started. `detail` contains the following fields:
+-   `request-start`: The AJAX request has started. `detail` contains the following fields:
     -   `values`: the form values.
--   `requestSuccess`: The AJAX request has succeeded (status 2XX). `detail` contains the following fields:
+-   `request-success`: The AJAX request has succeeded (status 2XX). `detail` contains the following fields:
     -   `values`: the form values.
     -   `response`: the json response.
     -   `status`: the http status.
--   `requestError`: The AJAX request has returned an error (status != 2XX) or there was an exception. `detail` contains the following fields:
+-   `request-error`: The AJAX request has returned an error (status != 2XX) or there was an exception. `detail` contains the following fields:
     -   `values`: the form values.
     -   `response`: the json response.
     -   `status`: the http status
     -   `error`: if there was an exception, the error.
--   `requestEnd`: The AJAX request has end, regardless of the result. `detail` contains the following fields:
+-   `request-end`: The AJAX request has end, regardless of the result. `detail` contains the following fields:
     -   `values`: the form values.
 
 ## Sending files

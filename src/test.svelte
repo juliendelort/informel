@@ -42,9 +42,9 @@
     <inform-el
         action="https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task"
         error-disable-submit
-        on:requestSuccess={handleAddSuccess}
+        on:request-success={handleAddSuccess}
         on:submit={handleAdd}
-        on:requestError={handleAddError}
+        on:request-error={handleAddError}
         bind:this={informEl}
     >
         <form>
@@ -80,7 +80,7 @@
                         </form>
                     </inform-el>
                 </div>
-                <inform-el action={`https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task/${task.id}`} method="DELETE" on:submit={handleDeleteSubmit} on:requestError={handleDeleteError}>
+                <inform-el action={`https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task/${task.id}`} method="DELETE" on:submit={handleDeleteSubmit} on:request-error={handleDeleteError}>
                     <form>
                         <input type="hidden" value={task.id} name="id" />
                         <button type="submit">X</button>

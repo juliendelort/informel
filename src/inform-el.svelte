@@ -108,7 +108,7 @@
                     });
                 }
 
-                host.dispatchEvent(new CustomEvent("requestStart", { detail: { values }, bubbles: true }));
+                host.dispatchEvent(new CustomEvent("request-start", { detail: { values }, bubbles: true }));
                 submitting = true;
                 submitter.disabled = true;
 
@@ -123,12 +123,12 @@
 
                     const response = await result.json();
                     if (result.ok) {
-                        host.dispatchEvent(new CustomEvent("requestSuccess", { detail: { response, status: result.status, values }, bubbles: true }));
+                        host.dispatchEvent(new CustomEvent("request-success", { detail: { response, status: result.status, values }, bubbles: true }));
                     } else {
-                        host.dispatchEvent(new CustomEvent("requestError", { detail: { response, status: result.status, values }, bubbles: true }));
+                        host.dispatchEvent(new CustomEvent("request-error", { detail: { response, status: result.status, values }, bubbles: true }));
                     }
                 } catch (e) {
-                    host.dispatchEvent(new CustomEvent("requestError", { detail: { error: e, values }, bubbles: true }));
+                    host.dispatchEvent(new CustomEvent("request-error", { detail: { error: e, values }, bubbles: true }));
                 }
             } catch (e) {
                 console.error(e);
@@ -136,7 +136,7 @@
                 submitting = false;
                 submitter.disabled = false;
 
-                host.dispatchEvent(new CustomEvent("requestEnd", { detail: { values }, bubbles: true }));
+                host.dispatchEvent(new CustomEvent("request-end", { detail: { values }, bubbles: true }));
             }
         }
     }
