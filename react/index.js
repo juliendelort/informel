@@ -88,12 +88,8 @@ function generateEl(el) {
       }, [{}, {}]),
           _Object$keys$reduce2 = _slicedToArray(_Object$keys$reduce, 2),
           events = _Object$keys$reduce2[0],
-          properties = _Object$keys$reduce2[1];
+          properties = _Object$keys$reduce2[1]; // Look for new events
 
-      console.log({
-        events: events,
-        properties: properties
-      }); // Look for new events
 
       for (var eventName in events) {
         if (!eventsRef.current[eventName]) {
