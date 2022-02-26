@@ -10,6 +10,7 @@ export type ValidationHandler<FormValuesType> = (param: { values: FormValuesType
 export type SubmitTransform<FormValuesType, RequestType = FormValuesType> = (param: { values: FormValuesType; }) => RequestType;
 
 export type InformElProps<FormValuesType, ResponseType, RequestType> = React.PropsWithChildren<{
+    className?: string;
     ["error-disable-submit"]?: boolean;
     ["reset-on-submit"]?: boolean;
     onInformelReady?: VoidFunction;
@@ -30,4 +31,5 @@ export const InformEl: InformElComponent;
 
 export const InformField: React.FC<{
     ["submit-on-change"]?: boolean;
+    className?: string;
 }>;

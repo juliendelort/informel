@@ -2,16 +2,14 @@
 sidebar_position: 1
 hide_title: true
 custom_edit_url: null
-title: "Getting Started"
+title: 'Getting Started'
 ---
 
-import InformFieldErrorPartialExample from "./_inform-field-error-partial-example.mdx";
-import JokesExample from "./_jokes_example.mdx";
+import InformFieldErrorPartialExample from './_inform-field-error-partial-example.mdx';
+import JokesExample from './_jokes_example.mdx';
+import { GetStartedHeader } from '@site/src/components/GetStartedHeader';
 
-<h1 style={{ display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Balsamiq sans" }}>
-    <img width="10%" height="10%" src="img/logo.svg" />
-    <span style={{ marginLeft: "20px", paddingTop: "5px" }}>informel</span>
-</h1>
+<GetStartedHeader />
 
 `informel` is a Web Component that wraps your native HTML forms and gives them super powers.
 
@@ -51,7 +49,7 @@ yarn add informel
 Then import `informel` at the root level of your app:
 
 ```javascript
-import "informel";
+import 'informel';
 ```
 
 You can then start using `<inform-el />` and `<inform-field />` elements anywhere in your HTML!.
@@ -79,8 +77,8 @@ Just wrap your native form in `<inform-el />`:
 Then you can listen to the `submit` event on `<inform-el>` which gives you the form values:
 
 ```javascript
-document.querySelector("inform-el").addEventListener("submit", ({ detail: { values } }) => {
-    console.log("Submitted:", values);
+document.querySelector('inform-el').addEventListener('submit', ({ detail: { values } }) => {
+    console.log('Submitted:', values);
 });
 ```
 
