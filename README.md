@@ -1,4 +1,6 @@
-<img src="logo.png" width="100%" alt="logo" />
+<a href="https://juliendelort.github.io/informel/">
+  <img src="logo.png" width="100%" alt="logo" />
+</a>
 
 
 # infomel
@@ -15,3 +17,5 @@ Features:
 ✅ &nbsp;**Auto submission via AJAX call, using `action` and `method` attributes**
 
 `informel` is a headless library: all the styling belongs to you!
+
+Documentation: https://juliendelort.github.io/informel/
