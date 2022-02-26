@@ -9,7 +9,7 @@ const config = {
   title: 'informel',
   tagline: 'Forms with superpowers',
   url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/',
+  baseUrl: '/informel/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
