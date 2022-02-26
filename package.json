@@ -1,7 +1,8 @@
 {
   "name": "informel",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "main": "public/build/bundle.js",
+  "repository": "https://github.com/juliendelort/informel",
   "files": [
     "public/build/*"
   ],
