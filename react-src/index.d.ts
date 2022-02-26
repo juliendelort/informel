@@ -12,6 +12,7 @@ export type SubmitTransform<FormValuesType, RequestType = FormValuesType> = (par
 export type InformElProps<FormValuesType, ResponseType, RequestType> = React.PropsWithChildren<{
     className?: string;
     style?: React.CSSProperties;
+    ref?: LegacyRef<HTMLElement>;
     ["error-disable-submit"]?: boolean;
     ["reset-on-submit"]?: boolean;
     onInformelReady?: VoidFunction;

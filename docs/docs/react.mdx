@@ -1,0 +1,76 @@
+---
+sidebar_position: 10
+hide_title: true
+custom_edit_url: null
+title: 'Usage in React'
+---
+
+# Usage in React
+
+Using Web Components in React [is not always easy](https://reactjs.org/docs/web-components.html#using-web-components-in-react), especially when it comes to handling events.
+
+To facilitate things, `informel` exports React components wrappers for its Web Components:
+
+-   `<InformEl />`
+-   `<InformField />`
+
+The API and behavior are the same as using the Web Components (`<inform-el/>` and `<inform-field />`) directly.
+Events and access to `validityHandler`, `submitTransform` and events are facilitated:
+
+```jsx
+<InformEl
+    onInput={handleInput}
+    onSubmit={handleSubmit}
+    validationHandler={handleValidation}
+    onInformelReady={() => {
+        console.log('ready!!!!');
+    }}
+    submitTransform={handleSubmitTransform}
+    onRequestStart={(e) => console.log('request start', e.detail)}
+    onRequestSuccess={(e) => console.log('request success', e.detail)}
+    onRequestError={(e) => console.log('request error', e.detail)}
+>
+    ...
+</InformEl>
+```
+
+All the events described in the API are available as prop using their camelCase version, prefixed by "on":
+
+-   `input` becomes `onInput`
+-   `informel-ready` becomes `onInformelReady`
+-   `request-start` becomes `onRequestStart` etc...
+
+All the attributes remain the same (including the kebab case ones):
+
+```jsx
+<InformField too-short="At least 8 characters!">
+    <input type="password" name="password" required minLength={8} />
+</InformField>
+```
+
+Methods (`setValues` and `reset`) can be called using a [ref](https://reactjs.org/docs/refs-and-the-dom.html):
+
+```js
+const ref = React.createRef();
+```
+
+and then:
+
+```jsx
+<InformEl ref={ref}>
+    <form>
+        <label>
+            Email
+            <InformField>
+                <input type="email" name="email" required />
+            </InformField>
+        </label>
+    </form>
+
+    <button onClick={() => ref.current.setValues({ email: 'bonjour' })}>Bonjour</button>
+</InformEl>
+```
+
+Here is a complete example:
+
+<iframe width="100%" height="800" src="https://stackblitz.com/edit/react-ts-rhub1u?embed=1&file=index.tsx"></iframe>
