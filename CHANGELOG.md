@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.29] - 2022-02-27
+
+### Fixed
+- method defaults to 'GET' when not specified
+
 ## [0.0.28] - 2022-02-27
 
 ### Fixed

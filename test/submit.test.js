@@ -278,8 +278,39 @@ describe('submit', () => {
 
             submitButton.click();
 
+            expect(window.fetch).to.have.been.called;
+
+            const callArgs = window.fetch.getCall(0).args;
+            expect(callArgs[0]).to.equal(expectedUrl.toString());
+
+            const { method, headers, body } = callArgs[1];
+
+            expect(method).to.equal('PUT');
+            expect(headers).to.eql({ "Content-Type": "application/json" });
+            expect(JSON.parse(body)).to.eql({ field: 'a' });
+        });
+
+        it('defaults to GET when method is not specified', async () => {
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form  action="${formUrl}">
+                            <inform-field>
+                                <input type="text" name="field" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+
+            await type(input, 'a', true);
+
+            submitButton.click();
+
             expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?field=a`, {
-                method: 'PUT',
+                method: 'get',
                 headers: {
                     "Content-Type": "application/json"
                 }

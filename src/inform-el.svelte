@@ -98,7 +98,8 @@
             const values = host.submitTransform && typeof host.submitTransform === 'function' ? host.submitTransform(rawValues) : rawValues;
             try {
                 const hasFiles = Object.values(values).some((v) => v instanceof File);
-                const isGet = form.method.toLowerCase() === 'get';
+                const method = form.getAttribute('method') ?? 'get';
+                const isGet = method.toLowerCase() === 'get';
                 const url = new URL(form.action);
 
                 if (isGet) {
@@ -114,7 +115,7 @@
 
                 try {
                     const result = await fetch(url.toString(), {
-                        method: form.getAttribute('method'),
+                        method,
                         headers: {
                             ...(!hasFiles && { 'Content-Type': 'application/json' }),
                         },
