@@ -412,6 +412,36 @@ describe('reset', () => {
         expect(informEl.values.lastName).to.equal(undefined);
     });
 
+    it('resets unknown values when no initial reset with reset-on-submit', async () => {
+        const informEl = await fixture(`
+            <inform-el reset-on-submit>
+                <form>
+                    <inform-field>
+                        <input type="text" name="firstName" />
+                    </inform-field>                   
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+        const submitButton = document.querySelector('button[type="submit"]');
+        informEl.validationHandler = sinon.stub();
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+
+        informEl.setValues({ lastName: 'other' });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+        expect(informEl.values.lastName).to.equal('other');
+
+        submitButton.click();
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+        expect(informEl.values.lastName).to.equal(undefined);
+    });
+
     it('resets touched for extra field', async () => {
         const informEl = await fixture(`
             <inform-el>

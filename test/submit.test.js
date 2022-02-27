@@ -123,11 +123,8 @@ describe('submit', () => {
 
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
-            const form = informEl.querySelector('form');
-
 
             const [submitHasBeenCalled, , resetSubmit] = eventCheck(informEl, 'submit');
-            const [resetHasBeenCalled, , resetReset] = eventCheck(form, 'reset');
 
             await type(input, 'something', true);
 
@@ -137,19 +134,7 @@ describe('submit', () => {
             expect(submitHasBeenCalled()).to.be.true;
 
             // Not resetted
-            expect(resetHasBeenCalled()).to.be.false;
             expect(input).to.have.value('something');
-
-            // Set the attribute
-            informEl.setAttribute('reset-on-submit', '');
-
-            resetSubmit();
-            resetReset();
-            submitButton.click();
-            await nextFrame();
-            // Resetted this time
-            expect(resetHasBeenCalled()).to.be.true;
-            expect(input).to.have.value('');
 
         });
 
@@ -167,11 +152,9 @@ describe('submit', () => {
 
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
-            const form = informEl.querySelector('form');
 
 
             const [submitHasBeenCalled] = eventCheck(informEl, 'submit');
-            const [resetHasBeenCalled] = eventCheck(form, 'reset');
 
             await type(input, 'something', true);
 
@@ -181,7 +164,6 @@ describe('submit', () => {
             expect(submitHasBeenCalled()).to.be.true;
 
             // Resetted
-            expect(resetHasBeenCalled()).to.be.true;
             expect(input).to.have.value('');
 
         });

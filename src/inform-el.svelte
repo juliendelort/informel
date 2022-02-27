@@ -164,7 +164,6 @@
     async function handleSubmit(e) {
         e.preventDefault();
         e.stopPropagation();
-
         const submitter = e.submitter || e.detail.submitter; // If event is customsubmit (attribute submit-on-change on inform0-field), we need to check e.detail.submitter
 
         host.querySelectorAll('inform-field').forEach((e) => e.setAttribute('touched', ''));
@@ -174,7 +173,7 @@
             host.dispatchEvent(new CustomEvent('submit', { detail: { values: getFormValues() }, bubbles: true }));
             await sendSubmitRequest(submitter);
             if (resetOnSubmitIsPresent) {
-                form.reset();
+                publicReset();
             }
 
             // Remove touched + dirty statuses after submitting

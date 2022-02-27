@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.33] - 2022-02-27
+
+### Fixed
+- Fixed reset-on-submit for extra values
+
 ## [0.0.32] - 2022-02-27
 
 ### Fixed
