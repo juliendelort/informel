@@ -81,10 +81,6 @@ and then:
 </InformEl>
 ```
 
-Here is a complete example:
-
-<iframe width="100%" height="800" src="https://stackblitz.com/edit/react-ts-rhub1u?embed=1&file=index.tsx"></iframe>
-
 ## Usage in Next.js
 
 Next.js renders on the server side (SSR) and that is not compatible with Web Components.
@@ -98,3 +94,19 @@ React.useEffect(() => {
 ```
 
 Source: https://dev.to/swyx/how-to-use-web-components-with-next-js-and-typescript-4gg1
+
+## Examples
+
+Here is a simple example:
+
+<iframe width="100%" height="800" src="https://stackblitz.com/edit/react-ts-rhub1u?embed=1&file=index.tsx"></iframe>
+
+Here is another example showing the usage of the `action` and `method` attributes, with optimistic updates:
+
+<iframe width="100%" height="800" src="https://stackblitz.com/edit/react-ts-2b1jgw?embed=1&file=index.tsx"></iframe>
+
+In the example above there are 3 `informel` forms:
+
+-   One for adding a task at the top
+-   One wrapping the done checkbox and using `submit-on-change`. It sends a PUT request to set the task to done.
+-   One wrapping the delete button (the delete button is the submit button). It sends a DELETE request.
