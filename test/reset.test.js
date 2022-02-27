@@ -1,4 +1,4 @@
-import { fixture, expect, nextFrame, elementUpdated } from '@open-wc/testing';
+import { fixture, expect, nextFrame } from '@open-wc/testing';
 import {
     generateTextInputValue,
     setTextInputValue,
@@ -11,6 +11,8 @@ import {
     type
 } from './test-utils';
 import '../public/build/bundle.js';
+import sinon from 'sinon';
+
 
 describe('reset', () => {
     describe('with text field', () => {
@@ -246,6 +248,27 @@ describe('reset', () => {
 
             });
 
+            it('keeps provided values as new initial values', async () => {
+                const informEl = await fixture(html);
+                const control = informEl.querySelector('#control');
+
+                expect(informEl.values).to.eql({ field: initialValue });
+
+                const newInitialValue = generateValue(initialValue);
+
+                informEl.reset({ field: newInitialValue });
+
+                await setValue(control, generateValue(newInitialValue));
+
+                expect(informEl.values).not.to.eql({ field: newInitialValue });
+
+                informEl.reset();
+                await nextFrame();
+
+                // back to initial value
+                expect(informEl.values).to.eql({ field: newInitialValue });
+            });
+
             if (hasInformField) {
                 it('removes the touched flags and dirty flags when resetting with no value', async () => {
                     await removeTouchedDirtyTest((informEl) => {
@@ -326,5 +349,63 @@ describe('reset', () => {
             expect(field3Input).to.have.value('');
             expect(informEl.values).to.eql({ field1: 'field1 reset', field2: 'field2 init', field3: '' });
         });
+    });
+
+
+    it('resets unknown values', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field>
+                        <input type="text" name="firstName" required />
+                    </inform-field>                   
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+        informEl.validationHandler = sinon.stub();
+        informEl.reset({ lastName: 'something' });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+        expect(informEl.values.lastName).to.equal('something');
+
+        informEl.setValues({ lastName: 'other' });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+        expect(informEl.values.lastName).to.equal('other');
+
+        informEl.reset();
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+        expect(informEl.values.lastName).to.equal('something');
+    });
+
+    it('resets touched for extra field', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field>
+                        <input type="text" name="firstName" required />
+                    </inform-field>
+                    <inform-field name="lastName">
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+        const informFieldExtra = informEl.querySelector('inform-field[name="lastName"]');
+        informEl.setValues({ lastName: 'something' });
+        await nextFrame();
+
+        expect(informFieldExtra).to.have.attribute('touched');
+
+        informEl.reset();
+        await nextFrame();
+
+        expect(informFieldExtra).not.to.have.attribute('touched');
+
     });
 });

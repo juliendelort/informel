@@ -237,9 +237,7 @@ describe('error', () => {
                     </form>
                 </inform-el>
         `);
-        const form = informEl.querySelector('form');
         const informField = informEl.querySelector('inform-field');
-        const input = informEl.querySelector('[name="some-name"]');
         const submitButton = informEl.querySelector('[type="submit"]');
 
         informEl.validationHandler = ({ values }) => {
@@ -256,6 +254,46 @@ describe('error', () => {
         expect(informField).to.have.attribute('error');
         expect(informField).to.have.attribute('touched');
         expect(informField).to.have.attribute('error-message', 'my custom error message');
+    });
+
+    it('sets extra field returned by validationHandler in error', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" value="a"/>
+                        </inform-field>
+                        <inform-field name="extra">
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const informFieldExtra = informEl.querySelector('inform-field[name="extra"]');
+
+        informEl.validationHandler = ({ values }) => {
+            return { extra: 'Extra field invalid!' };
+        };
+
+        informEl.setValues({ extra: 'anything' });
+        await nextFrame();
+
+        expect(informEl).to.have.attribute('invalid');
+        expect(informFieldExtra).to.have.attribute('touched');
+        expect(informFieldExtra).to.have.attribute('error');
+        expect(informFieldExtra).to.have.attribute('error-message', 'Extra field invalid!');
+
+        informEl.validationHandler = ({ values }) => {
+            return null;
+        };
+
+        informEl.setValues({ extra: 'something else' });
+        await nextFrame();
+
+
+        expect(informFieldExtra).not.to.have.attribute('error');
+        expect(informFieldExtra).not.to.have.attribute('error-message', 'Extra field invalid!');
+        expect(informEl).not.to.have.attribute('invalid');
     });
 });
 

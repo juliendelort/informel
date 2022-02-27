@@ -1,5 +1,7 @@
 import { expect, nextFrame, fixture, oneEvent } from '@open-wc/testing';
 import { eventCheck, type } from './test-utils';
+import sinon from 'sinon';
+
 import '../public/build/bundle.js';
 
 
@@ -98,5 +100,51 @@ describe('set values', () => {
 
         expect(informField).to.have.attribute('error');
         expect(informField).to.have.attribute('error-message', input.validationMessage);
+    });
+
+    it('sets the field to touched', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field >
+                        <input type="text" name="some-name" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+
+        const input = informEl.querySelector('[name="some-name"]');
+        const informField = informEl.querySelector('inform-field');
+
+        informEl.setValues({ 'some-name': '' });
+        await nextFrame();
+
+        expect(informField).to.have.attribute('touched');
+    });
+
+    it('sets extra values', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field>
+                    <input type="text" name="firstName" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+        const input = informEl.querySelector('[name="firstName"]');
+        informEl.validationHandler = sinon.stub();
+        informEl.setValues({ lastName: 'something' });
+
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+        expect(informEl.values.lastName).to.equal('something');
+
+        await type(input, 'a', true);
+
+        expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastName: 'something' } });
     });
 });

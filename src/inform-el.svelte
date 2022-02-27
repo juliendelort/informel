@@ -14,6 +14,7 @@
     let initialValues;
     let errorDisableSubmitIsPresent;
     let currentValues = {};
+    let extraValues = {};
     let dirty = false;
     let submitting = false;
     let invalid = false;
@@ -234,24 +235,41 @@
         currentValues = initialValues;
     }
 
+    function handleFormData(e) {
+        if (extraValues) {
+            for (let key in extraValues) {
+                e.formData.set(key, extraValues[key]);
+            }
+        }
+    }
+
     function checkDirty() {
         if (!form) {
             return;
         }
+
         let someDirty = false;
         Object.keys(currentValues).forEach((key) => {
             // For radio buttons we could get an array here
             const formElement = form.elements[key] instanceof RadioNodeList ? form.elements[key][0] : form.elements[key];
-            const informField = formElement.closest('inform-field');
+            if (formElement) {
+                const informField = formElement.closest('inform-field');
 
-            if (currentValues[key] !== initialValues[key]) {
-                someDirty = true;
+                if (currentValues[key] !== initialValues[key]) {
+                    someDirty = true;
 
-                if (informField) {
-                    informField.setAttribute('dirty', '');
+                    if (informField) {
+                        informField.setAttribute('dirty', '');
+                    }
+                } else if (informField) {
+                    informField.removeAttribute('dirty');
                 }
-            } else if (informField) {
-                informField.removeAttribute('dirty');
+            }
+        });
+
+        Object.keys(extraValues).forEach((key) => {
+            if (extraValues[key] !== initialValues[key]) {
+                someDirty = true;
             }
         });
 
@@ -281,7 +299,21 @@
             }
         });
 
-        invalid = !form.checkValidity();
+        // extra fields
+        for (let key in extraValues) {
+            const error = customValidationErrors?.[key];
+            const informField = host.querySelector(`inform-field[name="${key}"]`);
+
+            if (informField) {
+                if (error) {
+                    informField.setAttribute('error-message', error);
+                } else {
+                    informField.removeAttribute('error-message');
+                }
+            }
+        }
+
+        invalid = !form.checkValidity() || Object.keys(customValidationErrors ?? {}).some((key) => !!customValidationErrors[key]);
     }
 
     async function initSlot() {
@@ -298,6 +330,7 @@
         form.addEventListener('input', handleInput);
         form.addEventListener('change', handleChange);
         form.addEventListener('reset', handleFormReset);
+        form.addEventListener('formdata', handleFormData);
 
         submitButton = form.querySelector('[type="submit"]');
 
@@ -336,23 +369,35 @@
     //
     // Public methods
     //
-    function publicReset(newValues) {
-        if (!newValues) {
-            form.reset();
-        } else {
-            resetTouched();
-            [...form.elements].forEach((e) => {
-                const name = e.name;
-                const value = newValues[name];
-                if (value !== undefined && value !== null) {
-                    setControlValue(e, value);
-                } else {
-                    setControlValue(e, initialValues[name]);
-                }
-            });
-            initialValues = getFormValues();
-            currentValues = initialValues;
-        }
+    function publicReset(v) {
+        const newValues = {
+            ...initialValues,
+            ...v,
+        };
+
+        resetTouched();
+        [...form.elements].forEach((e) => {
+            const name = e.name;
+            const value = newValues[name];
+            if (value !== undefined && value !== null) {
+                setControlValue(e, value);
+            } else {
+                setControlValue(e, initialValues[name]);
+            }
+        });
+
+        // Looking for extra values
+        Object.keys(newValues).forEach((key) => {
+            if (!form.elements[key]) {
+                extraValues = {
+                    ...extraValues,
+                    [key]: newValues[key],
+                };
+            }
+        });
+
+        initialValues = getFormValues();
+        currentValues = initialValues;
     }
 
     function publicSetValues(newValues) {
@@ -372,6 +417,21 @@
                         bubbles: true,
                     })
                 );
+            } else {
+                extraValues = {
+                    ...extraValues,
+                    [key]: value,
+                };
+
+                for (let key in extraValues) {
+                    const informField = host.querySelector(`inform-field[name="${key}"]`);
+
+                    if (informField) {
+                        informField.setAttribute('touched', '');
+                    }
+                }
+
+                currentValues = getFormValues();
             }
         });
     }

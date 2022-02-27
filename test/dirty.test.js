@@ -401,4 +401,34 @@ describe('dirty check', () => {
 
     });
 
+    it('works with extra values', async () => {
+        const informEl = await fixture(` <inform-el>
+            <form>
+                <inform-field>
+                    <input id="control" type="text" name="field" value="initial-value" />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>`);
+
+        informEl.setValues({ field2: 'something' });
+        await nextFrame();
+        expect(informEl.dirty).to.be.true;
+
+        informEl.reset({ field2: 'default' });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+
+        informEl.setValues({ field2: 'other' });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+
+        informEl.setValues({ field2: 'default' });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+    });
+
 });
