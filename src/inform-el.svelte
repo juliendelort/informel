@@ -238,7 +238,9 @@
     function handleFormData(e) {
         if (extraValues) {
             for (let key in extraValues) {
-                e.formData.set(key, extraValues[key]);
+                if (extraValues[key]) {
+                    e.formData.set(key, extraValues[key]);
+                }
             }
         }
     }
@@ -393,7 +395,16 @@
             }
         });
 
-        // Looking for extra values
+        // Reset current extra values
+        for (let key in extraValues) {
+            if (initialValues[key]) {
+                extraValues[key] = initialValues[key];
+            } else {
+                delete extraValues[key];
+            }
+        }
+
+        // Looking for new extra values
         Object.keys(newValues).forEach((key) => {
             if (!form.elements[key]) {
                 extraValues = {

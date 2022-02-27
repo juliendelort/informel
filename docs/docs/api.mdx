@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 10
 hide_title: true
 custom_edit_url: null
 title: 'API'
@@ -176,6 +176,7 @@ document.querySelector('inform-el').submitTransform = (values) => ({
 ### Attributes
 
 -   `submit-on-change` (boolean, true if present): If present, the form will be submitted whenever this field has changed (as part the [change event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event))
+-   `name` (string): The name of the field, when using a [custom form control](custom-elements.mdx). Use the field only in that case. Otherwise set the `name` attribute on the form control (like `<input />` or `<select />`).
 -   `default-error` (string): Error message to display when this field is in error, regardless of the error.
 -   `bad-input` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [badInput](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/badInput).
 -   `pattern-mismatch` (string): Error message to display when this field [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState) is [patternMismatch](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState/patternMismatch).

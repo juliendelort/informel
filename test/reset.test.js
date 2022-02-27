@@ -18,15 +18,15 @@ describe('reset', () => {
     describe('with text field', () => {
         runTests({
             html: `
-                    <inform-el>
-                        <form>
-                            <inform-field>
-                                <input id="control" type="text" name="field" value="some value"/>
-                            </inform-field>
-                            <button type="submit">Submit</button>
-                        </form>
-                    </inform-el>
-                            `,
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="text" name="field" value="some value"/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                                `,
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
             initialValue: 'some value',
@@ -39,15 +39,15 @@ describe('reset', () => {
     describe('with textarea', () => {
         runTests({
             html: `
-                    <inform-el>
-                        <form>
-                            <inform-field>
-                                <textarea id="control" name="field" >some value</textarea>
-                            </inform-field>
-                            <button type="submit">Submit</button>
-                        </form>
-                    </inform-el>
-                            `,
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <textarea id="control" name="field" >some value</textarea>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                                `,
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
             initialValue: 'some value',
@@ -58,15 +58,15 @@ describe('reset', () => {
     describe('with checkbox', () => {
         runTests({
             html: `
-                            <inform-el>
-                                <form>
-                                    <inform-field>
-                                        <input id="control" type="checkbox" name="field" checked/>
-                                    </inform-field>
-                                    <button type="submit">Submit</button>
-                                </form>
-                            </inform-el>
-                            `,
+                                <inform-el>
+                                    <form>
+                                        <inform-field>
+                                            <input id="control" type="checkbox" name="field" checked/>
+                                        </inform-field>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
             setValue: setCheckboxValue,
             generateValue: generateCheckboxValue,
             initialValue: true,
@@ -78,16 +78,16 @@ describe('reset', () => {
     describe('with radio buttons', () => {
         runTests({
             html: `
-                            <inform-el>
-                                <form>
-                                    <inform-field id="control">
-                                        <input  type="radio" name="field" value="val1" checked/>
-                                        <input  type="radio" name="field" value="val2"/>
-                                    </inform-field>
-                                    <button type="submit">Submit</button>
-                                </form>
-                            </inform-el>
-                            `,
+                                <inform-el>
+                                    <form>
+                                        <inform-field id="control">
+                                            <input  type="radio" name="field" value="val1" checked/>
+                                            <input  type="radio" name="field" value="val2"/>
+                                        </inform-field>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
             setValue: setRadioValue,
             generateValue: generateRadioValue,
             initialValue: "val1",
@@ -98,20 +98,20 @@ describe('reset', () => {
     describe('with select', () => {
         runTests({
             html: `
-                            <inform-el>
-                                <form>
-                                    <inform-field>
-                                        <select id="control" name="field" >
-                                            <option value="">--Please choose an option--</option>
-                                            <option value="val1">Value1</option>
-                                            <option value="val2">Value2</option>
-                                            <option value="val3">Value3</option>
-                                        </select>
-                                    </inform-field>
-                                    <button type="submit">Submit</button>
-                                </form>
-                            </inform-el>
-                            `,
+                                <inform-el>
+                                    <form>
+                                        <inform-field>
+                                            <select id="control" name="field" >
+                                                <option value="">--Please choose an option--</option>
+                                                <option value="val1">Value1</option>
+                                                <option value="val2">Value2</option>
+                                                <option value="val3">Value3</option>
+                                            </select>
+                                        </inform-field>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
             setValue: setSelectValue,
             generateValue: generateSelectValue,
             initialValue: "",
@@ -122,13 +122,13 @@ describe('reset', () => {
     describe('with no inform-field', () => {
         runTests({
             html: `
-                            <inform-el>
-                                <form>
-                                    <input id="control" type="text" name="field" value="some value"/>
-                                    <button type="submit">Submit</button>
-                                </form>
-                            </inform-el>
-                            `,
+                                <inform-el>
+                                    <form>
+                                        <input id="control" type="text" name="field" value="some value"/>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
             initialValue: 'some value',
@@ -309,20 +309,20 @@ describe('reset', () => {
     describe('with multiple fields', () => {
         it('reset fields that are not specified to their initial values', async () => {
             const informEl = await fixture(`
-                    <inform-el>
-                        <form>
-                            <inform-field>
-                                <input type="text" name="field1" />
-                            </inform-field>
-                            <inform-field>
-                                <input  type="text" name="field2" value="field2 init"/>
-                            </inform-field>
-                            <inform-field>
-                                <input  type="text" name="field3"/>
-                            </inform-field>
-                            <button type="submit">Submit</button>
-                        </form>
-                    </inform-el>`);
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input type="text" name="field1" />
+                                </inform-field>
+                                <inform-field>
+                                    <input  type="text" name="field2" value="field2 init"/>
+                                </inform-field>
+                                <inform-field>
+                                    <input  type="text" name="field3"/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>`);
 
             const field1Input = informEl.querySelector('[name="field1"]');
             const field2Input = informEl.querySelector('[name="field2"]');
@@ -354,15 +354,15 @@ describe('reset', () => {
 
     it('resets unknown values', async () => {
         const informEl = await fixture(`
-            <inform-el>
-                <form>
-                    <inform-field>
-                        <input type="text" name="firstName" required />
-                    </inform-field>                   
-                    <button type="submit">Submit</button>
-                </form>
-            </inform-el>
-        `);
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="firstName" required />
+                        </inform-field>                   
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+            `);
         informEl.validationHandler = sinon.stub();
         informEl.reset({ lastName: 'something' });
         await nextFrame();
@@ -381,6 +381,35 @@ describe('reset', () => {
 
         expect(informEl.dirty).to.be.false;
         expect(informEl.values.lastName).to.equal('something');
+    });
+
+    it('resets unknown values when no initial reset', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field>
+                        <input type="text" name="firstName" required />
+                    </inform-field>                   
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+        informEl.validationHandler = sinon.stub();
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+
+        informEl.setValues({ lastName: 'other' });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+        expect(informEl.values.lastName).to.equal('other');
+
+        informEl.reset();
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+        expect(informEl.values.lastName).to.equal(undefined);
     });
 
     it('resets touched for extra field', async () => {

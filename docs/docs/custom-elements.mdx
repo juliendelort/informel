@@ -1,0 +1,22 @@
+---
+sidebar_position: 9
+hide_title: true
+custom_edit_url: null
+title: 'Custom form controls'
+---
+
+# Custom form controls
+
+Sometimes we need use non-standard controls in our forms. Web Components, for example, don't work well with forms.
+Here is how to proceed:
+
+-   When your custom control's value changes, call `informEl.setValues()` to update the value.
+-   Wrap your custom control in a `<inform-field>` element and **set the `name` attribute on the `<inform-field>` element itself**.
+-   Validate using `informEl.validationHandler`, the value set with `informEl.setValues()` above will be passed as input, and the `<inform-field>` element added in the previous
+    step will display the error.
+
+Here is an example:
+
+<iframe width="100%" height="600" src="//jsfiddle.net/juliendelort/e236cmtg/21/embedded/result,html/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
+The "lastName" field consists of 2 buttons, one setting a valid value, the other one an invalid value.

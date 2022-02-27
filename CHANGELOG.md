@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.32] - 2022-02-27
+
+### Fixed
+- Resetting extra values
+
 ## [0.0.31] - 2022-02-27
 
 ### Fixed
