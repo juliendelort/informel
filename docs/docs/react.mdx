@@ -14,6 +14,16 @@ To facilitate things, `informel` exports React components wrappers for its Web C
 -   `<InformEl />`
 -   `<InformField />`
 
+They can be imported like so:
+
+```js
+import { InformEl, InformField } from 'informel/react';
+```
+
+:::danger Imports
+The imports above don't replace `import 'informel';`, that still needs to be done at the root of your app (in App.js for example)
+:::
+
 The API and behavior are the same as using the Web Components (`<inform-el/>` and `<inform-field />`) directly.
 Events and access to `validityHandler`, `submitTransform` and events are facilitated:
 
@@ -74,3 +84,17 @@ and then:
 Here is a complete example:
 
 <iframe width="100%" height="800" src="https://stackblitz.com/edit/react-ts-rhub1u?embed=1&file=index.tsx"></iframe>
+
+## Usage in Next.js
+
+Next.js renders on the server side (SSR) and that is not compatible with Web Components.
+A workaround is to call `import()` in a `useEffect()` in order to dynamically add the Web Components definition
+to the page, on the front end:
+
+```jsx
+React.useEffect(() => {
+    import('informel');
+}, []);
+```
+
+Source: https://dev.to/swyx/how-to-use-web-components-with-next-js-and-typescript-4gg1

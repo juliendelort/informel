@@ -1,11 +1,11 @@
 import React from 'react';
 
 
-export const InformEl = generateEl('inform-el');
-export const InformField = generateEl('inform-field');
+export const InformEl = generateEl('inform-el', 'InformEl');
+export const InformField = generateEl('inform-field', 'InformField');
 
 
-function generateEl(el) {
+function generateEl(el, displayName) {
     // Web components wrapper
     const Inner = React.forwardRef(function Wrapper({
         children = null,
@@ -103,7 +103,7 @@ function generateEl(el) {
             </Tag >
         );
     });
-    Inner.displayName = el;
+    Inner.displayName = displayName || el;
 
     return Inner;
 }
