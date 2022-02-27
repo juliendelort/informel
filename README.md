@@ -21,3 +21,5 @@ Features:
 `informel` is a headless library: all the styling belongs to you!
 
 Documentation: https://juliendelort.github.io/informel/
+
+[Changelog](https://github.com/juliendelort/informel/blob/main/CHANGELOG.md) 
