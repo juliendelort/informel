@@ -295,5 +295,34 @@ describe('error', () => {
         expect(informFieldExtra).not.to.have.attribute('error-message', 'Extra field invalid!');
         expect(informEl).not.to.have.attribute('invalid');
     });
+
+    it('validates extrafield not yet set', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field name="extra">
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const informFieldExtra = informEl.querySelector('inform-field[name="extra"]');
+        const submitButton = informEl.querySelector('button[type="submit"]');
+
+        informEl.validationHandler = ({ values }) => {
+            return { extra: 'Extra field invalid!' };
+        };
+
+        submitButton.click();
+        await nextFrame();
+
+
+        expect(informEl).to.have.attribute('invalid');
+        expect(informFieldExtra).to.have.attribute('touched');
+        expect(informFieldExtra).to.have.attribute('error');
+        expect(informFieldExtra).to.have.attribute('error-message', 'Extra field invalid!');
+
+
+    });
 });
 

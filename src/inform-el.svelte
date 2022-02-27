@@ -299,17 +299,24 @@
             }
         });
 
-        // extra fields
+        // Look for extra fields in the validation result
+        if (customValidationErrors) {
+            for (let key in customValidationErrors) {
+                const informField = host.querySelector(`inform-field[name="${key}"]`);
+
+                if (informField) {
+                    informField.setAttribute('error-message', customValidationErrors[key]);
+                }
+            }
+        }
+
+        // extra fields that are not present
         for (let key in extraValues) {
             const error = customValidationErrors?.[key];
             const informField = host.querySelector(`inform-field[name="${key}"]`);
 
-            if (informField) {
-                if (error) {
-                    informField.setAttribute('error-message', error);
-                } else {
-                    informField.removeAttribute('error-message');
-                }
+            if (informField && !error) {
+                informField.removeAttribute('error-message');
             }
         }
 

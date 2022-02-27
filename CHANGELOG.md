@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.31] - 2022-02-27
+
+### Fixed
+- Extra field returned by validationHandler were not ignored
+
 ## [0.0.30] - 2022-02-27
 
 ### Added
