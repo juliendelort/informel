@@ -218,7 +218,7 @@ describe('submit', () => {
             submitButton.click();
 
             expect(window.fetch).to.have.been.calledWith(expectedUrl.toString(), {
-                method: 'post',
+                method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -252,7 +252,34 @@ describe('submit', () => {
             submitButton.click();
 
             expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?field=a`, {
-                method: 'get',
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+        });
+
+        it('works for methods other than get and post', async () => {
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form  action="${formUrl}" method="PUT">
+                            <inform-field>
+                                <input type="text" name="field" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+
+            await type(input, 'a', true);
+
+            submitButton.click();
+
+            expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?field=a`, {
+                method: 'PUT',
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -279,7 +306,7 @@ describe('submit', () => {
             submitButton.click();
 
             expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?already=present&field=a`, {
-                method: 'get',
+                method: 'GET',
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -506,7 +533,7 @@ describe('submit', () => {
 
 
             expect(window.fetch).to.have.been.calledWith(expectedUrl.toString(), {
-                method: 'post',
+                method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
                 },

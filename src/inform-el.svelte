@@ -2,9 +2,9 @@
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError } from "./utils";
-    import { onMount, tick } from "svelte";
-    import { get_current_component } from "svelte/internal";
+    import { valuesToFormData, getFieldError } from './utils';
+    import { onMount, tick } from 'svelte';
+    import { get_current_component } from 'svelte/internal';
 
     let form;
     let submitButton;
@@ -63,9 +63,9 @@
         host.dirty = dirty;
 
         if (dirty) {
-            host.setAttribute("dirty", "");
+            host.setAttribute('dirty', '');
         } else {
-            host.removeAttribute("dirty");
+            host.removeAttribute('dirty');
         }
     }
 
@@ -74,9 +74,9 @@
 
         // Invalid : add class
         if (invalid) {
-            host.setAttribute("invalid", "");
+            host.setAttribute('invalid', '');
         } else {
-            host.removeAttribute("invalid");
+            host.removeAttribute('invalid');
         }
     }
 
@@ -84,21 +84,21 @@
         host.submitting = submitting;
         // Submitting => add class
         if (submitting) {
-            host.setAttribute("submitting", "");
+            host.setAttribute('submitting', '');
         } else {
-            host.removeAttribute("submitting");
+            host.removeAttribute('submitting');
         }
     }
 
     async function sendSubmitRequest(submitter) {
-        if (form.getAttribute("action")) {
+        if (form.getAttribute('action')) {
             // form.action is always set, we need to check if there is an attribute explicitely defined
             const rawValues = getFormValues();
 
-            const values = host.submitTransform && typeof host.submitTransform === "function" ? host.submitTransform(rawValues) : rawValues;
+            const values = host.submitTransform && typeof host.submitTransform === 'function' ? host.submitTransform(rawValues) : rawValues;
             try {
                 const hasFiles = Object.values(values).some((v) => v instanceof File);
-                const isGet = form.method.toLowerCase() === "get";
+                const isGet = form.method.toLowerCase() === 'get';
                 const url = new URL(form.action);
 
                 if (isGet) {
@@ -108,27 +108,27 @@
                     });
                 }
 
-                host.dispatchEvent(new CustomEvent("request-start", { detail: { values }, bubbles: true }));
+                host.dispatchEvent(new CustomEvent('request-start', { detail: { values }, bubbles: true }));
                 submitting = true;
                 submitter.disabled = true;
 
                 try {
                     const result = await fetch(url.toString(), {
-                        method: form.method,
+                        method: form.getAttribute('method'),
                         headers: {
-                            ...(!hasFiles && { "Content-Type": "application/json" }),
+                            ...(!hasFiles && { 'Content-Type': 'application/json' }),
                         },
                         ...(!isGet && { body: hasFiles ? valuesToFormData(values) : JSON.stringify(values) }),
                     });
 
                     const response = await result.json();
                     if (result.ok) {
-                        host.dispatchEvent(new CustomEvent("request-success", { detail: { response, status: result.status, values }, bubbles: true }));
+                        host.dispatchEvent(new CustomEvent('request-success', { detail: { response, status: result.status, values }, bubbles: true }));
                     } else {
-                        host.dispatchEvent(new CustomEvent("request-error", { detail: { response, status: result.status, values }, bubbles: true }));
+                        host.dispatchEvent(new CustomEvent('request-error', { detail: { response, status: result.status, values }, bubbles: true }));
                     }
                 } catch (e) {
-                    host.dispatchEvent(new CustomEvent("request-error", { detail: { error: e, values }, bubbles: true }));
+                    host.dispatchEvent(new CustomEvent('request-error', { detail: { error: e, values }, bubbles: true }));
                 }
             } catch (e) {
                 console.error(e);
@@ -136,7 +136,7 @@
                 submitting = false;
                 submitter.disabled = false;
 
-                host.dispatchEvent(new CustomEvent("request-end", { detail: { values }, bubbles: true }));
+                host.dispatchEvent(new CustomEvent('request-end', { detail: { values }, bubbles: true }));
             }
         }
     }
@@ -147,12 +147,12 @@
         [...form.elements].forEach((e) => {
             const name = e.name;
 
-            if (e.type === "checkbox") {
-                const elementValue = e.type === "checkbox" ? e.checked : e.value;
+            if (e.type === 'checkbox') {
+                const elementValue = e.type === 'checkbox' ? e.checked : e.value;
                 values[name] = elementValue;
-            } else if (e.type === "radio" && name && !values[name]) {
-                values[name] = "";
-            } else if (e.type === "file" && !values[name]?.size) {
+            } else if (e.type === 'radio' && name && !values[name]) {
+                values[name] = '';
+            } else if (e.type === 'file' && !values[name]?.size) {
                 delete values[name];
             }
         });
@@ -165,11 +165,11 @@
 
         const submitter = e.submitter || e.detail.submitter; // If event is customsubmit (attribute submit-on-change on inform0-field), we need to check e.detail.submitter
 
-        host.querySelectorAll("inform-field").forEach((e) => e.setAttribute("touched", ""));
+        host.querySelectorAll('inform-field').forEach((e) => e.setAttribute('touched', ''));
 
         checkValidity();
         if (!invalid) {
-            host.dispatchEvent(new CustomEvent("submit", { detail: { values: getFormValues() }, bubbles: true }));
+            host.dispatchEvent(new CustomEvent('submit', { detail: { values: getFormValues() }, bubbles: true }));
             await sendSubmitRequest(submitter);
             if (resetOnSubmitIsPresent) {
                 form.reset();
@@ -187,7 +187,7 @@
 
         currentValues = getFormValues();
         host.dispatchEvent(
-            new CustomEvent("input", {
+            new CustomEvent('input', {
                 detail: {
                     values: { ...currentValues },
                     changedField: e.target.name,
@@ -201,12 +201,12 @@
         e.stopPropagation();
 
         const formField = e.target;
-        formField.setAttribute("touched", "");
+        formField.setAttribute('touched', '');
 
         const newValues = getFormValues();
 
         host.dispatchEvent(
-            new CustomEvent("change", {
+            new CustomEvent('change', {
                 detail: {
                     values: { ...currentValues },
                     changedField: e.target.name,
@@ -219,8 +219,8 @@
     }
 
     function resetTouched() {
-        host.querySelectorAll("[touched]").forEach((e) => {
-            e.removeAttribute("touched");
+        host.querySelectorAll('[touched]').forEach((e) => {
+            e.removeAttribute('touched');
         });
     }
 
@@ -241,16 +241,16 @@
         Object.keys(currentValues).forEach((key) => {
             // For radio buttons we could get an array here
             const formElement = form.elements[key] instanceof RadioNodeList ? form.elements[key][0] : form.elements[key];
-            const informField = formElement.closest("inform-field");
+            const informField = formElement.closest('inform-field');
 
             if (currentValues[key] !== initialValues[key]) {
                 someDirty = true;
 
                 if (informField) {
-                    informField.setAttribute("dirty", "");
+                    informField.setAttribute('dirty', '');
                 }
             } else if (informField) {
-                informField.removeAttribute("dirty");
+                informField.removeAttribute('dirty');
             }
         });
 
@@ -261,21 +261,21 @@
             return;
         }
 
-        const customValidationErrors = host.validationHandler && typeof host.validationHandler === "function" ? host.validationHandler({ values: getFormValues() }) : null;
+        const customValidationErrors = host.validationHandler && typeof host.validationHandler === 'function' ? host.validationHandler({ values: getFormValues() }) : null;
 
         const elements = [...form.elements];
 
         elements.forEach((element) => {
             // Set native error
-            element.setCustomValidity(customValidationErrors?.[element.name] ?? "");
+            element.setCustomValidity(customValidationErrors?.[element.name] ?? '');
 
-            const informField = element.closest("inform-field");
+            const informField = element.closest('inform-field');
             if (informField) {
                 const errorPropValue = customValidationErrors?.[element.name] ?? getFieldError(element, informField);
                 if (errorPropValue) {
-                    informField.setAttribute("error-message", errorPropValue);
+                    informField.setAttribute('error-message', errorPropValue);
                 } else {
-                    informField.removeAttribute("error-message");
+                    informField.removeAttribute('error-message');
                 }
             }
         });
@@ -286,17 +286,17 @@
     async function initSlot() {
         form = defaultSlot.assignedElements()[0];
 
-        if (!form || form.tagName.toLowerCase() !== "form") {
-            console.error("<inform-el> must have a <form> element as direct child");
+        if (!form || form.tagName.toLowerCase() !== 'form') {
+            console.error('<inform-el> must have a <form> element as direct child');
         }
         form.noValidate = true;
 
         host.reset = publicReset;
         host.setValues = publicSetValues;
-        form.addEventListener("submit", handleSubmit);
-        form.addEventListener("input", handleInput);
-        form.addEventListener("change", handleChange);
-        form.addEventListener("reset", handleFormReset);
+        form.addEventListener('submit', handleSubmit);
+        form.addEventListener('input', handleInput);
+        form.addEventListener('change', handleChange);
+        form.addEventListener('reset', handleFormReset);
 
         submitButton = form.querySelector('[type="submit"]');
 
@@ -306,27 +306,27 @@
         initialValues = getFormValues();
         currentValues = initialValues;
 
-        host.dispatchEvent(new CustomEvent("informel-ready", { bubbles: true }));
+        host.dispatchEvent(new CustomEvent('informel-ready', { bubbles: true }));
     }
 
     onMount(() => {
-        defaultSlot = container.querySelector("slot");
-        defaultSlot.addEventListener("slotchange", initSlot);
+        defaultSlot = container.querySelector('slot');
+        defaultSlot.addEventListener('slotchange', initSlot);
         return () => {
-            defaultSlot.removeEventListener("slotchange", initSlot);
-            form.removeEventListener("change", handleChange);
-            form.removeEventListener("input", handleInput);
-            form.removeEventListener("submit", handleSubmit);
-            form.removeEventListener("reset", handleFormReset);
+            defaultSlot.removeEventListener('slotchange', initSlot);
+            form.removeEventListener('change', handleChange);
+            form.removeEventListener('input', handleInput);
+            form.removeEventListener('submit', handleSubmit);
+            form.removeEventListener('reset', handleFormReset);
         };
     });
 
     function setControlValue(control, value) {
-        if (control.type === "checkbox") {
+        if (control.type === 'checkbox') {
             control.checked = value;
-        } else if (control.type === "radio") {
+        } else if (control.type === 'radio') {
             control.checked = value === control.value;
-        } else if (control.type !== "file" || value === "") {
+        } else if (control.type !== 'file' || value === '') {
             // can't change file input value
             control.value = value;
         }
@@ -362,12 +362,12 @@
                 setControlValue(control, value);
 
                 control.dispatchEvent(
-                    new CustomEvent("input", {
+                    new CustomEvent('input', {
                         bubbles: true,
                     })
                 );
                 control.dispatchEvent(
-                    new CustomEvent("change", {
+                    new CustomEvent('change', {
                         bubbles: true,
                     })
                 );
