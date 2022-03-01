@@ -1,12 +1,18 @@
 ```html
 <inform-el>
     <form>
-        <inform-field>
-            <input type="text" name="firstName" placeholder="First name" required />
-        </inform-field>
-        <inform-field>
-            <input type="text" name="lastName" placeholder="Last name" required />
-        </inform-field>
+        <label>
+            First Name
+            <inform-field>
+                <input type="text" name="firstName" required />
+            </inform-field>
+        </label>
+        <label>
+            Last Name
+            <inform-field>
+                <input type="text" name="lastName" required minlength="2" />
+            </inform-field>
+        </label>
         <button type="submit">Submit</button>
     </form>
 </inform-el>
@@ -14,7 +20,7 @@
 
 Try submitting the empty form below to see the errors:
 
-<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/5Lfdzsew/10/embedded/result,html,js/"></iframe>
+<iframe width="100%" height="300" src="//jsfiddle.net/juliendelort/5Lfdzsew/11/embedded/result,html,js/"></iframe>
 
 :::tip `informel` leverages [native form validation features](https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation) and displays [native validation messages](https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement/validationMessage) by default.
 :::

@@ -63,8 +63,14 @@ Just wrap your native form in `<inform-el />`:
 ```html
 <inform-el>
     <form>
-        <input type="text" name="firstName" placeholder="First name" />
-        <input type="text" name="lastName" placeholder="Last name" />
+        <label>
+            First Name
+            <input type="text" name="firstName" />
+        </label>
+        <label>
+            Last Name
+            <input type="text" name="lastName" />
+        </label>
         <button type="submit">Submit</button>
     </form>
 </inform-el>
@@ -86,7 +92,7 @@ document.querySelector('inform-el').addEventListener('submit', ({ detail: { valu
 
 ### Showing validation errors
 
-In order to automatically show validation errors, wrap your fields in `<inform-field />`.
+In order to automatically show validation errors, wrap your form controls in `<inform-field />`.
 
 <InformFieldErrorPartialExample />
 
