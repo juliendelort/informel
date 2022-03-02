@@ -1,9 +1,13 @@
 # Changelog
 
+## [0.0.34] - 2022-03-01
+### Fixed
+- `error-disable-submit` now disables the submit button only while error are shown (not disabled when the form is loaded)
+
 ## [0.0.33] - 2022-02-27
 
 ### Fixed
-- Fixed reset-on-submit for extra values
+- Fixed `reset-on-submit` for extra values
 
 ## [0.0.32] - 2022-02-27
 

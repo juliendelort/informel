@@ -18,6 +18,7 @@
     let dirty = false;
     let submitting = false;
     let invalid = false;
+    let errorShown = false;
     let resetOnSubmitIsPresent;
 
     $: {
@@ -56,7 +57,7 @@
     $: {
         // Submit button enabled
         if (submitButton) {
-            submitButton.disabled = submitting || (invalid && errorDisableSubmitIsPresent);
+            submitButton.disabled = submitting || (errorShown && errorDisableSubmitIsPresent);
         }
     }
 
@@ -322,6 +323,8 @@
         }
 
         invalid = !form.checkValidity() || Object.keys(customValidationErrors ?? {}).some((key) => !!customValidationErrors[key]);
+
+        errorShown = !!host.querySelector('inform-field[error]');
     }
 
     async function initSlot() {
