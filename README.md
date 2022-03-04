@@ -5,7 +5,7 @@
 </a>
 
 
-# infomel
+# informel
 `informel` is a Web Component that wraps your native HTML forms and gives them super powers.
 
 <br />
