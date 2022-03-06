@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.0.0] - 2022-03-06
+- 1.0.0 release
+
 ## [0.0.35] - 2022-03-03
 ### Fixed
 - Typo in README.
