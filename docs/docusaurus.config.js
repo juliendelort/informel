@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'informel',
   tagline: 'Forms with superpowers',
-  url: 'https://your-docusaurus-test-site.com',
+  url: 'https://juliendelort.github.io/informel',
   baseUrl: '/informel/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -51,7 +51,9 @@ const config = {
         content: 'informel, forms, html, web component, submit, input, formdata'
       }, {
         name: 'description',
-        content: 'informel, forms, html, web component, submit, input, formdata'
+        content: `informel is a Web Component that wraps native HTML forms. Features: Easily obtain form values, Automatically show validation errors,
+        Native & custom validation rules. Easily track form validity state, Keep track of whether your form is dirty or not,
+        Auto submission via AJAX call, using action and method attributes`
       }],
       navbar: {
         title: 'informel',
