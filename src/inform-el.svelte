@@ -2,7 +2,7 @@
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError } from './utils';
+    import { valuesToFormData, getFieldError, compareFieldValues } from './utils';
     import { onMount, tick } from 'svelte';
     import { get_current_component } from 'svelte/internal';
 
@@ -145,7 +145,20 @@
     }
 
     function getFormValues() {
-        const values = Object.fromEntries(new FormData(form));
+        const values = {};
+        const formData = new FormData(form);
+        for (let [name, value] of formData.entries()) {
+            if (values.hasOwnProperty(name)) {
+                if (Array.isArray(values[name])) {
+                    values[name] = [...values[name], value];
+                } else {
+                    values[name] = [values[name], value];
+                }
+            } else {
+                values[name] = value;
+            }
+        }
+
         // Add missing values (checkboxes)
         [...form.elements].forEach((e) => {
             const name = e.name;
@@ -157,6 +170,8 @@
                 values[name] = '';
             } else if (e.type === 'file' && !values[name]?.size) {
                 delete values[name];
+            } else if (e.tagName.toLowerCase() === 'select' && e.hasAttribute('multiple') && !values[name]) {
+                values[name] = [];
             }
         });
 
@@ -257,7 +272,7 @@
             if (formElement) {
                 const informField = formElement.closest('inform-field');
 
-                if (currentValues[key] !== initialValues[key]) {
+                if (!compareFieldValues(currentValues[key], initialValues[key])) {
                     someDirty = true;
 
                     if (informField) {
@@ -270,7 +285,7 @@
         });
 
         Object.keys(extraValues).forEach((key) => {
-            if (extraValues[key] !== initialValues[key]) {
+            if (!compareFieldValues(extraValues[key], initialValues[key])) {
                 someDirty = true;
             }
         });
@@ -371,6 +386,11 @@
             control.checked = value;
         } else if (control.type === 'radio') {
             control.checked = value === control.value;
+        } else if (control.tagName.toLowerCase() === 'select' && control.hasAttribute('multiple')) {
+            const valArray = Array.isArray(value) ? value : [value];
+            control.querySelectorAll('option').forEach((o) => {
+                o.selected = valArray.includes(o.value);
+            });
         } else if (control.type !== 'file' || value === '') {
             // can't change file input value
             control.value = value;

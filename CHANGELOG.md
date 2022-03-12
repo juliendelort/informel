@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.0] - 2022-03-12
+### Added
+- Support for `<select multiple>`.
+
 ## [1.0.0] - 2022-03-06
 - 1.0.0 release
 

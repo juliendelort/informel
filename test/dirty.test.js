@@ -9,7 +9,9 @@ import {
     setSelectValue,
     generateSelectValue,
     type,
-    clear
+    clear,
+    setSelectMultipleValue,
+    generateMultiSelectValue
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -209,7 +211,54 @@ describe('dirty check', () => {
                             <inform-el>
                                 <form>
                                     <inform-field>
-                                        <select id="control" name="field" value="val2">
+                                        <select id="control" name="field">
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2" selected>Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                initialValue: "val2",
+                setValue: setSelectValue,
+                generateValue: generateSelectValue
+            });
+        });
+        describe('without a <inform-field> wrapper', () => {
+            runTests({
+                html: `
+                            <inform-el>
+                                <form>
+                                    <select id="control" name="field">
+                                        <option value="">--Please choose an option--</option>
+                                        <option value="val1">Value1</option>
+                                        <option value="val2" selected>Value2</option>
+                                        <option value="val3">Value3</option>
+                                    </select>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                initialValue: "val2",
+                setValue: setSelectValue,
+                generateValue: generateSelectValue,
+                skipInformField: true
+            });
+        });
+
+    });
+
+    describe('with select multiple field', () => {
+        describe('without a initial value', () => {
+            runTests({
+                html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <select id="control" name="field" multiple >
                                             <option value="">--Please choose an option--</option>
                                             <option value="val1">Value1</option>
                                             <option value="val2">Value2</option>
@@ -220,9 +269,33 @@ describe('dirty check', () => {
                                 </form>
                             </inform-el>
                         `,
-                initialValue: "",
-                setValue: setSelectValue,
-                generateValue: generateSelectValue
+                initialValue: [],
+                setValue: setSelectMultipleValue,
+                generateValue: generateMultiSelectValue
+            });
+        });
+
+        describe('with a initial value', () => {
+
+            runTests({
+                html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <select id="control" name="field" multiple>
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1" selected>Value1</option>
+                                            <option value="val2" selected>Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                initialValue: ["val1", "val2"],
+                setValue: setSelectMultipleValue,
+                generateValue: generateMultiSelectValue
             });
         });
         describe('without a <inform-field> wrapper', () => {
@@ -230,7 +303,7 @@ describe('dirty check', () => {
                 html: `
                             <inform-el>
                                 <form>
-                                    <select id="control" name="field" value="val2">
+                                    <select id="control" name="field" multiple>
                                         <option value="">--Please choose an option--</option>
                                         <option value="val1">Value1</option>
                                         <option value="val2">Value2</option>
@@ -240,16 +313,14 @@ describe('dirty check', () => {
                                 </form>
                             </inform-el>
                         `,
-                initialValue: "",
-                setValue: setSelectValue,
-                generateValue: generateSelectValue,
+                initialValue: [],
+                setValue: setSelectMultipleValue,
+                generateValue: generateMultiSelectValue,
                 skipInformField: true
             });
         });
 
     });
-
-
 
     let informEl;
     let control;

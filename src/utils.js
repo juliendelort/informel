@@ -43,3 +43,12 @@ export function getFieldError(element, informField) {
 
     return informField?.getAttribute(validityAttribute) ?? informField?.getAttribute("default-error") ?? element.validationMessage;
 }
+
+
+export function compareFieldValues(val1, val2) {
+    if (Array.isArray(val1) && Array.isArray(val2)) {
+        return JSON.stringify(val1.sort()) === JSON.stringify(val2.sort());
+    } else {
+        return val1 === val2;
+    }
+}

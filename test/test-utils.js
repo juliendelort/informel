@@ -1,4 +1,4 @@
-import { sendKeys } from '@web/test-runner-commands';
+import { sendKeys, sendMouse } from '@web/test-runner-commands';
 
 export const type = async (input, text, blur) => {
     input.focus();
@@ -109,3 +109,37 @@ export function eventCheck(element, eventName) {
             listenerHasBeenCalled = false;
         }];
 }
+
+
+function getMiddleOfElement(element) {
+    const { x, y, width, height } = element.getBoundingClientRect();
+
+    return {
+        x: Math.floor(x + window.pageXOffset + width / 2),
+        y: Math.floor(y + window.pageYOffset + height / 2),
+    };
+}
+
+export const setSelectMultipleValue = async (select, val) => {
+    for (let o of select.querySelectorAll('option')) {
+        const isInValue = val.includes(o.value);
+
+        if (o.selected !== isInValue) {
+            await selectMultipleToggleValue(o);
+        }
+    }
+};
+
+const selectMultipleToggleValue = async (option) => {
+    const { x, y } = getMiddleOfElement(option);
+
+    await sendKeys({
+        down: 'Control'
+    });
+    await sendMouse({ type: 'click', position: [x, y] });
+    await sendKeys({
+        up: 'Control'
+    });
+};
+
+export const generateMultiSelectValue = (currentValue) => JSON.stringify(currentValue) === JSON.stringify(["val1", "val2"]) ? ["val2", "val3"] : ["val1", "val2"];

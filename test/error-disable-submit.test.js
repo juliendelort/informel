@@ -3,7 +3,8 @@ import {
     generateTextInputValue,
     setTextInputValue,
     setCheckboxValue,
-    setSelectValue
+    setSelectValue,
+    setSelectMultipleValue
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -63,6 +64,27 @@ describe('error-disable-submit', () => {
             setValue: setSelectValue,
             validValue: 'val2',
             invalidValue: ''
+        });
+    });
+
+    describe('with select multiple', async () => {
+        await runTests({
+            html: `
+                        <form>
+                            <inform-field>
+                                <select id="control" name="field" required multiple>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                             </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                `,
+            setValue: setSelectMultipleValue,
+            validValue: ['val2'],
+            invalidValue: []
         });
     });
 

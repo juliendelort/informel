@@ -7,7 +7,9 @@ import {
     setRadioValue,
     generateRadioValue,
     setSelectValue,
-    generateSelectValue
+    generateSelectValue,
+    setSelectMultipleValue,
+    generateMultiSelectValue
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -122,6 +124,36 @@ describe('sets the "touched" attribute on <inform-field> on change', () => {
                 `,
             setValue: setSelectValue,
             generateValue: generateSelectValue
+        });
+    });
+
+    it('works with select multiple', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field id="field1" >
+                                <select class="control1" name="field" required multiple>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                            </inform-field>
+                            <inform-field id="field2">
+                                <select class="control2" name="field" required multiple>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setSelectMultipleValue,
+            generateValue: generateMultiSelectValue
         });
     });
 

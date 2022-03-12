@@ -10,7 +10,9 @@ import {
     generateRadioValue,
     setSelectValue,
     generateSelectValue,
-    eventCheck
+    eventCheck,
+    setSelectMultipleValue,
+    generateMultiSelectValue
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -117,6 +119,31 @@ describe('input and change events', () => {
                 `,
             setValue: setSelectValue,
             generateValue: generateSelectValue,
+            text: false,
+            initialValue: ''
+        });
+    });
+
+    it('works with select multiple', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <select id="control" name="some-name" multiple>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                            </inform-field>
+                            <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setSelectMultipleValue,
+            generateValue: generateMultiSelectValue,
             text: false,
             initialValue: ''
         });

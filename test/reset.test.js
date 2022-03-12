@@ -8,7 +8,9 @@ import {
     generateRadioValue,
     setSelectValue,
     generateSelectValue,
-    type
+    type,
+    setSelectMultipleValue,
+    generateMultiSelectValue
 } from './test-utils';
 import '../public/build/bundle.js';
 import sinon from 'sinon';
@@ -115,6 +117,30 @@ describe('reset', () => {
             setValue: setSelectValue,
             generateValue: generateSelectValue,
             initialValue: "",
+            hasInformField: true
+        });
+    });
+
+    describe('with select multiple', () => {
+        runTests({
+            html: `
+                                <inform-el>
+                                    <form>
+                                        <inform-field>
+                                            <select id="control" name="field" multiple>
+                                                <option value="">--Please choose an option--</option>
+                                                <option value="val1">Value1</option>
+                                                <option value="val2">Value2</option>
+                                                <option value="val3">Value3</option>
+                                            </select>
+                                        </inform-field>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+            setValue: setSelectMultipleValue,
+            generateValue: generateMultiSelectValue,
+            initialValue: [],
             hasInformField: true
         });
     });

@@ -1,5 +1,6 @@
 {
   "name": "informel",
+  "description": "informel is a Web Component that wraps native HTML forms. Features: validation errors, native & custom validation rules.validity state, dirty check, auto submission via AJAX call",
   "version": "1.0.0",
   "main": "public/build/bundle.js",
   "types": "react/index.d.ts",
@@ -21,7 +22,7 @@
     "build": "rollup -c && npm run build-react",
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear",
-    "test": "web-test-runner \"test/**/*.test.js\" --node-resolve",
+    "test": "web-test-runner \"test/**/*.test.js\" --node-resolve --playwright",
     "test-all": "web-test-runner \"test/**/*.test.js\" --node-resolve --playwright --browsers chromium firefox webkit",
     "build-react": "NODE_ENV=production babel react-src --out-dir react --copy-files"
   },
@@ -35,6 +36,7 @@
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@web/test-runner": "^0.13.27",
+    "@web/test-runner-commands": "^0.6.1",
     "@web/test-runner-playwright": "^0.8.8",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
