@@ -31,10 +31,11 @@ function HomepageHeader() {
 
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
+  console.log({ siteConfig });
   return (
     <Layout
       title={`informel - form management made easy`}
-      description="informel is a web component wrapping a native html form in order to offer extra features">
+      description={siteConfig.customFields.description}>
       <HomepageHeader />
       <main>
         <HomepageFeatures />

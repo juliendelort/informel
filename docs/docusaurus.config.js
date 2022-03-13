@@ -4,6 +4,9 @@
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
+const description = `informel is Web Component that wraps native HTML forms. Features: validation errors,
+        Native & custom validation rules.validity state, dirty check, auto submission via AJAX call`;
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'informel',
@@ -15,7 +18,9 @@ const config = {
   favicon: 'img/favicon.ico',
   organizationName: 'juliendelort', // Usually your GitHub org/user name.
   projectName: 'informel', // Usually your repo name.
-
+  customFields: {
+    description,
+  },
   presets: [
     [
       'classic',
@@ -48,11 +53,10 @@ const config = {
     ({
       metadata: [{
         name: 'keywords',
-        content: 'informel, forms, html, web component, submit, input, formdata'
+        content: 'informel, forms, form, ajax, html, web component, submit, input, formdata, library, form management'
       }, {
         name: 'description',
-        content: `informel is a Web Component that wraps native HTML forms. Features: validation errors,
-        Native & custom validation rules.validity state, dirty check, auto submission via AJAX call`
+        content: description
       }],
       navbar: {
         title: 'informel',
