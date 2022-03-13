@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.0] - 2022-03-13
+### Added
+- Support for `formaction` & `formmethod` attributes.
+
 ## [1.1.0] - 2022-03-12
 ### Added
 - Support for `<select multiple>`.

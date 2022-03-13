@@ -93,16 +93,16 @@
     }
 
     async function sendSubmitRequest(submitter) {
-        if (form.getAttribute('action')) {
+        if (form.hasAttribute('action') || submitter.hasAttribute('formaction')) {
             // form.action is always set, we need to check if there is an attribute explicitely defined
             const rawValues = getFormValues();
 
             const values = host.submitTransform && typeof host.submitTransform === 'function' ? host.submitTransform(rawValues) : rawValues;
             try {
                 const hasFiles = Object.values(values).some((v) => v instanceof File);
-                const method = form.getAttribute('method') ?? 'get';
+                const method = submitter.getAttribute('formmethod') ?? form.getAttribute('method') ?? 'get';
                 const isGet = method.toLowerCase() === 'get';
-                const url = new URL(form.action);
+                const url = new URL(submitter.hasAttribute('formaction') ? submitter.formAction : form.action);
 
                 if (isGet) {
                     // No body for get request

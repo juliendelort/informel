@@ -272,6 +272,47 @@ describe('submit', () => {
             expect(JSON.parse(body)).to.eql({ field: 'a' });
         });
 
+        it('supports the formaction attribute', async () => {
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form  action="${formUrl}" method="GET">
+                            <inform-field>
+                                <input type="text" name="field" required/>
+                            </inform-field>
+                            <button type="submit" id="submit1" >Submit1</button>
+                            <button type="submit" id="submit2" formaction="/url2" formmethod="PUT">Submit2</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton1 = informEl.querySelector('#submit1');
+            const submitButton2 = informEl.querySelector('#submit2');
+            const input = informEl.querySelector('input');
+
+            await type(input, 'a', true);
+
+            submitButton2.click();
+
+            expect(window.fetch).to.have.been.calledWith(new URL('/url2', window.location.href).toString(), {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ field: 'a' })
+            });
+
+            window.fetch.resetHistory();
+
+            submitButton1.click();
+
+            expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?field=a`, {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+        });
+
         it('defaults to GET when method is not specified', async () => {
             const informEl = await fixture(`
                     <inform-el>

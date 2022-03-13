@@ -24,6 +24,8 @@
     "start": "sirv public --no-clear",
     "test": "web-test-runner \"test/**/*.test.js\" --node-resolve --playwright",
     "test-all": "web-test-runner \"test/**/*.test.js\" --node-resolve --playwright --browsers chromium firefox webkit",
+    "test-firefox": "web-test-runner \"test/**/*.test.js\" --node-resolve --playwright --browsers firefox",
+    "test-webkit": "web-test-runner \"test/**/*.test.js\" --node-resolve --playwright --browsers webkit",
     "build-react": "NODE_ENV=production babel react-src --out-dir react --copy-files"
   },
   "devDependencies": {
