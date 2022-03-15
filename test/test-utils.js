@@ -3,7 +3,7 @@ import { sendKeys, sendMouse } from '@web/test-runner-commands';
 export const type = async (input, text, blur) => {
     input.focus();
     await sendKeys({
-        type: text,
+        type: text.toString(),
     });
     if (blur) {
         await tab();
@@ -44,6 +44,8 @@ export const setTextInputValue = async (input, val) => {
     }
 };
 export const generateTextInputValue = () => randomString();
+
+export const generateNumberValue = () => Math.round(Math.random() * 100);
 
 export const setCheckboxValue = (checkbox, val) => {
     if (checkbox.checked !== val) {

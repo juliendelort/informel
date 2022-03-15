@@ -12,7 +12,8 @@ import {
     generateSelectValue,
     eventCheck,
     setSelectMultipleValue,
-    generateMultiSelectValue
+    generateMultiSelectValue,
+    generateNumberValue
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -33,8 +34,26 @@ describe('input and change events', () => {
                 `,
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
-            text: true,
-            initialValue: ''
+            text: true
+        });
+    });
+
+    it('works with number input', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input id="control" type="number" name="some-name"/>
+                            </inform-field>
+                             <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            generateValue: generateNumberValue,
+            text: true
         });
     });
 
@@ -53,8 +72,7 @@ describe('input and change events', () => {
                 `,
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
-            text: true,
-            initialValue: ''
+            text: true
         });
     });
 
@@ -73,8 +91,7 @@ describe('input and change events', () => {
                 `,
             setValue: setCheckboxValue,
             generateValue: generateCheckboxValue,
-            text: false,
-            initialValue: false
+            text: false
         });
     });
 
@@ -94,8 +111,7 @@ describe('input and change events', () => {
                 `,
             setValue: setRadioValue,
             generateValue: generateRadioValue,
-            text: false,
-            initialValue: ''
+            text: false
         });
     });
 
@@ -119,8 +135,7 @@ describe('input and change events', () => {
                 `,
             setValue: setSelectValue,
             generateValue: generateSelectValue,
-            text: false,
-            initialValue: ''
+            text: false
         });
     });
 
@@ -144,8 +159,7 @@ describe('input and change events', () => {
                 `,
             setValue: setSelectMultipleValue,
             generateValue: generateMultiSelectValue,
-            text: false,
-            initialValue: ''
+            text: false
         });
     });
 
@@ -163,10 +177,9 @@ describe('input and change events', () => {
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
             text: true,
-            initialValue: ''
         });
     });
-    async function runTests({ html, setValue, generateValue, text, initialValue }) {
+    async function runTests({ html, setValue, generateValue, text }) {
         const informEl = await fixture(html);
         const control = informEl.querySelector('#control');
 
@@ -174,12 +187,13 @@ describe('input and change events', () => {
         const [, inputDetails, resetInput] = eventCheck(informEl, 'input');
 
         if (text) {
+            const someValue = generateValue();
             const input = informEl.querySelector('#control');
-            await type(input, 'something', false); // Only input
+            await type(input, someValue, false); // Only input
             await nextFrame();
             expect(inputDetails()).to.eql({
                 values: {
-                    'some-name': 'something',
+                    'some-name': someValue,
                     other: 'nochange'
                 },
                 changedField: 'some-name'
@@ -209,4 +223,31 @@ describe('input and change events', () => {
             changedField: 'some-name'
         });
     }
+
+    it('does not include empty number fields in the values', async () => {
+        const informEl = await fixture(`
+                    <inform-el>
+                        <form>
+                            <input id="control" type="number" name="age"/>
+                        </form>
+                    </inform-el>
+                `);
+        const control = informEl.querySelector('#control');
+
+        expect(informEl.values).to.eql({ age: undefined });
+
+        await type(control, '10', true);
+
+        expect(informEl.values).to.eql({ age: 10 });
+
+        await clear(control);
+
+        expect(informEl.values).to.eql({ age: undefined });
+
+        await type(control, '-20.56', true);
+
+        expect(informEl.values).to.eql({ age: -20.56 });
+
+
+    });
 });

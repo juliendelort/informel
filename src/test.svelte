@@ -1,13 +1,13 @@
 <svelte:options tag="my-test" />
 
 <script>
-    import { onMount } from "svelte";
+    import { onMount } from 'svelte';
 
     let tasks = [];
     let informEl;
 
     async function refreshTasks() {
-        const result = await fetch("https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task");
+        const result = await fetch('https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task');
         tasks = await result.json();
     }
 
@@ -50,6 +50,9 @@
         <form>
             <inform-field>
                 <input type="email" name="title" required />
+            </inform-field>
+            <inform-field>
+                <input type="number" name="age" required />
             </inform-field>
             <inform-field>
                 <input type="radio" name="field" value="val1" />

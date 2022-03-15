@@ -144,6 +144,10 @@
         }
     }
 
+    function getFormElementByName(name) {
+        return form.elements[name] instanceof RadioNodeList ? form.elements[name][0] : form.elements[name];
+    }
+
     function getFormValues() {
         const values = {};
         const formData = new FormData(form);
@@ -162,6 +166,9 @@
         // Add missing values (checkboxes)
         [...form.elements].forEach((e) => {
             const name = e.name;
+            if (!name) {
+                return;
+            }
 
             if (e.type === 'checkbox') {
                 const elementValue = e.type === 'checkbox' ? e.checked : e.value;
@@ -169,9 +176,21 @@
             } else if (e.type === 'radio' && name && !values[name]) {
                 values[name] = '';
             } else if (e.type === 'file' && !values[name]?.size) {
-                delete values[name];
+                values[name] = undefined;
             } else if (e.tagName.toLowerCase() === 'select' && e.hasAttribute('multiple') && !values[name]) {
                 values[name] = [];
+            } else if (e.type === 'number') {
+                if (values[name] === '') {
+                    values[name] = undefined;
+                } else {
+                    if (parseFloat(values[name]) === parseInt(values[name])) {
+                        // we have an integer
+                        values[name] = parseInt(values[name]);
+                    } else {
+                        // we have a float
+                        values[name] = parseFloat(values[name]);
+                    }
+                }
             }
         });
 
@@ -200,6 +219,10 @@
     }
 
     function handleInput(e) {
+        // Not a form field: we don't interfere
+        if (!e.target.name) {
+            return;
+        }
         e.stopPropagation();
 
         currentValues = getFormValues();
@@ -215,10 +238,11 @@
     }
 
     function handleChange(e) {
+        if (!e.target.name) {
+            // Not a form field: we don't interfere
+            return;
+        }
         e.stopPropagation();
-
-        const formField = e.target;
-        formField.setAttribute('touched', '');
 
         const newValues = getFormValues();
 
@@ -268,7 +292,7 @@
         let someDirty = false;
         Object.keys(currentValues).forEach((key) => {
             // For radio buttons we could get an array here
-            const formElement = form.elements[key] instanceof RadioNodeList ? form.elements[key][0] : form.elements[key];
+            const formElement = getFormElementByName(key);
             if (formElement) {
                 const informField = formElement.closest('inform-field');
 
@@ -302,6 +326,9 @@
         const elements = [...form.elements];
 
         elements.forEach((element) => {
+            if (!element.name) {
+                return;
+            }
             // Set native error
             element.setCustomValidity(customValidationErrors?.[element.name] ?? '');
 
@@ -408,6 +435,9 @@
 
         resetTouched();
         [...form.elements].forEach((e) => {
+            if (!e.name) {
+                return;
+            }
             const name = e.name;
             const value = newValues[name];
             if (value !== undefined && value !== null) {
@@ -428,7 +458,7 @@
 
         // Looking for new extra values
         Object.keys(newValues).forEach((key) => {
-            if (!form.elements[key]) {
+            if (!getFormElementByName(key)) {
                 extraValues = {
                     ...extraValues,
                     [key]: newValues[key],
@@ -443,7 +473,7 @@
     function publicSetValues(newValues) {
         Object.keys(newValues).forEach((key) => {
             const value = newValues[key];
-            const control = form.elements[key];
+            const control = getFormElementByName(key);
             if (control) {
                 setControlValue(control, value);
 
