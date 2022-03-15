@@ -1,9 +1,9 @@
 <script>
-    export let errorMessage = "";
+    export let errorMessage = '';
     export let touched = null;
     export let submitOnChange = null;
-    import { onMount } from "svelte";
-    import { get_current_component } from "svelte/internal";
+    import { onMount } from 'svelte';
+    import { get_current_component } from 'svelte/internal';
 
     let host = get_current_component();
     let rootElement;
@@ -15,9 +15,9 @@
     $: {
         // Update error attribute
         if (errorMessage && touchedIsPresent) {
-            host.setAttribute("error", "");
+            host.setAttribute('error', '');
         } else {
-            host.removeAttribute("error", "");
+            host.removeAttribute('error', '');
         }
 
         // Update slot content when errorMessage or touched has changed
@@ -32,14 +32,10 @@
         submitOnChangeIsPresent = submitOnChange !== null && submitOnChange !== undefined;
     }
 
-    function handleInput() {
-        host.dispatchEvent(new CustomEvent("input", { detail: null, bubbles: true, composed: true }));
-    }
-
     function handleChange(e) {
-        host.dispatchEvent(new CustomEvent("change", { detail: null, bubbles: true, composed: true }));
+        host.setAttribute('touched', '');
         if (submitOnChangeIsPresent) {
-            host.dispatchEvent(new CustomEvent("customsubmit", { detail: { submitter: e.target }, bubbles: true, composed: true }));
+            host.dispatchEvent(new CustomEvent('customsubmit', { detail: { submitter: e.target }, bubbles: true, composed: true }));
         }
     }
 
@@ -56,14 +52,14 @@
     onMount(() => {
         errorSlot = rootElement.querySelector('slot[name="error"]');
 
-        errorSlot.addEventListener("slotchange", updateErrorSlot);
+        errorSlot.addEventListener('slotchange', updateErrorSlot);
         return () => {
-            errorSlot.removeEventListener("slotchange", updateErrorSlot);
+            errorSlot.removeEventListener('slotchange', updateErrorSlot);
         };
     });
 </script>
 
-<div on:input={handleInput} on:change={handleChange} bind:this={rootElement}>
+<div on:change={handleChange} bind:this={rootElement}>
     <slot />
     {#if errorMessage && !errorSlotHasContent && touchedIsPresent}
         <div class="form-field-error" role="alert">{errorMessage}</div>
