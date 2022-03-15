@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.1] - 2022-03-15
+### Fixed
+- Event conflicts for inputs without names
+- Parse values for `<input type="number"/>`
+
 ## [1.2.0] - 2022-03-13
 ### Added
 - Support for `formaction` & `formmethod` attributes.
