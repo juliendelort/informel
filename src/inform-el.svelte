@@ -183,13 +183,7 @@
                 if (values[name] === '') {
                     values[name] = undefined;
                 } else {
-                    if (parseFloat(values[name]) === parseInt(values[name])) {
-                        // we have an integer
-                        values[name] = parseInt(values[name]);
-                    } else {
-                        // we have a float
-                        values[name] = parseFloat(values[name]);
-                    }
+                    values[name] = Number(values[name]);
                 }
             }
         });
@@ -337,8 +331,10 @@
                 const errorPropValue = customValidationErrors?.[element.name] ?? getFieldError(element, informField);
                 if (errorPropValue) {
                     informField.setAttribute('error-message', errorPropValue);
+                    element.setAttribute('aria-invalid', 'true');
                 } else {
                     informField.removeAttribute('error-message');
+                    element.removeAttribute('aria-invalid');
                 }
             }
         });

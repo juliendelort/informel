@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.0] - 2022-04-10
+### Added
+- Set `aria-invalid` attribute when invalid
+- `touched-on-input` attribute on `<inform-field>`
+
+
 ## [1.2.1] - 2022-03-15
 ### Fixed
 - Event conflicts for inputs without names

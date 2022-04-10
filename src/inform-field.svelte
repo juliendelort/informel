@@ -2,6 +2,7 @@
     export let errorMessage = '';
     export let touched = null;
     export let submitOnChange = null;
+    export let touchedOnInput = null;
     import { onMount } from 'svelte';
     import { get_current_component } from 'svelte/internal';
 
@@ -11,6 +12,7 @@
     let errorSlotHasContent;
     let touchedIsPresent;
     let submitOnChangeIsPresent;
+    let touchedOnInputIsPresent;
 
     $: {
         // Update error attribute
@@ -32,10 +34,20 @@
         submitOnChangeIsPresent = submitOnChange !== null && submitOnChange !== undefined;
     }
 
+    $: {
+        touchedOnInputIsPresent = touchedOnInput !== null && touchedOnInput !== undefined;
+    }
+
     function handleChange(e) {
         host.setAttribute('touched', '');
         if (submitOnChangeIsPresent) {
             host.dispatchEvent(new CustomEvent('customsubmit', { detail: { submitter: e.target }, bubbles: true, composed: true }));
+        }
+    }
+
+    function handleInput(e) {
+        if (touchedOnInputIsPresent) {
+            host.setAttribute('touched', '');
         }
     }
 
@@ -59,7 +71,7 @@
     });
 </script>
 
-<div on:change={handleChange} bind:this={rootElement}>
+<div on:change={handleChange} on:input={handleInput} bind:this={rootElement}>
     <slot />
     {#if errorMessage && !errorSlotHasContent && touchedIsPresent}
         <div class="form-field-error" role="alert">{errorMessage}</div>

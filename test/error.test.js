@@ -256,6 +256,87 @@ describe('error', () => {
         expect(informField).to.have.attribute('error-message', 'my custom error message');
     });
 
+    it('sets aria-invalid when invalid from validationHandler', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" />
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const informField = informEl.querySelector('inform-field');
+        const input = informEl.querySelector('input');
+        const submitButton = informEl.querySelector('[type="submit"]');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        informEl.validationHandler = ({ values }) => {
+            const result = {};
+            if (values['some-name'] === 'a') {
+                result['some-name'] = 'my custom error message';
+            }
+            return result;
+        };
+
+        await type(input, 'a', true);
+        expect(input).to.have.attribute('aria-invalid', 'true');
+
+        await type(input, 'b', true);
+        expect(input).not.to.have.attribute('aria-invalid');
+
+    });
+
+    it('sets aria-invalid when invalid from native attribute', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" pattern="^ab$"/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const informField = informEl.querySelector('inform-field');
+        const input = informEl.querySelector('input');
+        const submitButton = informEl.querySelector('[type="submit"]');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+
+        await type(input, 'a', true);
+        expect(input).to.have.attribute('aria-invalid', 'true');
+
+        await type(input, 'b', true);
+
+        expect(input).not.to.have.attribute('aria-invalid', 'true');
+
+    });
+
+    it('sets aria-invalid when invalid from native attribute when invalid from start', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const informField = informEl.querySelector('inform-field');
+        const input = informEl.querySelector('input');
+        const submitButton = informEl.querySelector('[type="submit"]');
+
+        expect(input).to.have.attribute('aria-invalid');
+
+    });
+
     it('sets extra field returned by validationHandler in error', async () => {
         const informEl = await fixture(`
                 <inform-el>
