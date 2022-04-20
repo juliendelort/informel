@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- `reset()` that was showing 'undefined' in text inputs
+- `setValues()` that was ignoring radio buttons
+
+## Removed
+- `setValues()` no longer emits `input` and `change` events
+
+
+
 ## [1.3.0] - 2022-04-10
 ### Added
 - Set `aria-invalid` attribute when invalid

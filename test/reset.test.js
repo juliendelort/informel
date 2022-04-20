@@ -283,6 +283,7 @@ describe('reset', () => {
                 const newInitialValue = generateValue(initialValue);
 
                 informEl.reset({ field: newInitialValue });
+                await nextFrame();
 
                 await setValue(control, generateValue(newInitialValue));
 

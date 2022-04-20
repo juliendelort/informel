@@ -148,10 +148,19 @@
         return form.elements[name] instanceof RadioNodeList ? form.elements[name][0] : form.elements[name];
     }
 
+    function getAllFormElements() {
+        return [...form.elements].filter((formElement) => !!formElement.name);
+    }
+
     function getFormValues() {
         const values = {};
-        const formData = new FormData(form);
-        for (let [name, value] of formData.entries()) {
+
+        getAllFormElements().forEach((e) => {
+            const name = e.name;
+            if (e.type === 'radio' && !e.checked) {
+                return;
+            }
+            const value = getControlValue(e);
             if (values.hasOwnProperty(name)) {
                 if (Array.isArray(values[name])) {
                     values[name] = [...values[name], value];
@@ -161,34 +170,12 @@
             } else {
                 values[name] = value;
             }
-        }
-
-        // Add missing values (checkboxes)
-        [...form.elements].forEach((e) => {
-            const name = e.name;
-            if (!name) {
-                return;
-            }
-
-            if (e.type === 'checkbox') {
-                const elementValue = e.type === 'checkbox' ? e.checked : e.value;
-                values[name] = elementValue;
-            } else if (e.type === 'radio' && name && !values[name]) {
-                values[name] = '';
-            } else if (e.type === 'file' && !values[name]?.size) {
-                values[name] = undefined;
-            } else if (e.tagName.toLowerCase() === 'select' && e.hasAttribute('multiple') && !values[name]) {
-                values[name] = [];
-            } else if (e.type === 'number') {
-                if (values[name] === '') {
-                    values[name] = undefined;
-                } else {
-                    values[name] = Number(values[name]);
-                }
-            }
         });
 
-        return values;
+        return {
+            ...extraValues,
+            ...values,
+        };
     }
     async function handleSubmit(e) {
         e.preventDefault();
@@ -268,37 +255,24 @@
         currentValues = initialValues;
     }
 
-    function handleFormData(e) {
-        if (extraValues) {
-            for (let key in extraValues) {
-                if (extraValues[key]) {
-                    e.formData.set(key, extraValues[key]);
-                }
-            }
-        }
-    }
-
     function checkDirty() {
         if (!form) {
             return;
         }
 
         let someDirty = false;
-        Object.keys(currentValues).forEach((key) => {
-            // For radio buttons we could get an array here
-            const formElement = getFormElementByName(key);
-            if (formElement) {
-                const informField = formElement.closest('inform-field');
+        getAllFormElements().forEach((formElement) => {
+            const name = formElement.name;
+            const informField = formElement.closest('inform-field');
 
-                if (!compareFieldValues(currentValues[key], initialValues[key])) {
-                    someDirty = true;
+            if (!compareFieldValues(currentValues[name], initialValues[name])) {
+                someDirty = true;
 
-                    if (informField) {
-                        informField.setAttribute('dirty', '');
-                    }
-                } else if (informField) {
-                    informField.removeAttribute('dirty');
+                if (informField) {
+                    informField.setAttribute('dirty', '');
                 }
+            } else if (informField) {
+                informField.removeAttribute('dirty');
             }
         });
 
@@ -317,12 +291,7 @@
 
         const customValidationErrors = host.validationHandler && typeof host.validationHandler === 'function' ? host.validationHandler({ values: getFormValues() }) : null;
 
-        const elements = [...form.elements];
-
-        elements.forEach((element) => {
-            if (!element.name) {
-                return;
-            }
+        getAllFormElements().forEach((element) => {
             // Set native error
             element.setCustomValidity(customValidationErrors?.[element.name] ?? '');
 
@@ -379,7 +348,6 @@
         form.addEventListener('input', handleInput);
         form.addEventListener('change', handleChange);
         form.addEventListener('reset', handleFormReset);
-        form.addEventListener('formdata', handleFormData);
 
         submitButton = form.querySelector('[type="submit"]');
 
@@ -420,26 +388,27 @@
         }
     }
 
-    //
-    // Public methods
-    //
-    function publicReset(v) {
-        const newValues = {
-            ...initialValues,
-            ...v,
-        };
+    function getControlValue(control) {
+        if (control.type === 'checkbox') {
+            return control.checked;
+        } else if (control.type === 'radio') {
+            return control.checked ? control.value : undefined;
+        } else if (control.tagName.toLowerCase() === 'select' && control.hasAttribute('multiple')) {
+            return [...control.querySelectorAll('option')].map((o) => (o.selected ? o.value : undefined)).filter(Boolean);
+        } else if (control.type === 'file' && !control.value?.size) {
+            return undefined;
+        } else if (control.type === 'number') {
+            return control.value ? Number(control.value) : undefined;
+        } else {
+            return control.value;
+        }
+    }
 
-        resetTouched();
-        [...form.elements].forEach((e) => {
-            if (!e.name) {
-                return;
-            }
+    function setValues(newValues) {
+        getAllFormElements().forEach((e) => {
             const name = e.name;
-            const value = newValues[name];
-            if (value !== undefined && value !== null) {
-                setControlValue(e, value);
-            } else {
-                setControlValue(e, initialValues[name]);
+            if (newValues.hasOwnProperty(name)) {
+                setControlValue(e, newValues[name]);
             }
         });
 
@@ -462,42 +431,40 @@
             }
         });
 
-        initialValues = getFormValues();
-        currentValues = initialValues;
+        currentValues = getFormValues();
+    }
+
+    //
+    // Public methods
+    //
+    function publicReset(v) {
+        const newValues = {
+            ...initialValues,
+            ...v,
+        };
+
+        form.reset(); // This will trigger handleFormReset which will reset touched
+        setValues(newValues);
+        initialValues = currentValues;
     }
 
     function publicSetValues(newValues) {
+        setValues(newValues);
+
+        // Setting the touched attributes on inform-field
         Object.keys(newValues).forEach((key) => {
-            const value = newValues[key];
             const control = getFormElementByName(key);
             if (control) {
-                setControlValue(control, value);
-
-                control.dispatchEvent(
-                    new CustomEvent('input', {
-                        bubbles: true,
-                    })
-                );
-                control.dispatchEvent(
-                    new CustomEvent('change', {
-                        bubbles: true,
-                    })
-                );
-            } else {
-                extraValues = {
-                    ...extraValues,
-                    [key]: value,
-                };
-
-                for (let key in extraValues) {
-                    const informField = host.querySelector(`inform-field[name="${key}"]`);
-
-                    if (informField) {
-                        informField.setAttribute('touched', '');
-                    }
+                const informField = control.closest('inform-field');
+                if (informField) {
+                    informField.setAttribute('touched', '');
                 }
+            } else {
+                const informField = host.querySelector(`inform-field[name="${key}"]`);
 
-                currentValues = getFormValues();
+                if (informField) {
+                    informField.setAttribute('touched', '');
+                }
             }
         });
     }

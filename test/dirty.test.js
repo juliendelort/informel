@@ -158,21 +158,22 @@ describe('dirty check', () => {
             });
         });
 
+
         describe('without a initial value', () => {
 
             runTests({
                 html: `
-                        <inform-el>
-                            <form>
-                                <inform-field id="control">
-                                    <input type="radio" name="field" value="val1" />
-                                    <input type="radio" name="field" value="val2" />
-                                </inform-field>
-                                <button type="submit">Submit</button>
-                            </form>
-                        </inform-el>
-                    `,
-                initialValue: "",
+                            <inform-el>
+                                <form>
+                                    <inform-field id="control">
+                                        <input type="radio" name="field" value="val1" />
+                                        <input type="radio" name="field" value="val2" />
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                initialValue: undefined,
                 setValue: setRadioValue,
                 generateValue: generateRadioValue
             });
@@ -340,7 +341,12 @@ describe('dirty check', () => {
 
         function expectNotDirty(expectedValue) {
             expect(informEl.dirty).to.be.false;
-            expect(informEl.values).to.eql({ field: expectedValue });
+            if (expectedValue !== undefined) {
+                expect(informEl.values).to.eql({ field: expectedValue });
+            } else {
+                expect(informEl.values).to.eql({}); // radio buttons: field not present when nothing selected
+
+            }
             expect(informEl).not.to.have.attribute('dirty');
             if (!skipInformField) {
                 expect(informField).not.to.have.attribute('dirty');

@@ -56,7 +56,7 @@ export const setCheckboxValue = (checkbox, val) => {
 export const generateCheckboxValue = (currentValue) => !currentValue;
 
 export const setRadioValue = (parent, val) => {
-    if (val === "") {
+    if (!val) {
         // Just uncheck all the radio buttons
         parent.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
         // Send the input+change event on the first one to trigger dirtycheck
