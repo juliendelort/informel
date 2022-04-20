@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [1.3.1] - 2022-04-20
 
 ### Fixed
 - `reset()` that was showing 'undefined' in text inputs
