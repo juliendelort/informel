@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.2] - 2022-04-21
+
+### Fixed
+- Issues with `<input type="file">`
+
 ## [1.3.1] - 2022-04-20
 
 ### Fixed

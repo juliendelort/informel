@@ -382,8 +382,11 @@
             control.querySelectorAll('option').forEach((o) => {
                 o.selected = valArray.includes(o.value);
             });
-        } else if (control.type !== 'file' || value === '') {
-            // can't change file input value
+        } else if (control.type === 'file') {
+            if (['', null, undefined].includes(value) || (Array.isArray(value) && value.length === 0)) {
+                control.value = '';
+            }
+        } else {
             control.value = value;
         }
     }
@@ -395,8 +398,13 @@
             return control.checked ? control.value : undefined;
         } else if (control.tagName.toLowerCase() === 'select' && control.hasAttribute('multiple')) {
             return [...control.querySelectorAll('option')].map((o) => (o.selected ? o.value : undefined)).filter(Boolean);
-        } else if (control.type === 'file' && !control.value?.size) {
-            return undefined;
+        } else if (control.type === 'file') {
+            const files = [...control.files];
+            if (control.multiple) {
+                return files;
+            } else {
+                return files[0];
+            }
         } else if (control.type === 'number') {
             return control.value ? Number(control.value) : undefined;
         } else {
