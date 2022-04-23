@@ -34,16 +34,30 @@ The attributes below are automatically set:
     </thead>
     <tbody>
         <tr>
-            <td>informel-ready</td>
+            <td>
+                <code>informel-ready</code>
+            </td>
             <td>none</td>
             <td>The component has been initialized and is ready to be used. Wait for this event before calling any method.</td>
         </tr>
         <tr>
-            <td>input</td>
+            <td>
+                <code>input</code>
+            </td>
             <td>
                 <ul>
-                    <li>values: the form values</li>
-                    <li>changedField: the name of the field that changed</li>
+                    <li>
+                        <b>
+                            <code>values</code>
+                        </b>
+                        &nbsp;the form values
+                    </li>
+                    <li>
+                        <b>
+                            <code>changedField</code>
+                        </b>
+                        &nbsp;the name of the field that changed
+                    </li>
                 </ul>
             </td>
             <td>
@@ -51,11 +65,23 @@ The attributes below are automatically set:
             </td>
         </tr>
         <tr>
-            <td>change</td>
+            <td>
+                <code>change</code>
+            </td>
             <td>
                 <ul>
-                    <li>values: the form values</li>
-                    <li>changedField: the name of the field that changed</li>
+                    <li>
+                        <b>
+                            <code>values</code>
+                        </b>
+                        &nbsp;the form values
+                    </li>
+                    <li>
+                        <b>
+                            <code>changedField</code>
+                        </b>
+                        &nbsp;the name of the field that changed
+                    </li>
                 </ul>
             </td>
             <td>
@@ -63,10 +89,23 @@ The attributes below are automatically set:
             </td>
         </tr>
         <tr>
-            <td>submit</td>
+            <td>
+                <code>submit</code>
+            </td>
             <td>
                 <ul>
-                    <li>values: the form values</li>
+                    <li>
+                        <b>
+                            <code>values</code>
+                        </b>
+                        &nbsp;the form values
+                    </li>
+                    <li>
+                        <b>
+                            <code>submitter</code>
+                        </b>
+                        &nbsp;the DOM element that triggered the submit (like the submit button), or null if the submit was triggered programmatically
+                    </li>
                 </ul>
             </td>
             <td>
@@ -74,42 +113,95 @@ The attributes below are automatically set:
             </td>
         </tr>
         <tr>
-            <td>request-start</td>
+            <td>
+                <code>request-start</code>
+            </td>
             <td>
                 <ul>
-                    <li>values: the form values</li>
+                    <li>
+                        <b>
+                            <code>values</code>
+                        </b>
+                        &nbsp;the form values
+                    </li>
                 </ul>
             </td>
             <td>The form AJAX request (based on action and method form attributes) has started. Can be used to display a loading state.</td>
         </tr>
         <tr>
-            <td>request-end</td>
+            <td>
+                <code>request-end</code>
+            </td>
             <td>
                 <ul>
-                    <li>values: the form values</li>
+                    <li>
+                        <b>
+                            <code>values</code>
+                        </b>
+                        &nbsp;the form values
+                    </li>
                 </ul>
             </td>
             <td>The form AJAX request (based on action and method form attributes) has ended. Can be used to hide the loading state.</td>
         </tr>
         <tr>
-            <td>request-success</td>
+            <td>
+                <code>request-success</code>
+            </td>
             <td>
                 <ul>
-                    <li>values: the form values</li>
-                    <li>response: the json response</li>
-                    <li>status: the http status</li>
+                    <li>
+                        <b>
+                            <code>values</code>
+                        </b>
+                        &nbsp;the form values
+                    </li>
+                    <li>
+                        <b>
+                            <code>response</code>
+                        </b>
+                        &nbsp;the json response
+                    </li>
+                    <li>
+                        <b>
+                            <code>status</code>
+                        </b>
+                        &nbsp;the http status
+                    </li>
                 </ul>
             </td>
             <td>The form AJAX request has succeeded (status 2XX)</td>
         </tr>
         <tr>
-            <td>request-error</td>
+            <td>
+                <code>request-error</code>
+            </td>
             <td>
                 <ul>
-                    <li>values: the form values</li>
-                    <li>response: the json response</li>
-                    <li>status: the http status</li>
-                    <li>error: the exception if there was one</li>
+                    <li>
+                        <b>
+                            <code>values</code>
+                        </b>
+                        &nbsp;the form values
+                    </li>
+                    <li>
+                        <b>
+                            <code>response</code>
+                        </b>
+                        &nbsp;the json response
+                    </li>
+                    <li>
+                        <b>
+                            <code>status</code>
+                        </b>
+                        &nbsp;the http status
+                    </li>
+                    <li>
+                        <b>
+                            <code>error</code>
+                        </b>
+                        &nbsp;the exception if there was one
+                    </li>
                 </ul>
             </td>
             <td>The form AJAX request has failed (status != 2XX) or there was an exception</td>
@@ -120,6 +212,10 @@ The attributes below are automatically set:
 All the native events also bubble up to `<inform-el>`.
 
 ### Methods
+
+#### `requestSubmit()`
+
+Try to submit the form, if valid. Equivalent to clicking on a submit button.
 
 #### `reset(newValues?)`
 

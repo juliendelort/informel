@@ -2,16 +2,17 @@
 sidebar_position: 6
 hide_title: true
 custom_edit_url: null
-title: "Submitting"
+title: 'Submitting'
 ---
 
-import JokesExample from "./_jokes_example.mdx";
+import JokesExample from './_jokes_example.mdx';
 
 # Submitting
 
 `informel` relies on the `<form />` being submitted. This happens when:
 
 -   Clicking on the submit button (`<button type="submit"></button>` or `<input type="submit" />`).
+-   Calling `informel.requestSubmit()`
 -   Calling [form.requestSubmit()](https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/requestSubmit)
 
 :::danger form.submit()
@@ -27,8 +28,34 @@ All fields become "touched" when attempting to submit the form and errors are di
 When the form is valid and the form is submitted, the `submit` event is triggered and the form values are passed in the [event detail field](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)
 
 ```js
-document.querySelector("inform-el").addEventListener("submit", ({ detail: { values } }) => {
-    console.log("Successfully submitted!", values);
+document.querySelector('inform-el').addEventListener('submit', ({ detail: { values, submitter } }) => {
+    console.log('Successfully submitted!', values, submitter);
+});
+```
+
+The event `detail` field also contains a `submitter` field which is the element that triggered the submission (or `null` if the submission was triggered through `requestSubmit()`);
+
+This can be helpful for forms with multiple submit buttons:
+
+```html
+<inform-el>
+    <form>
+        <inform-field>
+            <input type="text" name="firstName" required />
+        </inform-field>
+        <button type="submit" name="a">Submit & do A</button>
+        <button type="submit" name="b">Submit & do B</button>
+    </form>
+</inform-el>
+```
+
+```js
+document.querySelector('inform-el').addEventListener('submit', ({ detail: { values, submitter } }) => {
+    if (submitter?.name === 'a') {
+        console.log('Submitted with A');
+    } else if (submitter?.name === 'b') {
+        console.log('Submitted with B');
+    }
 });
 ```
 
@@ -74,9 +101,9 @@ It receives the form values as parameter and must returns the parameters to send
 Example:
 
 ```js
-document.querySelector("inform-el").submitTransform = (values) => ({
+document.querySelector('inform-el').submitTransform = (values) => ({
     ...values,
-    fullName: values.firstName + " " + values.lastName,
+    fullName: values.firstName + ' ' + values.lastName,
 });
 ```
 
