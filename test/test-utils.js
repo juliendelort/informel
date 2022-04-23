@@ -76,25 +76,30 @@ export const setRadioValue = (parent, val) => {
 export const generateRadioValue = (currentValue) => currentValue === "val1" ? "val2" : "val1";
 
 export const setSelectValue = async (select, val) => {
-    const option = select.querySelector(`option[value="${val}"]`);
+    select.value = val;
+    select.dispatchEvent(new Event('input', { bubbles: true }));
+    select.dispatchEvent(new Event('change', { bubbles: true }));
 
-    const valIndex = [...select.children].indexOf(option);
-    const selectedIndex = select.selectedIndex;
+    // Below only works on Windows
+    // const option = select.querySelector(`option[value="${val}"]`);
 
-    select.focus();
-    if (valIndex > selectedIndex) {
-        for (let i = select.selectedIndex; i < valIndex; i++) {
-            await sendKeys({
-                press: 'ArrowDown'
-            });
-        }
-    } else {
-        for (let i = valIndex; i < selectedIndex; i++) {
-            await sendKeys({
-                press: 'ArrowUp'
-            });
-        }
-    }
+    // const valIndex = [...select.children].indexOf(option);
+    // const selectedIndex = select.selectedIndex;
+
+    // select.focus();
+    // if (valIndex > selectedIndex) {
+    //     for (let i = select.selectedIndex; i < valIndex; i++) {
+    //         await sendKeys({
+    //             press: 'ArrowDown'
+    //         });
+    //     }
+    // } else {
+    //     for (let i = valIndex; i < selectedIndex; i++) {
+    //         await sendKeys({
+    //             press: 'ArrowUp'
+    //         });
+    //     }
+    // }
 };
 
 export const generateSelectValue = (currentValue) => currentValue === "val1" ? "val2" : "val1";
