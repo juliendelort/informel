@@ -11,23 +11,27 @@ export const type = async (input, text, blur) => {
 };
 
 export const clear = async (input) => {
-    input.focus();
-    // Ctrl+A then Delete
-    await sendKeys({
-        down: 'Control',
-    });
+    input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    // Below only works on windows
+    // input.focus();
+    // // Ctrl+A then Delete
+    // await sendKeys({
+    //     down: 'Control',
+    // });
 
-    await sendKeys({
-        press: 'A',
-    });
+    // await sendKeys({
+    //     press: 'A',
+    // });
 
-    await sendKeys({
-        up: 'Control',
-    });
+    // await sendKeys({
+    //     up: 'Control',
+    // });
 
-    await sendKeys({
-        press: 'Delete',
-    });
+    // await sendKeys({
+    //     press: 'Delete',
+    // });
 };
 
 export const tab = () => sendKeys({
@@ -133,15 +137,19 @@ export const setSelectMultipleValue = async (select, val) => {
 };
 
 const selectMultipleToggleValue = async (option) => {
-    const { x, y } = getMiddleOfElement(option);
+    option.selected = !option.selected;
+    option.closest('select').dispatchEvent(new Event('input', { bubbles: true }));
+    option.closest('select').dispatchEvent(new Event('change', { bubbles: true }));
 
-    await sendKeys({
-        down: 'Control'
-    });
-    await sendMouse({ type: 'click', position: [x, y] });
-    await sendKeys({
-        up: 'Control'
-    });
+    // Below only works on Windows
+    // const { x, y } = getMiddleOfElement(option);
+    // await sendKeys({
+    //     down: 'Control'
+    // });
+    // await sendMouse({ type: 'click', position: [x, y] });
+    // await sendKeys({
+    //     up: 'Control'
+    // });
 };
 
 export const generateMultiSelectValue = (currentValue) => JSON.stringify(currentValue) === JSON.stringify(["val1", "val2"]) ? ["val2", "val3"] : ["val1", "val2"];

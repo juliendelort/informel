@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- Calling `requestSubmit()` on the `<form>` was throwing an error
+- InformEl React element type.
+
+### Added
+- `inform-el` requestSubmit() method
+- `inform-el` submit event details now contains a `submitter` field.
+
+
 ## [1.3.2] - 2022-04-21
 
 ### Fixed

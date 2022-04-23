@@ -73,7 +73,7 @@ describe('submit', () => {
 
         submitButton.click();
         await nextFrame();
-        expect(submitDetails()).to.eql({ values: { 'some-name': 'something' } });
+        expect(submitDetails()).to.deep.include({ values: { 'some-name': 'something' } });
     });
 
     it('removes dirty and touched after submitting', async () => {
@@ -209,8 +209,8 @@ describe('submit', () => {
 
             await nextFrame();
 
-            expect(requestStartDetails()).to.eql({ values: { field: 'a' } });
-            expect(requestEndDetails()).to.eql({ values: { field: 'a' } });
+            expect(requestStartDetails()).to.deep.include({ values: { field: 'a' } });
+            expect(requestEndDetails()).to.deep.include({ values: { field: 'a' } });
 
         });
 
@@ -268,8 +268,8 @@ describe('submit', () => {
             const { method, headers, body } = callArgs[1];
 
             expect(method).to.equal('PUT');
-            expect(headers).to.eql({ "Content-Type": "application/json" });
-            expect(JSON.parse(body)).to.eql({ field: 'a' });
+            expect(headers).to.deep.include({ "Content-Type": "application/json" });
+            expect(JSON.parse(body)).to.deep.include({ field: 'a' });
         });
 
         it('supports the formaction attribute', async () => {
@@ -438,9 +438,9 @@ describe('submit', () => {
             submitButton.click();
             await nextFrame();
 
-            expect(requestSuccessDetails()).to.eql({ response: expectedResponse, status: 1234, values: { field: 'a' } });
+            expect(requestSuccessDetails()).to.deep.include({ response: expectedResponse, status: 1234, values: { field: 'a' } });
             expect(requestErrorCalled()).to.be.false;
-            expect(requestEndDetails()).to.eql({ values: { field: 'a' } });
+            expect(requestEndDetails()).to.deep.include({ values: { field: 'a' } });
 
         });
         it('emits request-error if the call fails', async () => {
@@ -470,9 +470,9 @@ describe('submit', () => {
             submitButton.click();
             await nextFrame();
 
-            expect(requestErrorDetails()).to.eql({ response: expectedResponse, status: 1234, values: { field: 'a' } });
+            expect(requestErrorDetails()).to.deep.include({ response: expectedResponse, status: 1234, values: { field: 'a' } });
             expect(requestSuccessCalled()).to.be.false;
-            expect(requestEndDetails()).to.eql({ values: { field: 'a' } });
+            expect(requestEndDetails()).to.deep.include({ values: { field: 'a' } });
         });
 
         it('emits request-error in case of exception', async () => {
@@ -501,9 +501,9 @@ describe('submit', () => {
             submitButton.click();
             await nextFrame();
 
-            expect(requestErrorDetails()).to.eql({ error: expectedError, values: { field: 'a' } });
+            expect(requestErrorDetails()).to.deep.include({ error: expectedError, values: { field: 'a' } });
             expect(requestSuccessCalled()).to.be.false;
-            expect(requestEndDetails()).to.eql({ values: { field: 'a' } });
+            expect(requestEndDetails()).to.deep.include({ values: { field: 'a' } });
         });
 
         it('considers submit-on-change on inform-field', async () => {
@@ -540,12 +540,12 @@ describe('submit', () => {
 
             expect(checkbox).to.have.attribute('disabled');
 
-            expect(requestStartDetails()).to.eql({ values: { field: true } });
+            expect(requestStartDetails()).to.deep.include({ values: { field: true } });
 
             resolveFetch();
             await nextFrame();
 
-            expect(requestEndDetails()).to.eql({ values: { field: true } });
+            expect(requestEndDetails()).to.deep.include({ values: { field: true } });
 
             expect(checkbox).not.to.have.attribute('disabled');
 
@@ -583,7 +583,7 @@ describe('submit', () => {
 
             submitButton.click();
 
-            expect(submitDetails()).to.eql({ values: { field: 'a' } });
+            expect(submitDetails()).to.deep.include({ values: { field: 'a' } });
 
 
             expect(window.fetch).to.have.been.calledWith(expectedUrl.toString(), {
@@ -597,8 +597,8 @@ describe('submit', () => {
             await nextFrame();
 
 
-            expect(requestStartDetails()).to.eql({ values: { field: 'a transformed', field2: 'a' } });
-            expect(requestEndDetails()).to.eql({ values: { field: 'a transformed', field2: 'a' } });
+            expect(requestStartDetails()).to.deep.include({ values: { field: 'a transformed', field2: 'a' } });
+            expect(requestEndDetails()).to.deep.include({ values: { field: 'a transformed', field2: 'a' } });
         });
 
         it('sends FormData if any value if of type File', async () => {
@@ -635,7 +635,7 @@ describe('submit', () => {
             const { method, headers, body } = callArgs[1];
 
             expect(method).to.equal('post');
-            expect(headers).to.eql({});
+            expect(headers).to.deep.include({});
 
             expect(body).to.be.instanceOf(FormData);
             expect(body.get('textfield')).to.equal('a');
@@ -644,5 +644,110 @@ describe('submit', () => {
         });
     });
 
+    it('submits when requestSubmit is called on form', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" value="a"/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
 
-});;
+        const form = informEl.querySelector('form');
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+
+        form.requestSubmit();
+        await nextFrame();
+
+        expect(submitHasBeenCalled()).to.be.true;
+        expect(submitDetails()).to.deep.include({ values: { 'some-name': 'a' } });
+    });
+
+    it('submits when requestSubmit is called on inform-el', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" value="a"/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+
+        informEl.requestSubmit();
+        await nextFrame();
+
+        expect(submitHasBeenCalled()).to.be.true;
+        expect(submitDetails()).to.deep.include({ values: { 'some-name': 'a' } });
+    });
+
+    it('includes submitter in submit event details', async () => {
+        const informEl = await fixture(`
+        <inform-el>
+            <form>
+                <inform-field>
+                    <input type="text" name="some-name" value="a" />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>
+        `);
+
+        const submitButton = informEl.querySelector('[type="submit"]');
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+
+        submitButton.click();
+        await nextFrame();
+        expect(submitHasBeenCalled()).to.be.true;
+        expect(submitDetails()).to.deep.include({ values: { 'some-name': 'a' }, submitter: submitButton });
+    });
+
+    it('includes null submitter in submit event details if requestSubmit called on form', async () => {
+        const informEl = await fixture(`
+        <inform-el>
+            <form>
+                <inform-field>
+                    <input type="text" name="some-name" value="a" />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>
+        `);
+
+        const form = informEl.querySelector('form');
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+
+        form.requestSubmit();
+        await nextFrame();
+        expect(submitHasBeenCalled()).to.be.true;
+        expect(submitDetails()).to.deep.include({ values: { 'some-name': 'a' }, submitter: null });
+    });
+
+    it('includes null submitter in submit event details if requestSubmit called on inform-el', async () => {
+        const informEl = await fixture(`
+        <inform-el>
+            <form>
+                <inform-field>
+                    <input type="text" name="some-name" value="a" />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>
+        `);
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+
+        informEl.requestSubmit();
+        await nextFrame();
+        expect(submitHasBeenCalled()).to.be.true;
+        expect(submitDetails()).to.deep.include({ values: { 'some-name': 'a' }, submitter: null });
+    });
+});

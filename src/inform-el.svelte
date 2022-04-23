@@ -93,16 +93,16 @@
     }
 
     async function sendSubmitRequest(submitter) {
-        if (form.hasAttribute('action') || submitter.hasAttribute('formaction')) {
+        if (form.hasAttribute('action') || submitter?.hasAttribute('formaction')) {
             // form.action is always set, we need to check if there is an attribute explicitely defined
             const rawValues = getFormValues();
 
             const values = host.submitTransform && typeof host.submitTransform === 'function' ? host.submitTransform(rawValues) : rawValues;
             try {
                 const hasFiles = Object.values(values).some((v) => v instanceof File);
-                const method = submitter.getAttribute('formmethod') ?? form.getAttribute('method') ?? 'get';
+                const method = submitter?.getAttribute('formmethod') ?? form.getAttribute('method') ?? 'get';
                 const isGet = method.toLowerCase() === 'get';
-                const url = new URL(submitter.hasAttribute('formaction') ? submitter.formAction : form.action);
+                const url = new URL(submitter?.hasAttribute('formaction') ? submitter?.formAction : form.action);
 
                 if (isGet) {
                     // No body for get request
@@ -113,7 +113,9 @@
 
                 host.dispatchEvent(new CustomEvent('request-start', { detail: { values }, bubbles: true }));
                 submitting = true;
-                submitter.disabled = true;
+                if (submitter) {
+                    submitter.disabled = true;
+                }
 
                 try {
                     const result = await fetch(url.toString(), {
@@ -137,7 +139,9 @@
                 console.error(e);
             } finally {
                 submitting = false;
-                submitter.disabled = false;
+                if (submitter) {
+                    submitter.disabled = false;
+                }
 
                 host.dispatchEvent(new CustomEvent('request-end', { detail: { values }, bubbles: true }));
             }
@@ -180,13 +184,13 @@
     async function handleSubmit(e) {
         e.preventDefault();
         e.stopPropagation();
-        const submitter = e.submitter || e.detail.submitter; // If event is customsubmit (attribute submit-on-change on inform0-field), we need to check e.detail.submitter
+        const submitter = e.submitter || e.detail?.submitter; // If event is customsubmit (attribute submit-on-change on inform0-field), we need to check e.detail.submitter
 
         host.querySelectorAll('inform-field').forEach((e) => e.setAttribute('touched', ''));
 
         checkValidity();
         if (!invalid) {
-            host.dispatchEvent(new CustomEvent('submit', { detail: { values: getFormValues() }, bubbles: true }));
+            host.dispatchEvent(new CustomEvent('submit', { detail: { values: getFormValues(), submitter: submitter ?? null }, bubbles: true }));
             await sendSubmitRequest(submitter);
             if (resetOnSubmitIsPresent) {
                 publicReset();
@@ -344,6 +348,7 @@
 
         host.reset = publicReset;
         host.setValues = publicSetValues;
+        host.requestSubmit = publicRequestSubmit;
         form.addEventListener('submit', handleSubmit);
         form.addEventListener('input', handleInput);
         form.addEventListener('change', handleChange);
@@ -475,6 +480,10 @@
                 }
             }
         });
+    }
+
+    function publicRequestSubmit() {
+        form.requestSubmit();
     }
 </script>
 
