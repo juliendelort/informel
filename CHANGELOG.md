@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [1.4.0] - 2022-04-23
 ### Fixed
 - Calling `requestSubmit()` on the `<form>` was throwing an error
 - InformEl React element type.
