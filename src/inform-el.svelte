@@ -165,6 +165,9 @@
                 return;
             }
             const value = getControlValue(e);
+            if (value === undefined) {
+                return;
+            }
             if (values.hasOwnProperty(name)) {
                 if (Array.isArray(values[name])) {
                     values[name] = [...values[name], value];

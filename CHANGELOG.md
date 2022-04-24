@@ -1,5 +1,10 @@
 # Changelog
 
+## [unreleased]
+
+### Fixed
+- Form values don't include empty number inputs and empty file inputs anymore
+
 ## [1.4.0] - 2022-04-23
 ### Fixed
 - Calling `requestSubmit()` on the `<form>` was throwing an error

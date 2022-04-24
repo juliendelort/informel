@@ -234,7 +234,7 @@ describe('input and change events', () => {
                 `);
         const control = informEl.querySelector('#control');
 
-        expect(informEl.values).to.eql({ age: undefined });
+        expect(informEl.values).to.eql({});
 
         await type(control, '10', true);
 
@@ -242,7 +242,7 @@ describe('input and change events', () => {
 
         await clear(control);
 
-        expect(informEl.values).to.eql({ age: undefined });
+        expect(informEl.values).to.eql({});
 
         await type(control, '-20.56', true);
 
