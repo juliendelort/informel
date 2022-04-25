@@ -1,6 +1,6 @@
 # Changelog
 
-## [unreleased]
+## [1.5.0] - 2022-04-25
 
 ### Fixed
 - Form values don't include empty number inputs and empty file inputs anymore
