@@ -521,6 +521,7 @@ describe('submit', () => {
 
             const [, requestStartDetails] = eventCheck(informEl, 'request-start');
             const [, requestEndDetails] = eventCheck(informEl, 'request-end');
+            const [, submitDetails] = eventCheck(informEl, 'inform-submit');
 
             let resolveFetch;
             const fetchPromise = new Promise((resolve) => resolveFetch = resolve);
@@ -541,6 +542,7 @@ describe('submit', () => {
             expect(checkbox).to.have.attribute('disabled');
 
             expect(requestStartDetails()).to.deep.include({ values: { field: true } });
+            expect(submitDetails()).to.deep.include({ values: { field: true }, submitter: checkbox });
 
             resolveFetch();
             await nextFrame();

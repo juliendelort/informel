@@ -23,12 +23,12 @@ The submission stops if some fields are in error.
 
 All fields become "touched" when attempting to submit the form and errors are displayed.
 
-## `submit` event
+## `inform-submit` event
 
-When the form is valid and the form is submitted, the `submit` event is triggered and the form values are passed in the [event detail field](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)
+When the form is valid and the form is submitted, the `inform-submit` event is triggered and the form values are passed in the [event detail field](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)
 
 ```js
-document.querySelector('inform-el').addEventListener('submit', ({ detail: { values, submitter } }) => {
+document.querySelector('inform-el').addEventListener('inform-submit', ({ detail: { values, submitter } }) => {
     console.log('Successfully submitted!', values, submitter);
 });
 ```
@@ -50,7 +50,7 @@ This can be helpful for forms with multiple submit buttons:
 ```
 
 ```js
-document.querySelector('inform-el').addEventListener('submit', ({ detail: { values, submitter } }) => {
+document.querySelector('inform-el').addEventListener('inform-submit', ({ detail: { values, submitter } }) => {
     if (submitter?.name === 'a') {
         console.log('Submitted with A');
     } else if (submitter?.name === 'b') {

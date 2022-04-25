@@ -16,9 +16,9 @@ export type InformElProps<FormValuesType, ResponseType, RequestType> = React.Pro
     ["error-disable-submit"]?: boolean;
     ["reset-on-submit"]?: boolean;
     onInformelReady?: VoidFunction;
-    onInput?: InputEventHandler<FormValuesType>;
-    onChange?: InputEventHandler<FormValuesType>;
-    onSubmit?: InputEventHandler<FormValuesType>;
+    onInformInput?: InputEventHandler<FormValuesType>;
+    onInformChange?: InputEventHandler<FormValuesType>;
+    onInformSubmit?: InputEventHandler<FormValuesType>;
     onRequestStart?: RequestStartEventHandler<FormValuesType>;
     onRequestEnd?: RequestEndEventHandler<FormValuesType>;
     onRequestSuccess?: RequestSuccessEventHandler<FormValuesType, ResponseType>;

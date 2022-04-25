@@ -29,7 +29,7 @@
         tasks = tasks.map((t) => (t.id !== values.id ? t : { ...t, hidden: false }));
     }
 
-    function handleAdd({ detail: { values } }) {
+    function handleAdd({ detail: { values, submitter } }) {
         tasks = [...tasks, { ...values, id: tasks[tasks.length - 1].id + 1, createdAt: new Date(), new: true }];
     }
 
@@ -58,7 +58,6 @@
                 <input type="radio" name="field" value="val1" />
                 <input type="radio" name="field" value="val2" />
             </inform-field>
-            <button type="submit">Create task</button>
         </form>
     </inform-el>
 

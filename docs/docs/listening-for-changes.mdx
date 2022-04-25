@@ -2,15 +2,15 @@
 sidebar_position: 5
 hide_title: true
 custom_edit_url: null
-title: "Listening for changes"
+title: 'Listening for changes'
 ---
 
 # Listening for changes
 
-`<inform-el />` relays the following native events, with some added information:
+`<inform-el />` exposes the following events
 
--   [input](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event)
--   [change](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event)
+-   `inform-input`: similar to the native [input](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event) event
+-   `inform-change`: similar to the native [change](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event) event
 
 Both events contain a [detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) field, which is an object with the following fields:
 
@@ -35,10 +35,10 @@ Here is an example:
 </inform-el>
 
 <script>
-    document.querySelector("inform-el").addEventListener("input", ({ detail: { values, changeField } }) => {
+    document.querySelector('inform-el').addEventListener('inform-input', ({ detail: { values, changeField } }) => {
         // After typing 'a' in "First Name":
-        console.log("Values:", values); // {firstName: 'a', lastName: ''}
-        console.log("Changed field:", changeField); // "firstName"
+        console.log('Values:', values); // {firstName: 'a', lastName: ''}
+        console.log('Changed field:', changeField); // "firstName"
     });
 </script>
 ```
