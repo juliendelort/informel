@@ -183,8 +183,8 @@ describe('input and change events', () => {
         const informEl = await fixture(html);
         const control = informEl.querySelector('#control');
 
-        const [, changeDetails, resetChange] = eventCheck(informEl, 'change');
-        const [, inputDetails, resetInput] = eventCheck(informEl, 'input');
+        const [, changeDetails, resetChange] = eventCheck(informEl, 'inform-change');
+        const [, inputDetails, resetInput] = eventCheck(informEl, 'inform-input');
 
         if (text) {
             const someValue = generateValue();

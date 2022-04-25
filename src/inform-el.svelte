@@ -186,14 +186,13 @@
     }
     async function handleSubmit(e) {
         e.preventDefault();
-        e.stopPropagation();
         const submitter = e.submitter || e.detail?.submitter; // If event is customsubmit (attribute submit-on-change on inform0-field), we need to check e.detail.submitter
 
         host.querySelectorAll('inform-field').forEach((e) => e.setAttribute('touched', ''));
 
         checkValidity();
         if (!invalid) {
-            host.dispatchEvent(new CustomEvent('submit', { detail: { values: getFormValues(), submitter: submitter ?? null }, bubbles: true }));
+            host.dispatchEvent(new CustomEvent('inform-submit', { detail: { values: getFormValues(), submitter: submitter ?? null }, bubbles: true }));
             await sendSubmitRequest(submitter);
             if (resetOnSubmitIsPresent) {
                 publicReset();
@@ -211,11 +210,10 @@
         if (!e.target.name) {
             return;
         }
-        e.stopPropagation();
 
         currentValues = getFormValues();
         host.dispatchEvent(
-            new CustomEvent('input', {
+            new CustomEvent('inform-input', {
                 detail: {
                     values: { ...currentValues },
                     changedField: e.target.name,
@@ -230,12 +228,11 @@
             // Not a form field: we don't interfere
             return;
         }
-        e.stopPropagation();
 
         const newValues = getFormValues();
 
         host.dispatchEvent(
-            new CustomEvent('change', {
+            new CustomEvent('inform-change', {
                 detail: {
                     values: { ...currentValues },
                     changedField: e.target.name,

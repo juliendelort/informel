@@ -44,7 +44,7 @@ describe('touched-on-input', () => {
         const informField = informEl.querySelector('inform-field');
         const input = informEl.querySelector('input');
 
-        const [submitCalled] = eventCheck(informEl, 'submit');
+        const [submitCalled] = eventCheck(informEl, 'inform-submit');
 
         await type(input, 'a', false); // no blur
 

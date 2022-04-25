@@ -43,7 +43,7 @@
         action="https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task"
         error-disable-submit
         on:request-success={handleAddSuccess}
-        on:submit={handleAdd}
+        on:inform-submit={handleAdd}
         on:request-error={handleAddError}
         bind:this={informEl}
     >

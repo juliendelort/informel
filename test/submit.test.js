@@ -28,7 +28,7 @@ describe('submit', () => {
         const submitButton = informEl.querySelector('[type="submit"]');
         const input = informEl.querySelector('input');
 
-        const [submitHasBeenCalled] = eventCheck(informEl, 'submit');
+        const [submitHasBeenCalled] = eventCheck(informEl, 'inform-submit');
 
 
         expect(informField).not.to.have.attribute('touched');
@@ -61,7 +61,7 @@ describe('submit', () => {
         await type(input, 'a', true);
         await clear(input);
 
-        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
 
         submitButton.click();
         await nextFrame();
@@ -124,7 +124,7 @@ describe('submit', () => {
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
 
-            const [submitHasBeenCalled, , resetSubmit] = eventCheck(informEl, 'submit');
+            const [submitHasBeenCalled, , resetSubmit] = eventCheck(informEl, 'inform-submit');
 
             await type(input, 'something', true);
 
@@ -154,7 +154,7 @@ describe('submit', () => {
             const input = informEl.querySelector('input');
 
 
-            const [submitHasBeenCalled] = eventCheck(informEl, 'submit');
+            const [submitHasBeenCalled] = eventCheck(informEl, 'inform-submit');
 
             await type(input, 'something', true);
 
@@ -575,7 +575,7 @@ describe('submit', () => {
             const submitButton = informEl.querySelector('[type="submit"]');
             const input = informEl.querySelector('input');
 
-            const [, submitDetails] = eventCheck(informEl, 'submit');
+            const [, submitDetails] = eventCheck(informEl, 'inform-submit');
             const [, requestStartDetails] = eventCheck(informEl, 'request-start');
             const [, requestEndDetails] = eventCheck(informEl, 'request-end');
 
@@ -657,7 +657,7 @@ describe('submit', () => {
         `);
 
         const form = informEl.querySelector('form');
-        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
 
         form.requestSubmit();
         await nextFrame();
@@ -678,7 +678,7 @@ describe('submit', () => {
                 </inform-el>
         `);
 
-        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
 
         informEl.requestSubmit();
         await nextFrame();
@@ -701,7 +701,7 @@ describe('submit', () => {
 
         const submitButton = informEl.querySelector('[type="submit"]');
 
-        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
 
         submitButton.click();
         await nextFrame();
@@ -723,7 +723,7 @@ describe('submit', () => {
 
         const form = informEl.querySelector('form');
 
-        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
 
         form.requestSubmit();
         await nextFrame();
@@ -743,7 +743,7 @@ describe('submit', () => {
         </inform-el>
         `);
 
-        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'submit');
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
 
         informEl.requestSubmit();
         await nextFrame();

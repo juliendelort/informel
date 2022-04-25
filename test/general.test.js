@@ -126,7 +126,7 @@ describe('general tests', () => {
         // We are listening to events on the new form
         const newInput = informEl.querySelector('[name="form2field"]');
 
-        const [changeCalled, changeDetails] = eventCheck(informEl, 'change');
+        const [changeCalled, changeDetails] = eventCheck(informEl, 'inform-change');
 
         await type(newInput, 'hello', true);
 
