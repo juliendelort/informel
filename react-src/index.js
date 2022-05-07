@@ -90,7 +90,9 @@ function generateEl(el, displayName) {
 
         // Remove undefined or null attributes
         const restDefined = Object.keys(rest).reduce((result, key) => {
-            if (rest[key] !== null && rest[key] !== undefined && typeof rest[key] !== 'function') {
+            if (rest[key] !== null && rest[key] !== undefined && typeof rest[key] !== 'function' && (typeof rest[key] !== 'boolean' || rest[key])) {
+                // Support both the camelCase and kebab-case version
+                result[toKebabCase(key)] = rest[key];
                 result[key] = rest[key];
             }
             return result;

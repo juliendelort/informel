@@ -13,8 +13,8 @@ export type InformElProps<FormValuesType, ResponseType, RequestType> = React.Pro
     className?: string;
     style?: React.CSSProperties;
     ref?: React.LegacyRef<HTMLElement>;
-    ["error-disable-submit"]?: boolean;
-    ["reset-on-submit"]?: boolean;
+    errorDisableSubmit?: boolean;
+    resetOnSubmit?: boolean;
     onInformelReady?: VoidFunction;
     onInformInput?: InputEventHandler<FormValuesType>;
     onInformChange?: InputEventHandler<FormValuesType>;
@@ -34,15 +34,15 @@ export const InformEl: InformElComponent;
 export const InformField: React.FC<{
     className?: string;
     style?: React.CSSProperties;
-    ["default-error"]?: string;
-    ["bad-input"]?: string;
-    ["pattern-mismatch"]?: string;
-    ["range-overflow"]?: string;
-    ["range-underflow"]?: string;
-    ["step-mismatch"]?: string;
-    ["too-long"]?: string;
-    ["too-short"]?: string;
-    ["type-mismatch"]?: string;
-    ["value-missing"]?: string;
+    defaultError?: string;
+    badInput?: string;
+    patternMismatch?: string;
+    rangeOverflow?: string;
+    rangeUnderflow?: string;
+    stepMismatch?: string;
+    tooLong?: string;
+    tooShort?: string;
+    typeMismatch?: string;
+    valueMissing?: string;
 
 }>;
