@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Fixed
+
+- Added missing `submitOnChange` prop to `InformField`.
+
 ## [1.6.0] - 2022-05-07
 
 ### Added

@@ -44,5 +44,6 @@ export const InformField: React.FC<{
     tooShort?: string;
     typeMismatch?: string;
     valueMissing?: string;
+    submitOnChange?: boolean;
 
 }>;
