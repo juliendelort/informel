@@ -23,7 +23,7 @@ function generateEl(el, displayName) {
         const handlers = React.useRef({});
 
         // We want this at every render
-        React.useEffect(() => {
+        React.useLayoutEffect(() => {
             // We don't want to re-attach listeners at every render but we also don't want stale event listeners
             // So we attach a generic event listener and we use a ref to call the up-to-date listener
             const mainEventListener = (eventName) => (...args) => {
@@ -78,7 +78,7 @@ function generateEl(el, displayName) {
         });
 
 
-        React.useEffect(() => {
+        React.useLayoutEffect(() => {
             // When component is unmounted : remove all events
             return () => {
                 for (let eventName in handlers.current) {

@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## [1.6.1] - 2022-05-27
 
 ## Fixed
 
 - Added missing `submitOnChange` prop to `InformField`.
+- React component definition: useEffect -> useLayoutEffect
 
 ## [1.6.0] - 2022-05-07
 
