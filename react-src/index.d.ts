@@ -15,7 +15,7 @@ export type InformElProps<FormValuesType, ResponseType, RequestType> = React.Pro
     ref?: React.LegacyRef<HTMLElement>;
     errorDisableSubmit?: boolean;
     resetOnSubmit?: boolean;
-    onInformelReady?: VoidFunction;
+    onInformelReady?: (e: CustomEvent<undefined>) => void;
     onInformInput?: InputEventHandler<FormValuesType>;
     onInformChange?: InputEventHandler<FormValuesType>;
     onInformSubmit?: InputEventHandler<FormValuesType>;
@@ -31,7 +31,7 @@ export type InformElComponent = <FormValuesType = FormValuesDefaultType, Respons
 
 export const InformEl: InformElComponent;
 
-export const InformField: React.FC<{
+export const InformField: React.FC<React.PropsWithChildren<{
     className?: string;
     style?: React.CSSProperties;
     defaultError?: string;
@@ -46,4 +46,4 @@ export const InformField: React.FC<{
     valueMissing?: string;
     submitOnChange?: boolean;
 
-}>;
+}>>;

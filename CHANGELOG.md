@@ -1,8 +1,14 @@
 # Changelog
 
-## [1.6.1] - 2022-05-27
+## Unreleased
 
 ## Fixed
+
+- InformelProps type
+
+## [1.6.1] - 2022-05-27
+
+### Fixed
 
 - Added missing `submitOnChange` prop to `InformField`.
 - React component definition: useEffect -> useLayoutEffect
