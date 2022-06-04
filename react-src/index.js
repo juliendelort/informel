@@ -1,8 +1,38 @@
 import React from 'react';
 
 
-export const InformEl = generateEl('inform-el', 'InformEl');
+const BaseInformEl = generateEl('inform-el', 'BaseInformEl');
 export const InformField = generateEl('inform-field', 'InformField');
+
+// InformEl with initialValues
+export const InformEl = React.forwardRef(({ children, initialValues, onInformelReady, ...rest }, ref) => {
+    const initialValuesSet = React.useRef(false);
+    const [informelReady, setInformelReady] = React.useState(false);
+
+    const innerRef = React.useRef(null);
+    const combinedRef = useCombinedRefs(ref, innerRef);
+
+    const handleInformelReady = (e) => {
+        setInformelReady(true);
+
+        if (onInformelReady) {
+            onInformelReady(e);
+        }
+    };
+
+    React.useEffect(() => {
+        if (!initialValuesSet.current && initialValues && informelReady) {
+            combinedRef.current.reset(initialValues);
+            initialValuesSet.current = true;
+        }
+    }, [initialValues, informelReady]);
+
+    return (<BaseInformEl {...rest} ref={combinedRef} onInformelReady={handleInformelReady}>
+        {children}
+    </BaseInformEl>
+    );
+});
+InformEl.displayName = 'InformEl';
 
 
 function generateEl(el, displayName) {
@@ -133,4 +163,4 @@ function useCombinedRefs(...refs) {
     }, [refs]);
 
     return targetRef;
-}
+};

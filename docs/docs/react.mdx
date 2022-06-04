@@ -85,6 +85,56 @@ and then:
 </InformEl>
 ```
 
+## Setting initial values
+
+An extra prop `initialValues` is available in React. It allows to set the form initial values. The first time this prop is assigned an object, the form is resetted
+to the values inside that object (matched by `name` attribute on each field).
+
+Example:
+
+```jsx
+<InformEl initialValues={{ email: 'test@test.com' }}>
+    <form>
+        <label>
+            Email
+            <InformField>
+                <input type="email" name="email" required />
+            </InformField>
+        </label>
+    </form>
+</InformEl>
+```
+
+The example below fetches data and uses the result as form default values:
+
+```jsx
+const [formInitialValues, setFormInitialValues] = useState();
+
+React.useEffect(()=>{
+    const init = async ()=>{
+        // ...fetch some data
+
+        setFormInitialValues(receivedData);
+    }
+    init();
+}, [])
+
+<InformEl initialValues={formInitialValues}>
+    <form>
+        <label>
+            Email
+            <InformField>
+                <input type="email" name="email" required />
+            </InformField>
+        </label>
+    </form>
+</InformEl>
+```
+
+:::info Imports
+After the initial values are set once, any change to the `initialValues` prop will be ignored.
+:::
+
 ## Usage in Next.js
 
 Next.js renders on the server side (SSR) and that is not compatible with Web Components.

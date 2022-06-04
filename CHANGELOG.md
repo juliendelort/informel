@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## [1.7.0] - 2022-06-04
 
-## Fixed
+### Added
+
+- `initialValues` prop to `InformEl` (React)
+
+### Fixed
 
 - InformelProps type
 

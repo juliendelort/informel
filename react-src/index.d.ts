@@ -25,6 +25,7 @@ export type InformElProps<FormValuesType, ResponseType, RequestType> = React.Pro
     onRequestError?: RequestErrorEventHandler<FormValuesType, ResponseType>;
     validationHandler?: ValidationHandler<FormValuesType>;
     submitTransform?: SubmitTransform<FormValuesType, RequestType>;
+    initialValues?: FormValuesType;
 }>;
 
 export type InformElComponent = <FormValuesType = FormValuesDefaultType, ResponseType = any, RequestType = FormValuesType>(props: InformElProps<FormValuesType, ResponseType, RequestType>) => ReturnType<React.FC>;
