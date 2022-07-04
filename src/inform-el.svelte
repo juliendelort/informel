@@ -149,7 +149,7 @@
     }
 
     function getFormElementByName(name) {
-        return form.elements[name] instanceof RadioNodeList ? form.elements[name][0] : form.elements[name];
+        return form.elements[name]?.constructor?.name === 'RadioNodeList' ? form.elements[name][0] : form.elements[name];
     }
 
     function getAllFormElements() {
@@ -424,7 +424,6 @@
                 setControlValue(e, newValues[name]);
             }
         });
-
 
         // Looking for new extra values
         Object.keys(newValues).forEach((key) => {

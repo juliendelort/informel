@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## [1.7.1] - 2022-07-04
 
 ### Fixed
 
 - `setValues` resetting other extra values
+- Removed reference to `RadioNodeList` (not supported by jest/jsdom)
 
 
 ## [1.7.0] - 2022-06-04
