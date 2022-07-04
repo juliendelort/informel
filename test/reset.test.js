@@ -494,4 +494,31 @@ describe('reset', () => {
         expect(informFieldExtra).not.to.have.attribute('touched');
 
     });
+
+    it('resets extra values', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field>
+                        <input type="text" name="firstName" required />
+                    </inform-field>
+                    <inform-field name="lastName">
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+        informEl.setValues({ lastName: 'something', someOther: 'value' });
+        await nextFrame();
+
+        informEl.reset({ someOther: 'val', someNew: 'new' });
+        await nextFrame();
+
+        expect(informEl.values).to.eql({
+            firstName: '',
+            someOther: 'val',
+            someNew: 'new',
+        });
+
+    });
 });

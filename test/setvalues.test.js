@@ -111,6 +111,13 @@ describe('set values', () => {
         await type(input, 'a', true);
 
         expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastName: 'something' } });
+
+        informEl.setValues({ another: 'value' });
+
+        await nextFrame();
+
+        expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastName: 'something', another: 'value' } });
+
     });
 
     it('sets radio button value', async () => {

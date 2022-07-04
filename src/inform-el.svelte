@@ -425,14 +425,6 @@
             }
         });
 
-        // Reset current extra values
-        for (let key in extraValues) {
-            if (initialValues[key]) {
-                extraValues[key] = initialValues[key];
-            } else {
-                delete extraValues[key];
-            }
-        }
 
         // Looking for new extra values
         Object.keys(newValues).forEach((key) => {
@@ -457,6 +449,14 @@
         };
 
         form.reset(); // This will trigger handleFormReset which will reset touched
+        // Reset current extra values
+        for (let key in extraValues) {
+            if (initialValues[key]) {
+                extraValues[key] = initialValues[key];
+            } else {
+                delete extraValues[key];
+            }
+        }
         setValues(newValues);
         initialValues = currentValues;
     }

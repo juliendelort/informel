@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- `setValues` resetting other extra values
+
+
 ## [1.7.0] - 2022-06-04
 
 ### Added
