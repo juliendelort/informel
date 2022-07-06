@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- InformField TS definition: added missing `name` and `ref` optional props.
+
 ## [1.7.1] - 2022-07-04
 
 ### Fixed

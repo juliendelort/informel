@@ -46,5 +46,6 @@ export const InformField: React.FC<React.PropsWithChildren<{
     typeMismatch?: string;
     valueMissing?: string;
     submitOnChange?: boolean;
-
+    name?: string;
+    ref?: React.LegacyRef<HTMLElement>;
 }>>;
