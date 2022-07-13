@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## [1.7.2] - 2022-07-13
 
 ### Fixed
 
 - InformField TS definition: added missing `name` and `ref` optional props.
+- Accessibility fixes: focusing the first invalid input on submit + added `aria-description` with `aria-invalid`
 
 ## [1.7.1] - 2022-07-04
 

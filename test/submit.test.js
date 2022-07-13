@@ -752,4 +752,28 @@ describe('submit', () => {
         expect(submitHasBeenCalled()).to.be.true;
         expect(submitDetails()).to.deep.include({ values: { 'some-name': 'a' }, submitter: null });
     });
+
+    it('focuses the first input on error when submitting', async () => {
+        const informEl = await fixture(`
+        <inform-el>
+            <form>
+                <input type="text" name="some-name" value="a" />
+                <input type="text" name="some-name2" required />
+                <inform-field>
+                    <input type="text" name="some-name3" required />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>
+        `);
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
+        const firstInvalidInput = informEl.querySelector('input[name="some-name2"]');
+
+        informEl.requestSubmit();
+        await nextFrame();
+        expect(submitHasBeenCalled()).to.be.false;
+        expect(firstInvalidInput.ownerDocument.activeElement).to.equal(firstInvalidInput);
+
+    });
 });

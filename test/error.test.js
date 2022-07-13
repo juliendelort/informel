@@ -284,9 +284,11 @@ describe('error', () => {
 
         await type(input, 'a', true);
         expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(input).to.have.attribute('aria-description', 'my custom error message');
 
         await type(input, 'b', true);
         expect(input).not.to.have.attribute('aria-invalid');
+        expect(input).not.to.have.attribute('aria-description');
 
     });
 
@@ -310,10 +312,13 @@ describe('error', () => {
 
         await type(input, 'a', true);
         expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(input).to.have.attribute('aria-description', input.validationMessage);
+
 
         await type(input, 'b', true);
 
         expect(input).not.to.have.attribute('aria-invalid', 'true');
+        expect(input).not.to.have.attribute('aria-description');
 
     });
 

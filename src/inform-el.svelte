@@ -202,6 +202,9 @@
             resetTouched();
             initialValues = currentValues;
             checkDirty();
+        } else {
+            // focus the first invalid element
+            form.querySelector(':invalid')?.focus();
         }
     }
 
@@ -305,9 +308,11 @@
                 if (errorPropValue) {
                     informField.setAttribute('error-message', errorPropValue);
                     element.setAttribute('aria-invalid', 'true');
+                    element.setAttribute('aria-description', errorPropValue);
                 } else {
                     informField.removeAttribute('error-message');
                     element.removeAttribute('aria-invalid');
+                    element.removeAttribute('aria-description');
                 }
             }
         });
