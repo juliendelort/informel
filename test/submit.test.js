@@ -757,12 +757,14 @@ describe('submit', () => {
         const informEl = await fixture(`
         <inform-el>
             <form>
-                <input type="text" name="some-name" value="a" />
-                <input type="text" name="some-name2" required />
-                <inform-field>
-                    <input type="text" name="some-name3" required />
-                </inform-field>
-                <button type="submit">Submit</button>
+                <fieldset>
+                    <input type="text" name="some-name" value="a" />
+                    <input type="text" name="some-name2" required />
+                    <inform-field>
+                        <input type="text" name="some-name3" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </fieldset>
             </form>
         </inform-el>
         `);
@@ -774,6 +776,38 @@ describe('submit', () => {
         await nextFrame();
         expect(submitHasBeenCalled()).to.be.false;
         expect(firstInvalidInput.ownerDocument.activeElement).to.equal(firstInvalidInput);
+
+    });
+
+    it('focuses the first input with custom error when submitting', async () => {
+        const informEl = await fixture(`
+        <inform-el>
+            <form>
+                <fieldset>
+                    <input type="text" name="some-name" value="a" />
+                    <input type="text" name="some-name2" />
+                    <inform-field>
+                        <input type="text" name="some-name3" />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </fieldset>
+            </form>
+        </inform-el>
+        `);
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
+        const invalidInput = informEl.querySelector('input[name="some-name3"]');
+
+        informEl.validationHandler = ({ values }) => {
+            return {
+                'some-name3': 'my custom error message'
+            };
+        };
+
+        informEl.requestSubmit();
+        await nextFrame();
+        expect(submitHasBeenCalled()).to.be.false;
+        expect(invalidInput.ownerDocument.activeElement).to.equal(invalidInput);
 
     });
 });

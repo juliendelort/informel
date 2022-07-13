@@ -204,7 +204,18 @@
             checkDirty();
         } else {
             // focus the first invalid element
-            form.querySelector(':invalid')?.focus();
+            getAllFormElements().some((e) => {
+                if (!e.checkValidity()) {
+                    e.focus();
+                    return true;
+                }
+                const informField = e.closest('inform-field');
+                if (informField && informField.hasAttribute('error')) {
+                    e.focus();
+                    return true;
+                }
+            });
+            form.querySelector('inform-field[error]')?.focus();
         }
     }
 

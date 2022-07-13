@@ -1,5 +1,12 @@
 # Changelog
 
+
+## [1.7.3] - 2022-07-13
+
+### Fixed
+
+- Focus on first invalid field
+
 ## [1.7.2] - 2022-07-13
 
 ### Fixed
