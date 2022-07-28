@@ -1,7 +1,16 @@
 import React from 'react';
 
 
-const BaseInformEl = generateEl('inform-el', 'BaseInformEl', ['inform-input', 'inform-change', 'inform-submit', 'request-start', 'request-end', 'request-success', 'request-error']);
+const BaseInformEl = generateEl('inform-el', 'BaseInformEl', [
+    'informel-ready',
+    'inform-input',
+    'inform-change',
+    'inform-submit',
+    'request-start',
+    'request-end',
+    'request-success',
+    'request-error'
+]);
 export const InformField = generateEl('inform-field', 'InformField');
 
 // InformEl with initialValues
@@ -77,6 +86,19 @@ function generateEl(el, displayName, events = []) {
                 });
             };
         }, []);
+
+        useLayoutEffectSSRSafe(() => {
+            // Forwarding functions as props
+            Object.keys(rest).forEach(propName => {
+                // If a prop is a function and is not in the list of events, we forward it as a prop
+                if (typeof rest[propName] === 'function') {
+                    const eventName = toKebabCase(propName.replace(/^(on)/, ''));
+                    if (!events.includes(eventName)) {
+                        combinedRef.current[propName] = rest[propName];
+                    }
+                }
+            });
+        });
 
         // Remove undefined or null attributes
         const restDefined = Object.keys(rest).reduce((result, key) => {

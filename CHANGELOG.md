@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.5] - 2022-07-28
+
+### Fixed
+
+- Regression in react internal wrapper.
+
 ## [1.7.4] - 2022-07-28
 
 ### Fixed
