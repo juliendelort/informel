@@ -1,7 +1,7 @@
 import React from 'react';
 
 
-const BaseInformEl = generateEl('inform-el', 'BaseInformEl');
+const BaseInformEl = generateEl('inform-el', 'BaseInformEl', ['inform-input', 'inform-change', 'inform-submit', 'request-start', 'request-end', 'request-success', 'request-error']);
 export const InformField = generateEl('inform-field', 'InformField');
 
 // InformEl with initialValues
@@ -20,7 +20,7 @@ export const InformEl = React.forwardRef(({ children, initialValues, onInformelR
         }
     };
 
-    React.useEffect(() => {
+    useLayoutEffectSSRSafe(() => {
         if (!initialValuesSet.current && initialValues && informelReady) {
             combinedRef.current.reset(initialValues);
             initialValuesSet.current = true;
@@ -35,7 +35,7 @@ export const InformEl = React.forwardRef(({ children, initialValues, onInformelR
 InformEl.displayName = 'InformEl';
 
 
-function generateEl(el, displayName) {
+function generateEl(el, displayName, events = []) {
     // Web components wrapper
     const Inner = React.forwardRef(function Wrapper({
         children = null,
@@ -49,72 +49,32 @@ function generateEl(el, displayName) {
         const innerRef = React.useRef(null);
         const combinedRef = useCombinedRefs(ref, innerRef);
 
-        const eventsRef = React.useRef({});
-        const handlers = React.useRef({});
+        // Forwards the event to corresponding `onCamelCaseEventName` prop
+        const handleEvent = useEvent((event, ...args) => {
+            const reactEventName = toCamelCase(`on-${event}`);
 
-        // We want this at every render
-        React.useLayoutEffect(() => {
-            // We don't want to re-attach listeners at every render but we also don't want stale event listeners
-            // So we attach a generic event listener and we use a ref to call the up-to-date listener
-            const mainEventListener = (eventName) => (...args) => {
-                eventsRef.current[eventName](...args);
-            };
-
-            // Finding events: all props that have a function as value
-            // and transforming their name "onEventName" => "event-name"
-            const [events, properties] = Object.keys(rest).reduce(([events, properties], current) => {
-                if (typeof rest[current] === 'function') {
-
-                    if (current.startsWith('on')) { // events start witn "on"
-                        // Remove "on" at the beginning and convert to kebab case
-                        // onSearchKeystroke => search-keystroke
-                        events[toKebabCase(current.replace(/^(on)/, ''))] = rest[current];
-                    } else {
-                        // property otherwise
-                        properties[current] = rest[current];
-                    }
-                }
-
-                return [events, properties];
-            }, [{}, {}]);
-
-
-            // Look for new events
-            for (let eventName in events) {
-                if (!eventsRef.current[eventName]) {
-                    // new event
-                    handlers.current[eventName] = mainEventListener(eventName);
-                    combinedRef.current?.addEventListener(eventName, handlers.current[eventName]);
-                }
+            if (rest[reactEventName]) {
+                rest[reactEventName](...args);
             }
 
-            // Look for removed events
-            for (let eventName in handlers.current) {
-                if (!events[eventName]) {
-                    combinedRef.current?.removeEventListener(eventName, handlers.current[eventName]);
-                    delete handlers.current[eventName];
-                }
-            }
-
-            if (combinedRef.current) {
-                // Add properties
-                for (let propName in properties) {
-
-                    combinedRef.current[propName] = properties[propName];
-                }
-            }
-
-            eventsRef.current = events;
         });
 
+        useLayoutEffectSSRSafe(() => {
+            const eventHandlersByName = events.reduce((acc, event) => ({
+                ...acc,
+                [event]: (...args) => handleEvent(event, ...args)
+            }), {});
 
-        React.useLayoutEffect(() => {
-            // When component is unmounted : remove all events
+            // Add an event listener for each specified event
+            events.forEach(event => {
+                combinedRef?.current?.addEventListener(event, eventHandlersByName[event]);
+            });
+
             return () => {
-                for (let eventName in handlers.current) {
-                    combinedRef.current?.removeEventListener(eventName, handlers.current[eventName]);
-
-                }
+                // Remove the event listener for each specified event
+                events.forEach(event => {
+                    combinedRef?.current?.removeEventListener(event, eventHandlersByName[event]);
+                });
             };
         }, []);
 
@@ -145,6 +105,10 @@ function toKebabCase(str) {
     return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
+function toCamelCase(str) {
+    return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+}
+
 
 // https://itnext.io/reusing-the-ref-from-forwardref-with-react-hooks-4ce9df693dd
 function useCombinedRefs(...refs) {
@@ -164,3 +128,19 @@ function useCombinedRefs(...refs) {
 
     return targetRef;
 };
+
+const useEvent = (handler) => {
+    const handlerRef = React.useRef(null);
+
+    useLayoutEffectSSRSafe(() => {
+        handlerRef.current = handler;
+    });
+
+    return React.useCallback((...args) => {
+        const fn = handlerRef.current;
+        return fn(...args);
+    }, []);
+};
+
+// useLayoutEffect does't play well with NextJS SSR: https://medium.com/@alexandereardon/uselayouteffect-and-ssr-192986cdcf7a
+const useLayoutEffectSSRSafe = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;

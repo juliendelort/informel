@@ -248,7 +248,7 @@
         host.dispatchEvent(
             new CustomEvent('inform-change', {
                 detail: {
-                    values: { ...currentValues },
+                    values: { ...newValues },
                     changedField: e.target.name,
                 },
                 bubbles: true,

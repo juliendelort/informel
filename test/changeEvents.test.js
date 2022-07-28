@@ -224,6 +224,35 @@ describe('input and change events', () => {
         });
     }
 
+    it('works when only change event is triggered', async () => {
+        const informEl = await fixture(`<inform-el>
+                        <form>
+                            <inform-field>
+                                <input id="control" type="text" name="some-name"/>
+                            </inform-field>
+                             <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>`);
+        const control = informEl.querySelector('#control');
+
+        control.addEventListener('input', e => e.stopPropagation()); // block input event
+
+        const [, changeDetails] = eventCheck(informEl, 'inform-change');
+
+        const someValue = generateTextInputValue();
+        const input = informEl.querySelector('#control');
+        await type(input, someValue, true);
+        await nextFrame();
+        expect(changeDetails()).to.eql({
+            values: {
+                'some-name': someValue,
+                other: 'nochange'
+            },
+            changedField: 'some-name'
+        });
+    });
+
     it('does not include empty number fields in the values', async () => {
         const informEl = await fixture(`
                     <inform-el>

@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.4] - 2022-07-28
+
+### Fixed
+
+- React internal wrapper event handling in strict mode + nextjs useLayoutEffect warning
+- `inform-change` was sending stale values in some cases
 
 ## [1.7.3] - 2022-07-13
 
