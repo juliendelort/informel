@@ -10,7 +10,8 @@ import {
     generateSelectValue,
     type,
     setSelectMultipleValue,
-    generateMultiSelectValue
+    generateMultiSelectValue,
+    eventCheck
 } from './test-utils';
 import '../public/build/bundle.js';
 import sinon from 'sinon';
@@ -255,6 +256,33 @@ describe('reset', () => {
 
                 expect(informEl.values).to.eql({ field: newValue });
                 expect(informEl.dirty).to.be.false;
+            });
+
+            it('triggers a inform-updated event when no values are provided', async () => {
+                const informEl = await fixture(html);
+
+                const control = informEl.querySelector('#control');
+
+                const [informUpdatedTriggered] = eventCheck(control, 'inform-updated');
+
+                informEl.reset();
+                await nextFrame();
+
+                expect(informUpdatedTriggered()).to.be.true;
+            });
+
+            it('triggers a inform-updated event when new values are provided', async () => {
+                const informEl = await fixture(html);
+
+                const control = informEl.querySelector('#control');
+
+                const [informUpdatedTriggered] = eventCheck(control, 'inform-updated');
+
+                const newValue = generateValue(initialValue);
+                informEl.reset({ field: newValue });
+                await nextFrame();
+
+                expect(informUpdatedTriggered()).to.be.true;
             });
 
             it('removes the dirty flags', async () => {

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.6] - 2022-08-05
+
+### Added
+
+- Dispatching a `inform-updated` event the informel changes the value of a control.
+
+
 ## [1.7.5] - 2022-07-28
 
 ### Fixed

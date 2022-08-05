@@ -410,6 +410,9 @@
         } else {
             control.value = value;
         }
+
+        // Dispatch an event to let others know that this has changed
+        control.dispatchEvent(new CustomEvent('inform-updated', { bubbles: true }));
     }
 
     function getControlValue(control) {

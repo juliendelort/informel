@@ -1,4 +1,4 @@
-import { expect, nextFrame, fixture, oneEvent } from '@open-wc/testing';
+import { expect, nextFrame, fixture } from '@open-wc/testing';
 import { eventCheck, type } from './test-utils';
 import sinon from 'sinon';
 
@@ -147,6 +147,28 @@ describe('set values', () => {
         expect(val2Input.checked).to.be.false;
         expect(val1Input.checked).to.be.true;
 
+    });
 
+    it('dispatches a inform-updated event', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field >
+                        <input type="text" name="some-name" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+
+        const input = informEl.querySelector('[name="some-name"]');
+
+        const [informUpdatedTriggered] = eventCheck(input, 'inform-updated');
+
+
+        informEl.setValues({ 'some-name': 'val' });
+        await nextFrame();
+
+        expect(informUpdatedTriggered()).to.be.true;
     });
 });
