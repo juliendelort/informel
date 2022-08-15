@@ -501,7 +501,18 @@
     }
 
     function publicRequestSubmit() {
-        form.requestSubmit();
+        if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+        } else {
+            // requestSubmit not supported on safari
+            const submitter = document.createElement('input');
+            submitter.type = 'submit';
+            submitter.style.display = 'none';
+            submitter.hidden = true;
+            form.appendChild(submitter);
+            submitter.click();
+            form.removeChild(submitter);
+        }
     }
 </script>
 

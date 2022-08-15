@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.8.1] - 2020-08-15
+
+### Fixed
+
+- `requestSubmit` not supported on Safari.
+
 ## [1.8.0] - 2022-08-05
 
 ### Added
