@@ -35,6 +35,10 @@ document.querySelector('inform-el').addEventListener('inform-submit', ({ detail:
 
 The event `detail` field also contains a `submitter` field which is the element that triggered the submission (or `null` if the submission was triggered through `requestSubmit()`);
 
+:::danger `submitter` support
+[submitter](https://developer.mozilla.org/en-US/docs/Web/API/SubmitEvent/submitter) is not supported in Safari < 15.4 and will be null in that case.
+:::
+
 This can be helpful for forms with multiple submit buttons:
 
 ```html
