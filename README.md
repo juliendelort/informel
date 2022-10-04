@@ -54,4 +54,4 @@ cd react-dev
 npm run dev
 ```
 
-Change to the core `informel` library (non react changes) need to be rebuilt to be visible.
+Changes to the core `informel` library (non react changes) need to be rebuilt to be visible.
