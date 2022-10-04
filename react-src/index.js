@@ -55,8 +55,7 @@ function generateEl(el, displayName, events = []) {
         const Tag = el;
 
         // We use forwardRef but we also need to use that ref internally: https://itnext.io/reusing-the-ref-from-forwardref-with-react-hooks-4ce9df693dd
-        const innerRef = React.useRef(null);
-        const combinedRef = useCombinedRefs(ref, innerRef);
+        const combinedRef = useCombinedRefs(ref);
 
         // Forwards the event to corresponding `onCamelCaseEventName` prop
         const handleEvent = useEvent((event, ...args) => {
@@ -146,7 +145,7 @@ function useCombinedRefs(...refs) {
                 ref.current = targetRef.current;
             }
         });
-    }, [refs]);
+    }, refs);
 
     return targetRef;
 };

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- React: fixed `ref` being called at every render.
+
 ## [1.8.1] - 2020-08-15
 
 ### Fixed

@@ -23,3 +23,35 @@ Features:
 Documentation: https://juliendelort.github.io/informel/
 
 [Changelog](https://github.com/juliendelort/informel/blob/main/CHANGELOG.md) 
+
+
+## Build
+
+```bash
+npm run build
+```
+
+## Test
+
+```bash
+npm run test
+```
+
+## Dev
+
+### Svelte/Webcomponent
+
+In `main.js`, import `test.svelte`. Then run
+  
+```bash
+npm run dev
+```
+
+### React
+
+```bash
+cd react-dev
+npm run dev
+```
+
+Change to the core `informel` library (non react changes) need to be rebuilt to be visible.
