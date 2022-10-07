@@ -5,6 +5,7 @@
 ### Fixed
 
 - React: fixed `ref` being called at every render.
+- Removed `aria-description` in favour of `aria-describedby` which has better support.
 
 ## [1.8.1] - 2020-08-15
 

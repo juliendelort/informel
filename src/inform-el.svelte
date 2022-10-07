@@ -318,12 +318,8 @@
                 const errorPropValue = customValidationErrors?.[element.name] ?? getFieldError(element, informField);
                 if (errorPropValue) {
                     informField.setAttribute('error-message', errorPropValue);
-                    element.setAttribute('aria-invalid', 'true');
-                    element.setAttribute('aria-description', errorPropValue);
                 } else {
                     informField.removeAttribute('error-message');
-                    element.removeAttribute('aria-invalid');
-                    element.removeAttribute('aria-description');
                 }
             }
         });

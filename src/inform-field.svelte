@@ -13,13 +13,38 @@
     let touchedIsPresent;
     let submitOnChangeIsPresent;
     let touchedOnInputIsPresent;
+    let errorId = 'informel-err-el-' + Math.random().toString(36);
 
     $: {
         // Update error attribute
         if (errorMessage && touchedIsPresent) {
             host.setAttribute('error', '');
+
+            const errorEl = host.querySelector('.informel-err-el');
+            if (errorEl) {
+                errorEl.textContent = errorMessage;
+            }
+
+            const form = host.closest('form');
+            if (form) {
+                const formElement = [...form.elements].find((el) => host.contains(el));
+                formElement?.setAttribute('aria-invalid', 'true');
+                formElement?.setAttribute('aria-describedby', errorId);
+            }
         } else {
             host.removeAttribute('error', '');
+
+            const errorEl = host.querySelector('.informel-err-el');
+            if (errorEl) {
+                errorEl.textContent = '';
+            }
+
+            const form = host.closest('form');
+            if (form) {
+                const formElement = [...form.elements].find((el) => host.contains(el));
+                formElement?.removeAttribute('aria-invalid');
+                formElement?.removeAttribute('aria-describedby');
+            }
         }
 
         // Update slot content when errorMessage or touched has changed
@@ -65,7 +90,19 @@
         errorSlot = rootElement.querySelector('slot[name="error"]');
 
         errorSlot.addEventListener('slotchange', updateErrorSlot);
+
+        // Generate an invisible error message for screen readers, for using with aria-describedby
+        const errEl = document.createElement('span');
+        errEl.id = errorId;
+        errEl.classList.add('informel-err-el');
+
+        // sr-only style
+        errEl.style =
+            'clip: rect(1px, 1px, 1px, 1px); clip-path: polygon(0px 0px, 0px 0px, 0px 0px);-webkit-clip-path: polygon(0px 0px, 0px 0px, 0px 0px);height: 0;overflow: hidden;position: absolute;width: 0;';
+        host.appendChild(errEl);
+
         return () => {
+            host.querySelector('.informel-err-el')?.remove();
             errorSlot.removeEventListener('slotchange', updateErrorSlot);
         };
     });

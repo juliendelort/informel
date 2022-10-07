@@ -256,6 +256,23 @@ describe('error', () => {
         expect(informField).to.have.attribute('error-message', 'my custom error message');
     });
 
+    it('does not set aria-invalid if the error is not shown', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const input = informEl.querySelector('input');
+
+        // Input is required and empty, but not touched yet, so the error is not shown yet.
+        expect(input).not.to.have.attribute('aria-invalid');
+    });
+
     it('sets aria-invalid when invalid from validationHandler', async () => {
         const informEl = await fixture(`
                 <inform-el>
@@ -270,7 +287,7 @@ describe('error', () => {
 
         const informField = informEl.querySelector('inform-field');
         const input = informEl.querySelector('input');
-        const submitButton = informEl.querySelector('[type="submit"]');
+        const errorEl = informField.querySelector('.informel-err-el');
 
         expect(input).not.to.have.attribute('aria-invalid');
 
@@ -284,11 +301,13 @@ describe('error', () => {
 
         await type(input, 'a', true);
         expect(input).to.have.attribute('aria-invalid', 'true');
-        expect(input).to.have.attribute('aria-description', 'my custom error message');
+        expect(errorEl).to.have.text('my custom error message');
+        expect(errorEl.id.length).to.be.above(1);
+        expect(input).to.have.attribute('aria-describedby', errorEl.id);
 
         await type(input, 'b', true);
         expect(input).not.to.have.attribute('aria-invalid');
-        expect(input).not.to.have.attribute('aria-description');
+        expect(input).not.to.have.attribute('aria-describedby');
 
     });
 
@@ -306,39 +325,21 @@ describe('error', () => {
 
         const informField = informEl.querySelector('inform-field');
         const input = informEl.querySelector('input');
-        const submitButton = informEl.querySelector('[type="submit"]');
+        const errorEl = informField.querySelector('.informel-err-el');
 
         expect(input).not.to.have.attribute('aria-invalid');
 
         await type(input, 'a', true);
         expect(input).to.have.attribute('aria-invalid', 'true');
-        expect(input).to.have.attribute('aria-description', input.validationMessage);
+        expect(errorEl).to.have.text(input.validationMessage);
+        expect(errorEl.id.length).to.be.above(1);
+        expect(input).to.have.attribute('aria-describedby', errorEl.id);
 
 
         await type(input, 'b', true);
 
         expect(input).not.to.have.attribute('aria-invalid', 'true');
-        expect(input).not.to.have.attribute('aria-description');
-
-    });
-
-    it('sets aria-invalid when invalid from native attribute when invalid from start', async () => {
-        const informEl = await fixture(`
-                <inform-el>
-                    <form>
-                        <inform-field>
-                            <input type="text" name="some-name" required/>
-                        </inform-field>
-                        <button type="submit">Submit</button>
-                    </form>
-                </inform-el>
-        `);
-
-        const informField = informEl.querySelector('inform-field');
-        const input = informEl.querySelector('input');
-        const submitButton = informEl.querySelector('[type="submit"]');
-
-        expect(input).to.have.attribute('aria-invalid');
+        expect(input).not.to.have.attribute('aria-describedby');
 
     });
 
@@ -411,4 +412,3 @@ describe('error', () => {
 
     });
 });
-
