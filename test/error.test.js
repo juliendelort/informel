@@ -287,7 +287,7 @@ describe('error', () => {
 
         const informField = informEl.querySelector('inform-field');
         const input = informEl.querySelector('input');
-        const errorEl = informField.querySelector('.informel-err-el');
+        const errorEl = informField.querySelector('.informel-err-el-screen-reader');
 
         expect(input).not.to.have.attribute('aria-invalid');
 
@@ -325,7 +325,7 @@ describe('error', () => {
 
         const informField = informEl.querySelector('inform-field');
         const input = informEl.querySelector('input');
-        const errorEl = informField.querySelector('.informel-err-el');
+        const errorEl = informField.querySelector('.informel-err-el-screen-reader');
 
         expect(input).not.to.have.attribute('aria-invalid');
 

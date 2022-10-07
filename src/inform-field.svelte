@@ -13,14 +13,14 @@
     let touchedIsPresent;
     let submitOnChangeIsPresent;
     let touchedOnInputIsPresent;
-    let errorId = 'informel-err-el-' + Math.random().toString(36);
+    let errorId = 'informel-err-el-screen-reader-' + Math.random().toString(36);
 
     $: {
         // Update error attribute
         if (errorMessage && touchedIsPresent) {
             host.setAttribute('error', '');
 
-            const errorEl = host.querySelector('.informel-err-el');
+            const errorEl = host.querySelector('.informel-err-el-screen-reader');
             if (errorEl) {
                 errorEl.textContent = errorMessage;
             }
@@ -34,7 +34,7 @@
         } else {
             host.removeAttribute('error', '');
 
-            const errorEl = host.querySelector('.informel-err-el');
+            const errorEl = host.querySelector('.informel-err-el-screen-reader');
             if (errorEl) {
                 errorEl.textContent = '';
             }
@@ -94,7 +94,7 @@
         // Generate an invisible error message for screen readers, for using with aria-describedby
         const errEl = document.createElement('span');
         errEl.id = errorId;
-        errEl.classList.add('informel-err-el');
+        errEl.classList.add('informel-err-el-screen-reader');
 
         // sr-only style
         errEl.style =
@@ -102,7 +102,7 @@
         host.appendChild(errEl);
 
         return () => {
-            host.querySelector('.informel-err-el')?.remove();
+            host.querySelector('.informel-err-el-screen-reader')?.remove();
             errorSlot.removeEventListener('slotchange', updateErrorSlot);
         };
     });
