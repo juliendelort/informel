@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.8.2] - 2022-10-07
 
 ### Fixed
 
