@@ -1,7 +1,7 @@
 {
   "name": "informel",
   "description": "informel is a Web Component that wraps native HTML forms. Features: validation errors, native & custom validation rules.validity state, dirty check, auto submission via AJAX call",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "main": "public/build/bundle.js",
   "types": "react/index.d.ts",
   "repository": "https://github.com/juliendelort/informel",
