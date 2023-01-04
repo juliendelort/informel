@@ -9,12 +9,17 @@ export type RequestErrorEventHandler<FormValuesType, ResponseType> = (e: CustomE
 export type ValidationHandler<FormValuesType> = (param: { values: FormValuesType; }) => { [f in keyof FormValuesType]?: string; };
 export type SubmitTransform<FormValuesType, RequestType = FormValuesType> = (param: { values: FormValuesType; }) => RequestType;
 
-export type InformElProps<FormValuesType, ResponseType, RequestType> = React.PropsWithChildren<{
+export interface HTMLInformEl extends HTMLElement {
+    requestSubmit: () => void;
+};
+
+export type InformElProps<FormValuesType = FormValuesDefaultType, ResponseType = any, RequestType = FormValuesType> = React.PropsWithRef<{
+    children?: ReactNode;
     className?: string;
     style?: React.CSSProperties;
-    ref?: React.LegacyRef<HTMLElement>;
     errorDisableSubmit?: boolean;
     resetOnSubmit?: boolean;
+    ref?: React.Ref<HTMLInformEl>;
     onInformelReady?: (e: CustomEvent<undefined>) => void;
     onInformInput?: InputEventHandler<FormValuesType>;
     onInformChange?: InputEventHandler<FormValuesType>;
@@ -28,11 +33,10 @@ export type InformElProps<FormValuesType, ResponseType, RequestType> = React.Pro
     initialValues?: FormValuesType;
 }>;
 
-export type InformElComponent = <FormValuesType = FormValuesDefaultType, ResponseType = any, RequestType = FormValuesType>(props: InformElProps<FormValuesType, ResponseType, RequestType>) => ReturnType<React.FC>;
+export declare function InformEl<FormValuesType = FormValuesDefaultType, ResponseType = any, RequestType = FormValuesType>(props: InformElProps<FormValuesType, ResponseType, RequestType>): React.ReactElement;
 
-export const InformEl: InformElComponent;
-
-export const InformField: React.FC<React.PropsWithChildren<{
+export type InformFieldProps = React.PropsWithRef<{
+    children?: ReactNode;
     className?: string;
     style?: React.CSSProperties;
     defaultError?: string;
@@ -47,5 +51,7 @@ export const InformField: React.FC<React.PropsWithChildren<{
     valueMissing?: string;
     submitOnChange?: boolean;
     name?: string;
-    ref?: React.LegacyRef<HTMLElement>;
-}>>;
+    ref?: React.Ref<HTMLElement>;
+}>;
+
+export declare function InformField(props: InformFieldProps): React.ReactElement;

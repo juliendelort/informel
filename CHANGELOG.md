@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.8.3] - 2023-01-04
+
+### Fixed
+
+- Typescript types
+
 ## [1.8.2] - 2022-10-07
 
 ### Fixed
