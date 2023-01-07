@@ -31,7 +31,6 @@ function HomepageHeader() {
 
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
-  console.log({ siteConfig });
   return (
     <Layout
       title={`informel - form management made easy`}
