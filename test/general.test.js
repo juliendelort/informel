@@ -129,6 +129,8 @@ describe('general tests', () => {
         const [changeCalled, changeDetails] = eventCheck(informEl, 'inform-change');
 
         await type(newInput, 'hello', true);
+        await nextFrame();
+
 
         expect(changeCalled()).to.be.true;
         expect(changeDetails()).to.eql({ values: { form2field: 'hello' }, changedField: 'form2field' });

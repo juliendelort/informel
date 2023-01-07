@@ -1,4 +1,4 @@
-import { fixture, expect, elementUpdated, nextFrame } from '@open-wc/testing';
+import { fixture, expect, nextFrame } from '@open-wc/testing';
 import {
     generateTextInputValue,
     setTextInputValue,
@@ -11,8 +11,11 @@ import {
     type,
     clear,
     setSelectMultipleValue,
-    generateMultiSelectValue
+    generateMultiSelectValue,
+    tab,
 } from './test-utils';
+import { sendKeys } from '@web/test-runner-commands';
+
 import '../public/build/bundle.js';
 
 describe('dirty check', () => {
@@ -506,6 +509,98 @@ describe('dirty check', () => {
         await nextFrame();
 
         expect(informEl.dirty).to.be.false;
+    });
+
+    it('updates the flag before sending inform-input event', async () => {
+
+        const informEl = await fixture(` <inform-el>
+            <form>
+                <inform-field>
+                    <input id="control" type="text" name="field"  />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>`);
+
+        const input = informEl.querySelector('#control');
+        input.focus();
+
+        let expectedIsDirty;
+        let expectedValues;
+        let listenerCalled = false;
+
+        informEl.addEventListener('inform-input', (e) => {
+            expect(e.target.dirty).to.eql(expectedIsDirty);
+            expect(e.target.values).to.eql(expectedValues);
+            listenerCalled = true;
+        });
+
+        expectedIsDirty = true;
+        expectedValues = { field: 'a' };
+        await sendKeys({
+            press: 'a',
+        });
+
+        await nextFrame();
+        expect(listenerCalled).to.equal(true);
+        listenerCalled = false;
+
+        expectedIsDirty = false;
+        expectedValues = { field: '' };
+
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+
+        await nextFrame();
+        expect(listenerCalled).to.equal(true);
+
+    });
+
+    it('updates the flag before sending inform-change event', async () => {
+
+        const informEl = await fixture(` <inform-el>
+            <form>
+                <inform-field>
+                    <input id="control" type="text" name="field"  />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>`);
+
+        const input = informEl.querySelector('#control');
+        input.focus();
+
+        let expectedIsDirty;
+        let expectedValues;
+        let listenerCalled = false;
+
+        informEl.addEventListener('inform-change', (e) => {
+            expect(e.target.dirty).to.eql(expectedIsDirty);
+            expect(e.target.values).to.eql(expectedValues);
+            listenerCalled = true;
+        });
+
+
+        expectedIsDirty = true;
+        expectedValues = { field: 'a' };
+        await sendKeys({
+            press: 'a',
+        });
+        await tab();
+
+        await nextFrame();
+        expect(listenerCalled).to.equal(true);
+        listenerCalled = false;
+
+        expectedIsDirty = false;
+        expectedValues = { field: '' };
+
+        input.value = '';
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+
+        await nextFrame();
+        expect(listenerCalled).to.equal(true);
+
     });
 
 });

@@ -226,15 +226,18 @@
         }
 
         currentValues = getFormValues();
-        host.dispatchEvent(
-            new CustomEvent('inform-input', {
-                detail: {
-                    values: { ...currentValues },
-                    changedField: e.target.name,
-                },
-                bubbles: true,
-            })
-        );
+        setTimeout(() => {
+            // Waiting for dirty and values to be updated after setting currentValues above
+            host.dispatchEvent(
+                new CustomEvent('inform-input', {
+                    detail: {
+                        values: { ...currentValues },
+                        changedField: e.target.name,
+                    },
+                    bubbles: true,
+                })
+            );
+        }, 0);
     }
 
     function handleChange(e) {
@@ -245,16 +248,18 @@
 
         const newValues = getFormValues();
 
-        host.dispatchEvent(
-            new CustomEvent('inform-change', {
-                detail: {
-                    values: { ...newValues },
-                    changedField: e.target.name,
-                },
-                bubbles: true,
-            })
-        );
-
+        setTimeout(() => {
+            // Waiting for dirty and values to be updated after setting currentValues above
+            host.dispatchEvent(
+                new CustomEvent('inform-change', {
+                    detail: {
+                        values: { ...newValues },
+                        changedField: e.target.name,
+                    },
+                    bubbles: true,
+                })
+            );
+        }, 0);
         currentValues = newValues;
     }
 
