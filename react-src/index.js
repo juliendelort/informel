@@ -10,7 +10,7 @@ const BaseInformEl = generateEl('inform-el', 'BaseInformEl', [
     'request-end',
     'request-success',
     'request-error'
-]);
+], ['validationHandler', 'zodSchema']);
 export const InformField = generateEl('inform-field', 'InformField');
 
 // InformEl with initialValues
@@ -44,7 +44,7 @@ export const InformEl = React.forwardRef(({ children, initialValues, onInformelR
 InformEl.displayName = 'InformEl';
 
 
-function generateEl(el, displayName, events = []) {
+function generateEl(el, displayName, events = [], properties = []) {
     // Web components wrapper
     const Inner = React.forwardRef(function Wrapper({
         children = null,
@@ -90,7 +90,7 @@ function generateEl(el, displayName, events = []) {
             // Forwarding functions as props
             Object.keys(rest).forEach(propName => {
                 // If a prop is a function and is not in the list of events, we forward it as a prop
-                if (typeof rest[propName] === 'function') {
+                if (typeof rest[propName] === 'function' || properties.includes(propName)) {
                     const eventName = toKebabCase(propName.replace(/^(on)/, ''));
                     if (!events.includes(eventName)) {
                         combinedRef.current[propName] = rest[propName];

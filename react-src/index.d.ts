@@ -1,3 +1,5 @@
+import { ZodType } from 'zod';
+
 export type FormValuesDefaultType = Record<string, any>;
 export type InputEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; changedField: string; }>) => void;
 export type ChangeEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; changedField: string; }>) => void;
@@ -20,6 +22,7 @@ export type InformElProps<FormValuesType = FormValuesDefaultType, ResponseType =
     errorDisableSubmit?: boolean;
     resetOnSubmit?: boolean;
     ref?: React.Ref<HTMLInformEl>;
+    zodSchema?: ZodType;
     onInformelReady?: (e: CustomEvent<undefined>) => void;
     onInformInput?: InputEventHandler<FormValuesType>;
     onInformChange?: InputEventHandler<FormValuesType>;

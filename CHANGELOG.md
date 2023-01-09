@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- support for [zod](https://github.com/colinhacks/zod) schemas.
+
 ### Fixed
 
 - `e.target.dirty` and `e.target.values` not being updated in `inform-input` and `inform-change` events.

@@ -254,6 +254,26 @@ document.querySelector('inform-el').validationHandler = ({ values }) => ({
 The above will display the "Passwords must match!" error next to the `password_repeat` field if it's not
 identical to the `password` field.
 
+#### `zodSchema`
+
+Receives a [zod](https://github.com/colinhacks/zod) schema. Example:
+
+```javascript
+document.querySelector('inform-el').zodSchema = z.object({
+    first_name: z.string().min(1, { message: "Firstname is required" }),
+    last_name: z.string().min(1, { message: "Lastname is required" }),
+    email: z.string().min(1, { message: "Email is required" }).email({
+        message: "Must be a valid email",
+    }),
+    password: z
+        .string()
+        .min(6, { message: "Password must be atleast 6 characters" }),
+    terms: z.literal(true, {
+        errorMap: () => ({ message: "You must accept Terms and Conditions" }),
+    }),
+});
+```
+
 #### `submitTransform`
 
 Function called before submit. It receives the form values and returns the transformed

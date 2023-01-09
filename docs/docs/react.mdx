@@ -34,6 +34,7 @@ Events and access to `validityHandler`, `submitTransform` and events are facilit
     onInformInput={handleInput}
     onInformSubmit={handleSubmit}
     validationHandler={handleValidation}
+    zodSchema={ZodSchema}
     onInformelReady={() => {
         console.log('ready!!!!');
     }}
@@ -84,6 +85,10 @@ and then:
     <button onClick={() => ref.current.setValues({ email: 'bonjour' })}>Bonjour</button>
 </InformEl>
 ```
+
+## Typescript
+
+The library is fully typed. Type definitions are exported from [here](https://github.com/juliendelort/informel/blob/main/react-src/index.d.ts).
 
 ## Setting initial values
 

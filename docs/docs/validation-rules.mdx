@@ -48,6 +48,28 @@ When multiple errors are specified, the order of precedence is:
 3. `<inform-field />` "default-error" attribute
 4. The element native [validationMessage](https://developer.mozilla.org/en-US/docs/Web/API/HTMLObjectElement/validationMessage).
 
+## Using zod for validation
+
+A [zod](https://github.com/colinhacks/zod) schema can be specified via the `zodSchema` property:
+
+```javascript
+document.querySelector('inform-el').zodSchema = z.object({
+    first_name: z.string().min(1, { message: "Firstname is required" }),
+    last_name: z.string().min(1, { message: "Lastname is required" }),
+    email: z.string().min(1, { message: "Email is required" }).email({
+        message: "Must be a valid email",
+    }),
+    password: z
+        .string()
+        .min(6, { message: "Password must be atleast 6 characters" }),
+    terms: z.literal(true, {
+        errorMap: () => ({ message: "You must accept Terms and Conditions" }),
+    }),
+});
+```
+
+Just like other validation methods, if the form values are incompatible with the schema, errors are shown and submission is blocked.
+
 ## Disabling the submit button on error
 
 When adding the `error-disable-submit` attribute on `<inform-el />`, the submit button is automatically disabled while errors are shown:

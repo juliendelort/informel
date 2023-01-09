@@ -2,7 +2,7 @@
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError, compareFieldValues } from './utils';
+    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields } from './utils';
     import { onMount, tick } from 'svelte';
     import { get_current_component } from 'svelte/internal';
 
@@ -307,12 +307,37 @@
 
         dirty = someDirty;
     }
+
+    function checkZodValidity() {
+        try {
+            if (host.zodSchema && typeof host.zodSchema.safeParse === 'function') {
+                const zodResult = host.zodSchema.safeParse(removeEmptyFields(getFormValues()));
+                if (!zodResult.success) {
+                    return zodResult.error.issues.reduce(
+                        (agg, issue) => ({
+                            ...agg,
+                            ...(issue.path.at(-1) && { [issue.path.at(-1)]: issue.message }),
+                        }),
+                        {}
+                    );
+                }
+            }
+        } catch (e) {
+            console.error('Informel: Error validating zod schema', e);
+        }
+    }
     function checkValidity() {
         if (!form) {
             return;
         }
 
-        const customValidationErrors = host.validationHandler && typeof host.validationHandler === 'function' ? host.validationHandler({ values: getFormValues() }) : null;
+        const zodErrors = checkZodValidity();
+        const validationHandleErrors = host.validationHandler && typeof host.validationHandler === 'function' ? host.validationHandler({ values: getFormValues() }) : null;
+
+        const customValidationErrors = {
+            ...zodErrors,
+            ...validationHandleErrors,
+        };
 
         getAllFormElements().forEach((element) => {
             // Set native error

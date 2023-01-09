@@ -52,3 +52,9 @@ export function compareFieldValues(val1, val2) {
         return val1 === val2;
     }
 }
+
+
+// Function that removes empty fields from objects
+export function removeEmptyFields(obj) {
+    return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== null && v !== undefined && v !== ""));
+}
