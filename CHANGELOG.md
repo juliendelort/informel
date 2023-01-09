@@ -1,11 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- `e.target.dirty` and `e.target.values` not being updated in `inform-input` and `inform-change` events.
+
 ## [1.8.3] - 2023-01-04
 
 ### Fixed
 
 - Typescript types
-- `e.target.dirty` and `e.target.values` not being updated in `inform-input` and `inform-change` events.
 
 ## [1.8.2] - 2022-10-07
 
