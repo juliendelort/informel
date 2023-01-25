@@ -25,8 +25,8 @@ export type InformElProps<FormValuesType = FormValuesDefaultType, ResponseType =
     zodSchema?: ZodType;
     onInformelReady?: (e: CustomEvent<undefined>) => void;
     onInformInput?: InputEventHandler<FormValuesType>;
-    onInformChange?: InputEventHandler<FormValuesType>;
-    onInformSubmit?: InputEventHandler<FormValuesType>;
+    onInformChange?: ChangeEventHandler<FormValuesType>;
+    onInformSubmit?: SubmitEventHandler<FormValuesType>;
     onRequestStart?: RequestStartEventHandler<FormValuesType>;
     onRequestEnd?: RequestEndEventHandler<FormValuesType>;
     onRequestSuccess?: RequestSuccessEventHandler<FormValuesType, ResponseType>;
