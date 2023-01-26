@@ -2,7 +2,7 @@
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields, setAtPath, flattenObject, getAtPath, normalizePath, merge } from './utils';
+    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields, setAtPath, flattenObject, getAtPath, normalizePath, extend } from './utils';
     import { onMount, tick } from 'svelte';
     import { get_current_component } from 'svelte/internal';
 
@@ -171,6 +171,7 @@
                 return;
             }
             const value = getControlValue(e);
+            // console.log({ name, value });
             if (value === undefined) {
                 return;
             }
@@ -224,15 +225,15 @@
                 if (Array.isArray(currentVal)) {
                     setAtPath(values, name, [...currentVal, value]);
                 } else {
-                    setAtPath(values, name, [currVal[leafName], value]);
+                    setAtPath(values, name, [currentVal, value]);
                 }
             } else {
                 setAtPath(values, name, value);
             }
         });
 
-        console.log('***merging', JSON.stringify({ values, extraValues }));
-        return merge(extraValues, values);
+        // console.log('***merging', JSON.stringify({ values, extraValues }));
+        return extend(true, {}, extraValues, values);
     }
     async function handleSubmit(e) {
         e.preventDefault();
@@ -270,6 +271,7 @@
     }
 
     function handleInput(e) {
+        // console.log('!!!input', JSON.stringify({ extraValues }));
         // Not a form field: we don't interfere
         if (!e.target.name) {
             return;
@@ -300,7 +302,7 @@
         const newValues = getFormValues();
         const fieldName = e.target.name;
 
-        console.log({ newValues });
+        // console.log({ newValues });
 
         setTimeout(() => {
             // Waiting for dirty and values to be updated after setting currentValues above
@@ -543,7 +545,7 @@
         // }
 
         Object.entries(flattenObject(newValues)).forEach(([path, value]) => {
-            console.log('path2', JSON.stringify({ path, value, extraValues }));
+            // console.log('path2', JSON.stringify({ path, value, extraValues }));
             if (!getFormElementByName(path)) {
                 setAtPath(extraValues, path, value);
             }
