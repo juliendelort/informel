@@ -6,6 +6,8 @@
     import { onMount, tick } from 'svelte';
     import { get_current_component } from 'svelte/internal';
 
+    const NESTED_OBJECT_SEPARATOR = '#.#';
+
     let form;
     let submitButton;
     let host = get_current_component(); // can also be container.parentNode.host
@@ -156,6 +158,8 @@
         return [...form.elements].filter((formElement) => !!formElement.name);
     }
 
+    // regex to parse object nested path from string
+
     function getFormValues() {
         const values = {};
 
@@ -168,14 +172,55 @@
             if (value === undefined) {
                 return;
             }
-            if (values.hasOwnProperty(name)) {
-                if (Array.isArray(values[name])) {
-                    values[name] = [...values[name], value];
+
+            const parts = name.match(/[^\]\[.]+/g);
+
+            const leafName = parts.pop();
+
+            const currVal = parts.reduce((obj, i) => {
+                if (!obj.hasOwnProperty(i)) {
+                    obj[i] = {};
+                }
+                return obj[i];
+            }, values);
+
+            console.log({ name, parts, leafName, currVal });
+
+            // if (accessorIndexes.length) {
+            //     const accessorStartIndex = Math.min(...accessorIndexes);
+            //     const nextAccessorIndex = name.indexOf(name[accessorStartIndex], accessorStartIndex + 1);
+            //     const variable = name.substring(0, accessorStartIndex);
+            //     if(name[accessorStartIndex] === '.') {
+
+            //     } else {
+            //        // it's a "[" => look for closing bracket
+            //        const closingBracketIndex = name.indexOf(']', accessorStartIndex);
+            //        const accessor = name.substring(accessorStartIndex + 1, closingBracketIndex);
+
+            //        const rest = name.substring(closingBracketIndex + 1);
+            //     }
+            // }
+
+            // if (name.includes(NESTED_OBJECT_SEPARATOR)) {
+            //     const parts = name.split(NESTED_OBJECT_SEPARATOR);
+            //     leafName = parts.at(-1);
+
+            //     parts.forEach((part) => {
+            //         if (!currVal.hasOwnProperty(part)) {
+            //             currVal[part] = {};
+            //         }
+            //         currVal = currVal[part];
+            //     });
+            // }
+
+            if (currVal.hasOwnProperty(leafName)) {
+                if (Array.isArray(currVal[leafName])) {
+                    currVal[leafName] = [...currVal[leafName], value];
                 } else {
-                    values[name] = [values[name], value];
+                    currVal[leafName] = [currVal[leafName], value];
                 }
             } else {
-                values[name] = value;
+                currVal[leafName] = value;
             }
         });
 
@@ -247,6 +292,8 @@
         }
 
         const newValues = getFormValues();
+
+        console.log({ newValues });
 
         setTimeout(() => {
             // Waiting for dirty and values to be updated after setting currentValues above
