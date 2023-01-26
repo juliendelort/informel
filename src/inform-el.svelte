@@ -2,11 +2,9 @@
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields } from './utils';
+    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields, setAtPath, flattenObject, getAtPath, normalizePath, merge } from './utils';
     import { onMount, tick } from 'svelte';
     import { get_current_component } from 'svelte/internal';
-
-    const NESTED_OBJECT_SEPARATOR = '#.#';
 
     let form;
     let submitButton;
@@ -151,15 +149,17 @@
     }
 
     function getFormElementByName(name) {
-        return form.elements[name]?.constructor?.name === 'RadioNodeList' ? form.elements[name][0] : form.elements[name];
+        // Look for normalized name: a[b].c[d].e => a.b.c.d.e
+        const normalizedName = normalizePath(name);
+        for (let el of getAllFormElements()) {
+            if (normalizePath(el.name) === normalizedName) {
+                return el?.constructor?.name === 'RadioNodeList' ? el[0] : el;
+            }
+        }
     }
 
     function getAllFormElements() {
         return [...form.elements].filter((formElement) => !!formElement.name);
-    }
-
-    function getNameParts(name) {
-        return name.match(/[^\]\[.]+/g);
     }
 
     function getFormValues() {
@@ -175,19 +175,21 @@
                 return;
             }
 
-            const parts = getNameParts(name);
+            // const parts = getNameParts(name);
 
-            const leafName = parts.pop();
+            // const leafName = parts.pop();
 
-            const currVal = parts.reduce((obj, accessor, index) => {
-                if (!obj.hasOwnProperty(accessor)) {
-                    const nextAccessor = index === obj.length - 1 ? leafName : parts[index + 1];
-                    obj[accessor] = isNaN(nextAccessor) ? {} : [];
-                }
-                return obj[accessor];
-            }, values);
+            // const currVal = parts.reduce((obj, accessor, index) => {
+            //     if (!obj.hasOwnProperty(accessor)) {
+            //         const nextAccessor = index === obj.length - 1 ? leafName : parts[index + 1];
+            //         obj[accessor] = isNaN(nextAccessor) ? {} : [];
+            //     }
+            //     return obj[accessor];
+            // }, values);
 
-            console.log({ name, parts, leafName, currVal });
+            // --
+
+            // console.log({ name, parts, leafName, currVal });
 
             // if (accessorIndexes.length) {
             //     const accessorStartIndex = Math.min(...accessorIndexes);
@@ -216,21 +218,21 @@
             //     });
             // }
 
-            if (currVal.hasOwnProperty(leafName)) {
-                if (Array.isArray(currVal[leafName])) {
-                    currVal[leafName] = [...currVal[leafName], value];
+            const currentVal = getAtPath(values, name);
+
+            if (currentVal !== undefined) {
+                if (Array.isArray(currentVal)) {
+                    setAtPath(values, name, [...currentVal, value]);
                 } else {
-                    currVal[leafName] = [currVal[leafName], value];
+                    setAtPath(values, name, [currVal[leafName], value]);
                 }
             } else {
-                currVal[leafName] = value;
+                setAtPath(values, name, value);
             }
         });
 
-        return {
-            ...extraValues,
-            ...values,
-        };
+        console.log('***merging', JSON.stringify({ values, extraValues }));
+        return merge(extraValues, values);
     }
     async function handleSubmit(e) {
         e.preventDefault();
@@ -516,26 +518,52 @@
 
     function setValues(newValues) {
         getAllFormElements().forEach((e) => {
-            const parts = getNameParts(e.name);
-            const value = parts.reduce((obj, accessor) => obj?.[accessor], newValues);
+            const value = getAtPath(newValues, e.name);
             if (value !== undefined) {
                 setControlValue(e, value);
             }
         });
 
-        // TODO: Merge extra values
+        // function checkNewValues(obj, path, curr) {
+        //     for (let key in obj) {
+        //         const newPath = [...path, key];
+        //         const value = obj[key];
+        //         console.log({ obj, path, curr, newPath, value });
+        //         if (typeof value === 'object') {
+        //             if (!curr[key]) {
+        //                 curr[key] = Array.isArray(value) ? [] : {};
+        //             }
+        //             curr[key] = checkNewValues(value, newPath, curr[key] ?? {});
+        //         } else if (!getFormElementByName(newPath.join('.'))) {
+        //             curr[key] = value;
+        //         }
+        //     }
 
-        // Looking for new extra values
-        Object.keys(newValues).forEach((key) => {
-            if (!getFormElementByName(key)) {
-                extraValues = {
-                    ...extraValues,
-                    [key]: newValues[key],
-                };
+        //     return curr;
+        // }
+
+        Object.entries(flattenObject(newValues)).forEach(([path, value]) => {
+            console.log('path2', JSON.stringify({ path, value, extraValues }));
+            if (!getFormElementByName(path)) {
+                setAtPath(extraValues, path, value);
             }
         });
+        // extraValues = checkNewValues(newValues, [], extraValues);
 
-        console.log({ extraValues });
+        // Looking for new extra values
+        // Object.keys(newValues).forEach((key) => {
+        //     if (typeof newValues[key] === 'object') {
+        //     } else {
+        //         if (!getFormElementByName(key)) {
+        //             extraValues = {
+        //                 ...extraValues,
+        //                 [key]: newValues[key],
+        //             };
+        //         }
+        //     }
+        // });
+
+        // console.log({ extraValues });
 
         currentValues = getFormValues();
     }

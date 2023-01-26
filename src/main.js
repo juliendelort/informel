@@ -1,5 +1,6 @@
 import InformEl from './inform-el.svelte';
 import InformField from './inform-field.svelte';
+import Test from './test.svelte';
 
 // Adding support for kebab-case attributes
 class InformElWrapper extends InformEl {

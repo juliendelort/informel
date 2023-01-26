@@ -39,6 +39,31 @@
 </script>
 
 <div>
+    <inform-el on:inform-change={(e) => console.log('!!!change', e.detail.values)}>
+        <form>
+            <inform-field>
+                <input type="text" name="users[0].name.first" required />
+            </inform-field>
+            <inform-field>
+                <input type="text" name="users[0].name.last" />
+            </inform-field>
+            <inform-field>
+                <input type="number" name="users[0].age" />
+            </inform-field>
+            <hr />
+            <inform-field>
+                <input type="text" name="users[1].name.first" />
+            </inform-field>
+            <inform-field>
+                <input type="text" name="users[1].name.last" required />
+            </inform-field>
+            <inform-field>
+                <input type="number" name="users[1].age" />
+            </inform-field>
+            <button type="submit">Submit</button>
+        </form>
+    </inform-el>
+
     <inform-el
         action="https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task"
         error-disable-submit
