@@ -1,10 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [1.9.1] - 2023-01-26
 
 ### Fixed
 
 - Typescript types for `onInformChange` and `onInformSubmit`.
+- Possible exception condition in inform-change and inform-input.
 
 ## [1.9.0] - 2023-01-09
 
