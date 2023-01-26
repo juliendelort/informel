@@ -158,7 +158,9 @@
         return [...form.elements].filter((formElement) => !!formElement.name);
     }
 
-    // regex to parse object nested path from string
+    function getNameParts(name) {
+        return name.match(/[^\]\[.]+/g);
+    }
 
     function getFormValues() {
         const values = {};
@@ -173,15 +175,16 @@
                 return;
             }
 
-            const parts = name.match(/[^\]\[.]+/g);
+            const parts = getNameParts(name);
 
             const leafName = parts.pop();
 
-            const currVal = parts.reduce((obj, i) => {
-                if (!obj.hasOwnProperty(i)) {
-                    obj[i] = {};
+            const currVal = parts.reduce((obj, accessor, index) => {
+                if (!obj.hasOwnProperty(accessor)) {
+                    const nextAccessor = index === obj.length - 1 ? leafName : parts[index + 1];
+                    obj[accessor] = isNaN(nextAccessor) ? {} : [];
                 }
-                return obj[i];
+                return obj[accessor];
             }, values);
 
             console.log({ name, parts, leafName, currVal });
@@ -513,11 +516,14 @@
 
     function setValues(newValues) {
         getAllFormElements().forEach((e) => {
-            const name = e.name;
-            if (newValues.hasOwnProperty(name)) {
-                setControlValue(e, newValues[name]);
+            const parts = getNameParts(e.name);
+            const value = parts.reduce((obj, accessor) => obj?.[accessor], newValues);
+            if (value !== undefined) {
+                setControlValue(e, value);
             }
         });
+
+        // TODO: Merge extra values
 
         // Looking for new extra values
         Object.keys(newValues).forEach((key) => {
@@ -528,6 +534,8 @@
                 };
             }
         });
+
+        console.log({ extraValues });
 
         currentValues = getFormValues();
     }
