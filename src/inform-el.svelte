@@ -271,13 +271,14 @@
         }
 
         currentValues = getFormValues();
+        const fieldName = e.target.name;
         setTimeout(() => {
             // Waiting for dirty and values to be updated after setting currentValues above
             host.dispatchEvent(
                 new CustomEvent('inform-input', {
                     detail: {
                         values: { ...currentValues },
-                        changedField: e.target.name,
+                        changedField: fieldName,
                     },
                     bubbles: true,
                 })
@@ -292,6 +293,7 @@
         }
 
         const newValues = getFormValues();
+        const fieldName = e.target.name;
 
         console.log({ newValues });
 
@@ -301,7 +303,7 @@
                 new CustomEvent('inform-change', {
                     detail: {
                         values: { ...newValues },
-                        changedField: e.target.name,
+                        changedField: fieldName,
                     },
                     bubbles: true,
                 })
