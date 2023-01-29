@@ -34,7 +34,7 @@ jobs:
       run: npm run build
     - name: run tests
       id: run-tests
-      run: npm run test-all | sed -En "s/(.+):.*([0-9]+) passed.+, ([0-9]+) failed/\1=\2 passed, \3 failed/p" >> $GITHUB_OUTPUT
+      run: npm run test-all | sed -En "s/(.+):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*, ([0-9]+) failed/\1=\2 passed, \3 failed/p" >> $GITHUB_OUTPUT
     - name: debug
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
     - name: debug2
