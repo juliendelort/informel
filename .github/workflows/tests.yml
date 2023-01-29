@@ -43,7 +43,7 @@ jobs:
         text: ${{ steps.run-tests.outputs.stdout }}
         regex: '^(.+)# (.+)$'
     - name: debug2
-      run: echo ${{ teps.regex-match.outputs.group1 }}
+      run: echo ${{ steps.regex-match.outputs.group1 }}
     - name: Create Awesome Badge
       uses: schneegans/dynamic-badges-action@v1.6.0
       with:
