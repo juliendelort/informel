@@ -34,22 +34,17 @@ jobs:
       run: npm run build
     - name: run tests
       id: run-tests
-      run: npm run test-all | sed -En "s/(.+):.*([0-9]+) passed.+, ([0-9]+) failed/\1=\2 passed, \3 failed/p >> $GITHUB_OUTPUT"
+      run: npm run test-all | sed -En "s/(.+):.*([0-9]+) passed.+, ([0-9]+) failed/\1=\2 passed, \3 failed/p" >> $GITHUB_OUTPUT
     - name: debug
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
-    - uses: actions-ecosystem/action-regex-match@v2
-      id: regex-match
-      with:
-        text: ${{ steps.run-tests.outputs.stdout }}
-        regex: '^(.+)# (.+)$'
     - name: debug2
-      run: echo "${{ steps.regex-match.outputs.group1 }}""
+      run: echo "${{ steps.run-tests.outputs.Chromium }}"
     - name: Create Awesome Badge
       uses: schneegans/dynamic-badges-action@v1.6.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: a679662706fd6e691c79282fffa16ada
         filename: informel-tests.json
-        label: ${{ steps.regex-match.outputs.group1 }}
-        message: ${{ steps.regex-match.outputs.group2 }}
+        label: Chromium
+        message: ${{ steps.run-tests.outputs.Chromium }}
         color: green
