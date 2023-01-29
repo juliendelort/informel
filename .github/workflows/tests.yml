@@ -34,7 +34,7 @@ jobs:
       run: npm run build
     - name: run tests
       id: run-tests
-      run: npm run test-all | sed -En "s/(.+):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*, ([0-9]+) failed/\1=\2 passed, \3 failed/p" >> $GITHUB_OUTPUT
+      run: npm run test-all | sed -En "s/(Chromium|Firefox|Webkit):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*, ([0-9]+) failed/\1=\2 passed, \3 failed/p" >> $GITHUB_OUTPUT
     - name: debug
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
     - name: debug2
@@ -44,7 +44,25 @@ jobs:
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: a679662706fd6e691c79282fffa16ada
-        filename: informel-tests.json
+        filename: informel-tests-chromium.json
         label: Chromium
         message: ${{ steps.run-tests.outputs.Chromium }}
+        color: green
+    - name: Create Awesome Badge
+      uses: schneegans/dynamic-badges-action@v1.6.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: a679662706fd6e691c79282fffa16ada
+        filename: informel-tests-firefox.json
+        label: Chromium
+        message: ${{ steps.run-tests.outputs.Firefox }}
+        color: green
+    - name: Create Awesome Badge
+      uses: schneegans/dynamic-badges-action@v1.6.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: a679662706fd6e691c79282fffa16ada
+        filename: informel-tests-webkit.json
+        label: Chromium
+        message: ${{ steps.run-tests.outputs.Webkit }}
         color: green
