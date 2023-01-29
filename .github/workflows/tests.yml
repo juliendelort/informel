@@ -59,21 +59,21 @@ jobs:
         message: ${{ steps.run-tests.outputs.Chromium_success }}/$CHROMIUM_TOTAL
         color: green
         isError: ${{ fromJSON(steps.run-tests.outputs.Chromium_failed) > 0 }}
-    - name: Create Awesome Badge
-      uses: schneegans/dynamic-badges-action@v1.6.0
-      with:
-        auth: ${{ secrets.GIST_SECRET }}
-        gistID: a679662706fd6e691c79282fffa16ada
-        filename: informel-tests-firefox.json
-        label: Chromium
-        message: ${{ steps.run-tests.outputs.Firefox }}
-        color: green
-    - name: Create Awesome Badge
-      uses: schneegans/dynamic-badges-action@v1.6.0
-      with:
-        auth: ${{ secrets.GIST_SECRET }}
-        gistID: a679662706fd6e691c79282fffa16ada
-        filename: informel-tests-webkit.json
-        label: Chromium
-        message: ${{ steps.run-tests.outputs.Webkit }}
-        color: green
+    # - name: Create Awesome Badge
+    #   uses: schneegans/dynamic-badges-action@v1.6.0
+    #   with:
+    #     auth: ${{ secrets.GIST_SECRET }}
+    #     gistID: a679662706fd6e691c79282fffa16ada
+    #     filename: informel-tests-firefox.json
+    #     label: Chromium
+    #     message: ${{ steps.run-tests.outputs.Firefox }}
+    #     color: green
+    # - name: Create Awesome Badge
+    #   uses: schneegans/dynamic-badges-action@v1.6.0
+    #   with:
+    #     auth: ${{ secrets.GIST_SECRET }}
+    #     gistID: a679662706fd6e691c79282fffa16ada
+    #     filename: informel-tests-webkit.json
+    #     label: Chromium
+    #     message: ${{ steps.run-tests.outputs.Webkit }}
+    #     color: green
