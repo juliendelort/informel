@@ -38,10 +38,10 @@ jobs:
     - name: debug
       run: echo ${{ steps.run-tests.outputs.stdout }}
     - uses: actions-ecosystem/action-regex-match@v2
-        id: regex-match
-        with:
-          text: ${{ steps.run-tests.outputs.stdout }}
-          regex: '^(.+)# (.+)$'
+      id: regex-match
+      with:
+        text: ${{ steps.run-tests.outputs.stdout }}
+        regex: '^(.+)# (.+)$'
     - name: debug2
       run: echo ${{ teps.regex-match.outputs.group1 }}
     - name: Create Awesome Badge
