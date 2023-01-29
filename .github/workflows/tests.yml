@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     name: Build and test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 #ubuntu-latest (22.04) has some issues with our version of playwright
 
     strategy:
       matrix:
