@@ -33,12 +33,65 @@ describe('reset', () => {
             setValue: setTextInputValue,
             generateValue: generateTextInputValue,
             initialValue: 'some value',
-
-
             hasInformField: true
         });
-    });
+        describe('with no inform-field', () => {
+            runTests({
+                html: `
+                        <inform-el>
+                            <form>
+                                <input id="control" type="text" name="field" value="some value"/>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                                `,
+                setValue: setTextInputValue,
+                generateValue: generateTextInputValue,
+                initialValue: 'some value',
+                hasInformField: false,
+            });
+        });
 
+        describe('with nested fields', () => {
+            runTests({
+                html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="text" name="field.name" value="some value"/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                                `,
+                setValue: setTextInputValue,
+                generateValue: generateTextInputValue,
+                initialValue: 'some value',
+                hasInformField: true,
+                getFieldValue: val => ({ field: { name: val } })
+            });
+
+            describe('with no inform-field', () => {
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <input id="control" type="text" name="field.name" value="some value"/>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                                `,
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue,
+                    initialValue: 'some value',
+                    hasInformField: false,
+                    getFieldValue: val => ({ field: { name: val } })
+                });
+            });
+        });
+
+
+    });
     describe('with textarea', () => {
         runTests({
             html: `
@@ -56,6 +109,64 @@ describe('reset', () => {
             initialValue: 'some value',
             hasInformField: true
         });
+
+        describe('with no inform-field', () => {
+            runTests({
+                html: `
+                        <inform-el>
+                            <form>
+                                <textarea id="control" name="field" >some value</textarea>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                                `,
+                setValue: setTextInputValue,
+                generateValue: generateTextInputValue,
+                initialValue: 'some value',
+                hasInformField: false
+            });
+        });
+
+        describe('with nested fields', () => {
+            runTests({
+                html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <textarea id="control" name="field[1].0.name" >some value</textarea>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                                `,
+                setValue: setTextInputValue,
+                generateValue: generateTextInputValue,
+                initialValue: 'some value',
+                hasInformField: true,
+                getFieldValue: val => ({ field: [undefined, [{ name: val }]] })
+            });
+
+            describe('with no inform-field', () => {
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <textarea id="control" name="field[1].0.name" >some value</textarea>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                                `,
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue,
+                    initialValue: 'some value',
+                    hasInformField: false,
+                    getFieldValue: val => ({ field: [undefined, [{ name: val }]] })
+
+                });
+            });
+        });
+
+
     });
 
     describe('with checkbox', () => {
@@ -74,6 +185,62 @@ describe('reset', () => {
             generateValue: generateCheckboxValue,
             initialValue: true,
             hasInformField: true
+        });
+
+        describe('with no inform-field', () => {
+            runTests({
+                html: `
+                                <inform-el>
+                                    <form>
+                                        <input id="control" type="checkbox" name="field" checked/>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                setValue: setCheckboxValue,
+                generateValue: generateCheckboxValue,
+                initialValue: true,
+                hasInformField: false
+            });
+        });
+
+        describe('with nested fields', () => {
+            runTests({
+                html: `
+                                <inform-el>
+                                    <form>
+                                        <inform-field>
+                                            <input id="control" type="checkbox" name="field.0.name.first" checked/>
+                                        </inform-field>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                setValue: setCheckboxValue,
+                generateValue: generateCheckboxValue,
+                initialValue: true,
+                hasInformField: true,
+                getFieldValue: val => ({ field: [{ name: { first: val } }] })
+            });
+
+            describe('with no inform-field', () => {
+                runTests({
+                    html: `
+                                <inform-el>
+                                    <form>
+                                        <input id="control" type="checkbox" name="field.0.name.first" checked/>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                    setValue: setCheckboxValue,
+                    generateValue: generateCheckboxValue,
+                    initialValue: true,
+                    hasInformField: false,
+                    getFieldValue: val => ({ field: [{ name: { first: val } }] })
+
+                });
+            });
         });
     });
 
@@ -95,6 +262,68 @@ describe('reset', () => {
             generateValue: generateRadioValue,
             initialValue: "val1",
             hasInformField: true
+        });
+
+        describe('with no inform-field', () => {
+            runTests({
+                html: `
+                                <inform-el>
+                                    <form>
+                                        <div id="control">
+                                            <input  type="radio" name="field" value="val1" checked/>
+                                            <input  type="radio" name="field" value="val2"/>
+                                        </div>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                setValue: setRadioValue,
+                generateValue: generateRadioValue,
+                initialValue: "val1",
+                hasInformField: false
+            });
+        });
+
+        describe('with nested fields', () => {
+            runTests({
+                html: `
+                                <inform-el>
+                                    <form>
+                                        <inform-field id="control">
+                                            <input  type="radio" name="field.0.name" value="val1" checked/>
+                                            <input  type="radio" name="field.0.name" value="val2"/>
+                                        </inform-field>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                setValue: setRadioValue,
+                generateValue: generateRadioValue,
+                initialValue: "val1",
+                hasInformField: true,
+                getFieldValue: val => ({ field: [{ name: val }] })
+            });
+
+            describe('with no inform-field', () => {
+                runTests({
+                    html: `
+                                <inform-el>
+                                    <form>
+                                        <div id="control">
+                                            <input  type="radio" name="field.0.name" value="val1" checked/>
+                                            <input  type="radio" name="field.0.name" value="val2"/>
+                                        </div>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                    setValue: setRadioValue,
+                    generateValue: generateRadioValue,
+                    initialValue: "val1",
+                    hasInformField: false,
+                    getFieldValue: val => ({ field: [{ name: val }] })
+                });
+            });
         });
     });
 
@@ -120,6 +349,77 @@ describe('reset', () => {
             initialValue: "",
             hasInformField: true
         });
+
+        describe('with no inform-field', () => {
+            runTests({
+                html: `
+                                <inform-el>
+                                    <form>
+                                        <select id="control" name="field" >
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2">Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                setValue: setSelectValue,
+                generateValue: generateSelectValue,
+                initialValue: "",
+                hasInformField: false
+            });
+        });
+
+        describe('with nested fields', () => {
+            runTests({
+                html: `
+                                <inform-el>
+                                    <form>
+                                        <inform-field>
+                                            <select id="control" name="field.0.1.0" >
+                                                <option value="">--Please choose an option--</option>
+                                                <option value="val1">Value1</option>
+                                                <option value="val2">Value2</option>
+                                                <option value="val3">Value3</option>
+                                            </select>
+                                        </inform-field>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                setValue: setSelectValue,
+                generateValue: generateSelectValue,
+                initialValue: "",
+                hasInformField: true,
+                getFieldValue: val => ({ field: [[undefined, [val]]] })
+            });
+
+            describe('with no inform-field', () => {
+                runTests({
+                    html: `
+                                <inform-el>
+                                    <form>
+                                        <select id="control" name="field.0[1].0" >
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2">Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                    setValue: setSelectValue,
+                    generateValue: generateSelectValue,
+                    initialValue: "",
+                    hasInformField: false,
+                    getFieldValue: val => ({ field: [[undefined, [val]]] })
+
+                });
+            });
+        });
     });
 
     describe('with select multiple', () => {
@@ -144,44 +444,79 @@ describe('reset', () => {
             initialValue: [],
             hasInformField: true
         });
-    });
 
-    describe('with no inform-field', () => {
-        runTests({
-            html: `
+        describe('with no inform-field', () => {
+            runTests({
+                html: `
                                 <inform-el>
                                     <form>
-                                        <input id="control" type="text" name="field" value="some value"/>
+                                        <select id="control" name="field" multiple>
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2">Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
                                         <button type="submit">Submit</button>
                                     </form>
                                 </inform-el>
                                 `,
-            setValue: setTextInputValue,
-            generateValue: generateTextInputValue,
-            initialValue: 'some value',
-            hasInformField: false
+                setValue: setSelectMultipleValue,
+                generateValue: generateMultiSelectValue,
+                initialValue: [],
+                hasInformField: false
+            });
+        });
+
+        describe('with nested fields', () => {
+            runTests({
+                html: `
+                                <inform-el>
+                                    <form>
+                                        <inform-field>
+                                            <select id="control" name="field.0.1.0" multiple>
+                                                <option value="">--Please choose an option--</option>
+                                                <option value="val1">Value1</option>
+                                                <option value="val2">Value2</option>
+                                                <option value="val3">Value3</option>
+                                            </select>
+                                        </inform-field>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                setValue: setSelectMultipleValue,
+                generateValue: generateMultiSelectValue,
+                initialValue: [],
+                hasInformField: true,
+                getFieldValue: val => ({ field: [[undefined, [val]]] })
+            });
+
+            describe('with no inform-field', () => {
+                runTests({
+                    html: `
+                                <inform-el>
+                                    <form>
+                                        <select id="control" name="field.0.1.0" multiple>
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2">Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                </inform-el>
+                                `,
+                    setValue: setSelectMultipleValue,
+                    generateValue: generateMultiSelectValue,
+                    initialValue: [],
+                    hasInformField: false,
+                    getFieldValue: val => ({ field: [[undefined, [val]]] })
+                });
+            });
         });
     });
 
-    describe('with nested fields', () => {
-        runTests({
-            html: `
-                        <inform-el>
-                            <form>
-                                <inform-field>
-                                    <input id="control" type="text" name="users[0].name.first" value="some value"/>
-                                </inform-field>
-                                <button type="submit">Submit</button>
-                            </form>
-                        </inform-el>
-                                `,
-            setValue: setTextInputValue,
-            generateValue: generateTextInputValue,
-            initialValue: 'some value',
-            hasInformField: false,
-            getFieldValue: (val) => ({ users: [{ name: { first: val } }] })
-        });
-    });
+
 
     function runTests({ html, setValue, initialValue, generateValue, hasInformField, getFieldValue = (val) => ({ field: val }) }) {
         describe('when reseting the form', () => {
