@@ -74,7 +74,7 @@ export function flattenObject(obj, path = [], allPaths = {}) {
         const value = obj[key];
         if (typeof value === 'object') {
             flattenObject(value, newPath, allPaths);
-        } else {
+        } else if (value !== undefined) {
             allPaths[newPath.join('.')] = value;
         }
     }
@@ -107,10 +107,28 @@ export function setAtPath(obj, path, value) {
 }
 
 
+export function deepCompare(a, b) {
+    if (isUnextendable(a) || isUnextendable(b)) {
+        return a === b;
+    }
 
-// TODO: current failing test:
-// $0.setValues( {users:[undefined, undefined, {age:30}]}); ==> OK
-// Change the first name of the second user in the form => `informel.values` is wrong as result
+    if (isCloneable(a) && isCloneable(b)) {
+        if (Object.keys(a).length != Object.keys(b).length) {
+            return false;
+        }
+
+        for (let key in a) {
+            if (!deepCompare(a[key], b[key])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 
 //----------------------------
 // Stolen from https://github.com/angus-c/just/blob/master/packages/object-extend/index.cjs

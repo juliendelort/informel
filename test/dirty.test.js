@@ -324,6 +324,51 @@ describe('dirty check', () => {
             });
         });
 
+        describe('with nested fields', () => {
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field id="control">
+                                    <input type="text" name="fields.0.value" value="val1" />
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: "val1",
+                    setValue: setRadioValue,
+                    generateValue: generateRadioValue,
+                    getFieldValue: (val) => ({ fields: [{ value: val }] })
+                });
+            });
+
+
+            describe('without a initial value', () => {
+
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field id="control">
+                                       <input type="text" name="fields.0.value" />
+
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                    initialValue: undefined,
+                    setValue: setRadioValue,
+                    generateValue: generateRadioValue,
+                    getFieldValue: (val) => ({ fields: [{ value: val }] })
+
+                });
+            });
+        });
+
     });
 
     let informEl;
@@ -332,10 +377,10 @@ describe('dirty check', () => {
     let form;
 
 
-    function runTests({ html, initialValue, setValue, generateValue, skipInformField }) {
+    function runTests({ html, initialValue, setValue, generateValue, skipInformField, getFieldValue = (val) => ({ field: val }) }) {
         function expectDirty(expectedValue) {
             expect(informEl.dirty).to.be.true;
-            expect(informEl.values).to.eql({ field: expectedValue });
+            expect(informEl.values).to.eql(getFieldValue(expectedValue));
             expect(informEl).to.have.attribute('dirty');
             if (!skipInformField) {
                 expect(informField).to.have.attribute('dirty');
@@ -345,7 +390,7 @@ describe('dirty check', () => {
         function expectNotDirty(expectedValue) {
             expect(informEl.dirty).to.be.false;
             if (expectedValue !== undefined) {
-                expect(informEl.values).to.eql({ field: expectedValue });
+                expect(informEl.values).to.eql(getFieldValue(expectedValue));
             } else {
                 expect(informEl.values).to.eql({}); // radio buttons: field not present when nothing selected
 
@@ -403,7 +448,7 @@ describe('dirty check', () => {
             await setDirtyAndCheck();
             const newValue = generateValue(initialValue);
 
-            informEl.reset({ field: newValue });
+            informEl.reset(getFieldValue(newValue));
             await nextFrame();
 
             expectNotDirty(newValue);
@@ -423,7 +468,7 @@ describe('dirty check', () => {
 
             const resetValue = generateValue(initialValue);
 
-            informEl.reset({ field: resetValue });
+            informEl.reset(getFieldValue(resetValue));
             await nextFrame();
 
             expectNotDirty(resetValue);
@@ -510,6 +555,37 @@ describe('dirty check', () => {
 
         expect(informEl.dirty).to.be.false;
     });
+
+    it('works with nested extra values', async () => {
+        const informEl = await fixture(` <inform-el>
+            <form>
+                <inform-field>
+                    <input id="control" type="text" name="field" value="initial-value" />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>`);
+
+        informEl.setValues({ field2: [{ test: 'something' }] });
+        await nextFrame();
+        expect(informEl.dirty).to.be.true;
+
+        informEl.reset({ field2: [{ default: 'field' }] });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+
+        informEl.setValues({ field2: [{ other: 'field' }] });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+
+        informEl.setValues({ field2: [{ default: 'field' }] });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+    });
+
 
     it('updates the flag before sending inform-input event', async () => {
 

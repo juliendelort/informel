@@ -2,7 +2,7 @@
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields, setAtPath, flattenObject, getAtPath, normalizePath, extend } from './utils';
+    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields, setAtPath, flattenObject, getAtPath, normalizePath, extend, deepCompare } from './utils';
     import { onMount, tick } from 'svelte';
     import { get_current_component } from 'svelte/internal';
 
@@ -344,7 +344,10 @@
             const name = formElement.name;
             const informField = formElement.closest('inform-field');
 
-            if (!compareFieldValues(currentValues[name], initialValues[name])) {
+            const currVal = getAtPath(currentValues, name);
+            const initVal = getAtPath(initialValues, name);
+
+            if (!compareFieldValues(currVal, initVal)) {
                 someDirty = true;
 
                 if (informField) {
@@ -356,7 +359,7 @@
         });
 
         Object.keys(extraValues).forEach((key) => {
-            if (!compareFieldValues(extraValues[key], initialValues[key])) {
+            if (!deepCompare(extraValues[key], initialValues[key])) {
                 someDirty = true;
             }
         });
@@ -544,6 +547,7 @@
         //     return curr;
         // }
 
+        // console.log('setValues', flattenObject(newValues));
         Object.entries(flattenObject(newValues)).forEach(([path, value]) => {
             // console.log('path2', JSON.stringify({ path, value, extraValues }));
             if (!getFormElementByName(path)) {
@@ -574,10 +578,9 @@
     // Public methods
     //
     function publicReset(v) {
-        const newValues = {
-            ...initialValues,
-            ...v,
-        };
+        const newValues = extend(true, {}, initialValues, v);
+
+        // console.log('reset', JSON.stringify({ initialValues, newValues }));
 
         form.reset(); // This will trigger handleFormReset which will reset touched
         // Reset current extra values
@@ -588,6 +591,7 @@
                 delete extraValues[key];
             }
         }
+
         setValues(newValues);
         initialValues = currentValues;
     }
