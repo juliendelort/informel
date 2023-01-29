@@ -46,9 +46,9 @@ jobs:
         WEBKIT_SUCCESS: ${{ steps.run-tests.outputs.Webkit_success }}
         WEBKIT_FAILED: ${{ steps.run-tests.outputs.Webkit_failed }}
       run: |
-        echo ::set-env name=CHROMIUM_TOTAL::$(($CHROMIUM_SUCCESS+$CHROMIUM_FAILED))
-        echo ::set-env name=FIREFOX_TOTAL::$(($FIREFOX_SUCCESS+$FIREFOX_FAILED))
-        echo ::set-env name=WEBKIT_TOTAL::$(($WEBKIT_SUCCESS+$WEBKIT_FAILED))
+        echo "CHROMIUM_TOTAL=$(($CHROMIUM_SUCCESS+$CHROMIUM_FAILED))" >> $GITHUB_ENV
+        echo "FIREFOX_TOTAL=$(($FIREFOX_SUCCESS+$FIREFOX_FAILED))" >> $GITHUB_ENV
+        echo "WEBKIT_TOTAL=$(($WEBKIT_SUCCESS+$WEBKIT_FAILED))" >> $GITHUB_ENV
     - name: Create Awesome Badge
       uses: schneegans/dynamic-badges-action@v1.6.0
       with:
