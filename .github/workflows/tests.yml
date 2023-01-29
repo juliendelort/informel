@@ -43,9 +43,10 @@ jobs:
         FIREFOX_FAILED: ${{ steps.run-tests.outputs.Firefox_failed }}
         WEBKIT_SUCCESS: ${{ steps.run-tests.outputs.Webkit_success }}
         WEBKIT_FAILED: ${{ steps.run-tests.outputs.Webkit_failed }}
-      run: echo ::set-env name=CHROMIUM_TOTAL::$(($CHROMIUM_SUCCESS+$CHROMIUM_FAILED))
-      run: echo ::set-env name=FIREFOX_TOTAL::$(($FIREFOX_SUCCESS+$FIREFOX_FAILED))
-      run: echo ::set-env name=WEBKIT_TOTAL::$(($WEBKIT_SUCCESS+$WEBKIT_FAILED))
+      run: |
+        echo ::set-env name=CHROMIUM_TOTAL::$(($CHROMIUM_SUCCESS+$CHROMIUM_FAILED))
+        echo ::set-env name=FIREFOX_TOTAL::$(($FIREFOX_SUCCESS+$FIREFOX_FAILED))
+        echo ::set-env name=WEBKIT_TOTAL::$(($WEBKIT_SUCCESS+$WEBKIT_FAILED))
     - name: debug
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
     - name: Create Awesome Badge
