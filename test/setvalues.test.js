@@ -133,7 +133,7 @@ describe('set values', () => {
             </inform-el>
         `);
 
-        const val1Input = informEl.querySelector('[value="val1"]');
+        const val1Input = informEl.querySelector('[value="val10"]');
         const val2Input = informEl.querySelector('[value="val2"]');
 
         informEl.setValues({ field: 'val2' });
