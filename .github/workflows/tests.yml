@@ -34,31 +34,33 @@ jobs:
       run: npm run build
     - name: run tests
       id: run-tests
-      run: TEST_RESULT=$(npm run test-all) >> $GITHUB_OUTPUT
+      run: |
+        npm run test-all  | tee result.log
+        cat result.log | sed -En "s/.*(Chromium|Firefox|Webkit):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*, ([0-9]+) failed/\1_success=\2\n\1_failed=\3/p" >> $GITHUB_OUTPUT
     - name: debug
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
-    # - name: Compute totals
-    #   env:
-    #     CHROMIUM_SUCCESS: ${{ steps.run-tests.outputs.Chromium_success }}
-    #     CHROMIUM_FAILED: ${{ steps.run-tests.outputs.Chromium_failed }}
-    #     FIREFOX_SUCCESS: ${{ steps.run-tests.outputs.Firefox_success }}
-    #     FIREFOX_FAILED: ${{ steps.run-tests.outputs.Firefox_failed }}
-    #     WEBKIT_SUCCESS: ${{ steps.run-tests.outputs.Webkit_success }}
-    #     WEBKIT_FAILED: ${{ steps.run-tests.outputs.Webkit_failed }}
-    #   run: |
-    #     echo "CHROMIUM_TOTAL=$(($CHROMIUM_SUCCESS+$CHROMIUM_FAILED))" >> $GITHUB_ENV
-    #     echo "FIREFOX_TOTAL=$(($FIREFOX_SUCCESS+$FIREFOX_FAILED))" >> $GITHUB_ENV
-    #     echo "WEBKIT_TOTAL=$(($WEBKIT_SUCCESS+$WEBKIT_FAILED))" >> $GITHUB_ENV
-    # - name: Create Awesome Badge
-    #   uses: schneegans/dynamic-badges-action@v1.6.0
-    #   with:
-    #     auth: ${{ secrets.GIST_SECRET }}
-    #     gistID: a679662706fd6e691c79282fffa16ada
-    #     filename: informel-tests-chromium.json
-    #     label: Chromium
-    #     message: ${{ steps.run-tests.outputs.Chromium_success }}/${{env.CHROMIUM_TOTAL}}
-    #     color: green
-    #     isError: ${{ fromJSON(steps.run-tests.outputs.Chromium_failed) > 0 }}
+    - name: Compute totals
+      env:
+        CHROMIUM_SUCCESS: ${{ steps.run-tests.outputs.Chromium_success }}
+        CHROMIUM_FAILED: ${{ steps.run-tests.outputs.Chromium_failed }}
+        FIREFOX_SUCCESS: ${{ steps.run-tests.outputs.Firefox_success }}
+        FIREFOX_FAILED: ${{ steps.run-tests.outputs.Firefox_failed }}
+        WEBKIT_SUCCESS: ${{ steps.run-tests.outputs.Webkit_success }}
+        WEBKIT_FAILED: ${{ steps.run-tests.outputs.Webkit_failed }}
+      run: |
+        echo "CHROMIUM_TOTAL=$(($CHROMIUM_SUCCESS+$CHROMIUM_FAILED))" >> $GITHUB_ENV
+        echo "FIREFOX_TOTAL=$(($FIREFOX_SUCCESS+$FIREFOX_FAILED))" >> $GITHUB_ENV
+        echo "WEBKIT_TOTAL=$(($WEBKIT_SUCCESS+$WEBKIT_FAILED))" >> $GITHUB_ENV
+    - name: Create Awesome Badge
+      uses: schneegans/dynamic-badges-action@v1.6.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: a679662706fd6e691c79282fffa16ada
+        filename: informel-tests-chromium.json
+        label: Chromium
+        message: ${{ steps.run-tests.outputs.Chromium_success }}/${{env.CHROMIUM_TOTAL}}
+        color: green
+        isError: ${{ fromJSON(steps.run-tests.outputs.Chromium_failed) > 0 }}
     # - name: Create Awesome Badge
     #   uses: schneegans/dynamic-badges-action@v1.6.0
     #   with:
