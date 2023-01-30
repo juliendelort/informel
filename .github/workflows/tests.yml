@@ -34,7 +34,7 @@ jobs:
       run: npm run build
     - name: run tests
       id: run-tests
-      run: echo "TEST_RESULT=$(npm run test-all)" >> $GITHUB_OUTPUT
+      run: TEST_RESULT=$(npm run test-all) >> $GITHUB_OUTPUT
     - name: debug
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
     # - name: Compute totals
