@@ -44,8 +44,10 @@ jobs:
         cat result.log | sed -e 's/\x1b\[[0-9;]*m//g' | sed -En "s/.*(Chromium|Firefox|Webkit):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*,.*[m| ]([0-9]+)[^0-9]+failed/\1_success=\2\n\1_failed=\3/p" >> $GITHUB_OUTPUT
         exit $result_code
     - name: debug
+      if: success() || failure() #Run even if previous step fails
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
     - name: Compute totals
+      if: success() || failure() #Run even if previous step fails
       env:
         CHROMIUM_SUCCESS: ${{ steps.run-tests.outputs.Chromium_success }}
         CHROMIUM_FAILED: ${{ steps.run-tests.outputs.Chromium_failed }}
@@ -58,6 +60,7 @@ jobs:
         echo "FIREFOX_TOTAL=$(($FIREFOX_SUCCESS+$FIREFOX_FAILED))" >> $GITHUB_ENV
         echo "WEBKIT_TOTAL=$(($WEBKIT_SUCCESS+$WEBKIT_FAILED))" >> $GITHUB_ENV
     - name: Create Awesome Badge
+      if: success() || failure() #Run even if previous step fails
       uses: schneegans/dynamic-badges-action@v1.6.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
@@ -68,6 +71,7 @@ jobs:
         color: green
         isError: ${{ fromJSON(steps.run-tests.outputs.Chromium_failed) > 0 }}
     - name: Create Awesome Badge
+      if: success() || failure() #Run even if previous step fails
       uses: schneegans/dynamic-badges-action@v1.6.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
@@ -78,6 +82,7 @@ jobs:
         color: green
         isError: ${{ fromJSON(steps.run-tests.outputs.Firefox_failed) > 0 }}
     - name: Create Awesome Badge
+      if: success() || failure() #Run even if previous step fails
       uses: schneegans/dynamic-badges-action@v1.6.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
