@@ -91,5 +91,5 @@ jobs:
         filename: informel-tests-webkit.json
         label: Webkit (Safari) tests
         message: ${{ steps.run-tests.outputs.Webkit_success }}/${{env.WEBKIT_TOTAL}}
-        isError: ${{ fromJSONfromJSON(steps.run-tests.outputs.Webkit_failed) > 0) }}
+        isError: ${{ fromJSON(fromJSON(steps.run-tests.outputs.Webkit_failed) > 0) }}
         color: ${{ env.WEBKIT_COLOR }}
