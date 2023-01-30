@@ -36,8 +36,7 @@ jobs:
       id: run-tests
       run: |
         npm run test-all  |& tee result.log
-        cat result.log
-        cat result.log | sed -En "s/.*(Chromium|Firefox|Webkit):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*,.*[m| ]([0-9]+) failed/\1_success=\2\n\1_failed=\3/p" >> $GITHUB_OUTPUT
+        cat result.log | sed -En "s/.*(Chromium|Firefox|Webkit):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*,.*[m| ]([0-9]+)[\u| ][ ]*failed/\1_success=\2\n\1_failed=\3/p" >> $GITHUB_OUTPUT
     - name: debug
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
     - name: Compute totals
