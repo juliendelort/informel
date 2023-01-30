@@ -69,7 +69,6 @@ jobs:
         filename: informel-tests-chromium.json
         label: Chromium tests
         message: ${{ steps.run-tests.outputs.Chromium_success }}/${{env.CHROMIUM_TOTAL}}
-        isError: ${{ fromJSON(fromJSON(steps.run-tests.outputs.Chromium_failed) > 0) }}
         color: ${{ env.CHROMIUM_COLOR }}
     - name: Create Awesome Badge
       if: success() || failure() #Run even if previous step fails
@@ -80,7 +79,6 @@ jobs:
         filename: informel-tests-firefox.json
         label: Firefox tests
         message: ${{ steps.run-tests.outputs.Firefox_success }}/${{env.FIREFOX_TOTAL}}
-        isError: ${{ fromJSON(fromJSON(steps.run-tests.outputs.Firefox_failed) > 0) }}
         color: ${{ env.FIREFOX_COLOR }}
     - name: Create Awesome Badge
       if: success() || failure() #Run even if previous step fails
@@ -91,5 +89,4 @@ jobs:
         filename: informel-tests-webkit.json
         label: Webkit (Safari) tests
         message: ${{ steps.run-tests.outputs.Webkit_success }}/${{env.WEBKIT_TOTAL}}
-        isError: ${{ fromJSON(fromJSON(steps.run-tests.outputs.Webkit_failed) > 0) }}
         color: ${{ env.WEBKIT_COLOR }}
