@@ -148,6 +148,16 @@
         }
     }
 
+    function getInformFieldByName(name) {
+        const all = [...host.querySelectorAll('inform-field')];
+        // console.log(
+        //     '****all',
+        //     all.map((f) => normalizePath(f.getAttribute('name'))),
+        //     host.outerHTML
+        // );
+        return all.find((f) => f.getAttribute('name') && normalizePath(f.getAttribute('name')) === normalizePath(name));
+    }
+
     function getFormElementByName(name) {
         // Look for normalized name: a[b].c[d].e => a.b.c.d.e
         const normalizedName = normalizePath(name);
@@ -393,18 +403,27 @@
         const zodErrors = checkZodValidity();
         const validationHandleErrors = host.validationHandler && typeof host.validationHandler === 'function' ? host.validationHandler({ values: getFormValues() }) : null;
 
-        const customValidationErrors = {
+        const validationErrors = {
             ...zodErrors,
             ...validationHandleErrors,
         };
 
+        const normalizedValidationErrors = Object.keys(validationErrors).reduce(
+            (result, key) => ({
+                ...result,
+                [normalizePath(key)]: validationErrors[key],
+            }),
+            {}
+        );
+
         getAllFormElements().forEach((element) => {
+            const normalizedElName = normalizePath(element.name);
             // Set native error
-            element.setCustomValidity(customValidationErrors?.[element.name] ?? '');
+            element.setCustomValidity(normalizedValidationErrors?.[normalizedElName] ?? '');
 
             const informField = element.closest('inform-field');
             if (informField) {
-                const errorPropValue = customValidationErrors?.[element.name] ?? getFieldError(element, informField);
+                const errorPropValue = normalizedValidationErrors?.[normalizedElName] ?? getFieldError(element, informField);
                 if (errorPropValue) {
                     informField.setAttribute('error-message', errorPropValue);
                 } else {
@@ -413,28 +432,34 @@
             }
         });
 
-        // Look for extra fields in the validation result
-        if (customValidationErrors) {
-            for (let key in customValidationErrors) {
-                const informField = host.querySelector(`inform-field[name="${key}"]`);
+        // console.log('flatCustomValidationErrors', { normalizedCustomValidationErrors: normalizedValidationErrors, customValidationErrors: validationErrors });
 
+        // Look for extra fields in the validation result
+        if (normalizedValidationErrors) {
+            for (let key in normalizedValidationErrors) {
+                const informField = getInformFieldByName(key);
+                // console.log('****informField', { informField, key });
                 if (informField) {
-                    informField.setAttribute('error-message', customValidationErrors[key]);
+                    informField.setAttribute('error-message', normalizedValidationErrors[key]);
                 }
             }
         }
 
+        const flatExtraValues = flattenObject(extraValues);
+
+        // console.log('flatExtraValues', { flatExtraValues, extraValues });
+
         // extra fields that are not present
-        for (let key in extraValues) {
-            const error = customValidationErrors?.[key];
-            const informField = host.querySelector(`inform-field[name="${key}"]`);
+        for (let key in flatExtraValues) {
+            const error = normalizedValidationErrors?.[key];
+            const informField = getInformFieldByName(key);
 
             if (informField && !error) {
                 informField.removeAttribute('error-message');
             }
         }
 
-        invalid = !form.checkValidity() || Object.keys(customValidationErrors ?? {}).some((key) => !!customValidationErrors[key]);
+        invalid = !form.checkValidity() || Object.keys(normalizedValidationErrors ?? {}).some((key) => !!normalizedValidationErrors[key]);
 
         errorShown = !!host.querySelector('inform-field[error]');
     }
@@ -599,8 +624,12 @@
     function publicSetValues(newValues) {
         setValues(newValues);
 
+        const flatObject = flattenObject(newValues);
+
+        // console.log('*******setValues', JSON.stringify({ newValues, flatObject }));
+
         // Setting the touched attributes on inform-field
-        Object.keys(newValues).forEach((key) => {
+        Object.keys(flatObject).forEach((key) => {
             const control = getFormElementByName(key);
             if (control) {
                 const informField = control.closest('inform-field');
@@ -608,7 +637,9 @@
                     informField.setAttribute('touched', '');
                 }
             } else {
-                const informField = host.querySelector(`inform-field[name="${key}"]`);
+                const informField = getInformFieldByName(key);
+
+                // console.log('****', { key, informField });
 
                 if (informField) {
                     informField.setAttribute('touched', '');

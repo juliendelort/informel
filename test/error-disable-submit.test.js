@@ -28,12 +28,48 @@ describe('error-disable-submit', () => {
 
     });
 
+    describe('with nested field text input', () => {
+        runTests({
+            html: `
+                        <form>
+                            <inform-field>
+                                <input id="control" type="text" name="users[1].field.0.name" required />
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                `,
+
+            setValue: setTextInputValue,
+            validValue: generateTextInputValue(),
+            invalidValue: ''
+        });
+
+    });
+
     describe('with checkbox', () => {
         runTests({
             html: `
                         <form>
                             <inform-field>
                                 <input id="control" type="checkbox" name="some-name" required/>
+                             </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                `,
+
+            setValue: setCheckboxValue,
+            validValue: true,
+            invalidValue: false
+        });
+
+    });
+
+    describe('with nested field checkbox', () => {
+        runTests({
+            html: `
+                        <form>
+                            <inform-field>
+                                <input id="control" type="checkbox" name="users[1].field.0.name" required/>
                              </inform-field>
                             <button type="submit">Submit</button>
                         </form>
@@ -67,12 +103,55 @@ describe('error-disable-submit', () => {
         });
     });
 
+    describe('with nested field select', async () => {
+        await runTests({
+            html: `
+                        <form>
+                            <inform-field>
+                                <select id="control" name="users[1].field.0.name" required>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                             </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                `,
+            setValue: setSelectValue,
+            validValue: 'val2',
+            invalidValue: ''
+        });
+    });
+
+
     describe('with select multiple', async () => {
         await runTests({
             html: `
                         <form>
                             <inform-field>
                                 <select id="control" name="field" required multiple>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                             </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                `,
+            setValue: setSelectMultipleValue,
+            validValue: ['val2'],
+            invalidValue: []
+        });
+    });
+
+    describe('with nested field select multiple', async () => {
+        await runTests({
+            html: `
+                        <form>
+                            <inform-field>
+                                <select id="control" name="users[1].field.0.name" required multiple>
                                     <option value="">--Please choose an option--</option>
                                     <option value="val1">Value1</option>
                                     <option value="val2">Value2</option>

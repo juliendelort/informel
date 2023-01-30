@@ -69,6 +69,9 @@ export function normalizePath(path) {
 }
 
 export function flattenObject(obj, path = [], allPaths = {}) {
+    if (!obj) {
+        return obj;
+    }
     for (let key in obj) {
         const newPath = [...path, key];
         const value = obj[key];
