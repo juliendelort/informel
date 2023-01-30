@@ -56,7 +56,7 @@ jobs:
         gistID: a679662706fd6e691c79282fffa16ada
         filename: informel-tests-chromium.json
         label: Chromium
-        message: ${{ steps.run-tests.outputs.Chromium_success }}/$CHROMIUM_TOTAL
+        message: ${{ steps.run-tests.outputs.Chromium_success }}/${{env.CHROMIUM_TOTAL}}
         color: green
         isError: ${{ fromJSON(steps.run-tests.outputs.Chromium_failed) > 0 }}
     # - name: Create Awesome Badge
