@@ -163,7 +163,7 @@ describe('set values', () => {
 
         const input = informEl.querySelector('[name="some-name"]');
 
-        const [informUpdatedTriggered] = eventCheck(input, 'inform-updated');
+        const [informUpdatedTriggered] = eventCheck(input, 'inform-updated2');
 
 
         informEl.setValues({ 'some-name': 'val' });
