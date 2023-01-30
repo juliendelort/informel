@@ -36,11 +36,13 @@ jobs:
       id: run-tests
       run: |
         npm run test-all  | tee result.log
+        result_code=${PIPESTATUS[0]}
         cat result.log | sed -e 's/\x1b\[[0-9;]*m//g'
         echo "NEXT!!!!!"
         cat result.log | sed -e 's/\x1b\[[0-9;]*m//g' | sed -En "s/.*(Chromium|Firefox|Webkit):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*,.*[m| ]([0-9]+)[^0-9]+failed/\1_success=\2\n\1_failed=\3/p"
         echo "NEXT!!!!!"
         cat result.log | sed -e 's/\x1b\[[0-9;]*m//g' | sed -En "s/.*(Chromium|Firefox|Webkit):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*,.*[m| ]([0-9]+)[^0-9]+failed/\1_success=\2\n\1_failed=\3/p" >> $GITHUB_OUTPUT
+        exit $result_code
     - name: debug
       run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
     - name: Compute totals
