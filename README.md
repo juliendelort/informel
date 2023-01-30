@@ -4,6 +4,10 @@
   </p>
 </a>
 
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-chromium.json)
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-firefox.json)
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-webkit.json)
+
 
 # informel
 `informel` is a Web Component that wraps your native HTML forms and gives them super powers.

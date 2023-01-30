@@ -4,8 +4,6 @@
 name: Node.js CI
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -33,4 +31,5 @@ jobs:
     - name: build
       run: npm run build
     - name: run tests
+      id: run-tests
       run: npm run test-all

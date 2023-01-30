@@ -1,0 +1,88 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-20.04 #ubuntu-latest (22.04) has some issues with our version of playwright
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Install deps
+      run: npm ci
+    - name: Install playwright
+      run: npx playwright install-deps
+    - name: build
+      run: npm run build
+    - name: run tests
+      id: run-tests
+      run: |
+        npm run test-all  | tee result.log
+        result_code=${PIPESTATUS[0]}
+        cat result.log | sed -e 's/\x1b\[[0-9;]*m//g' | sed -En "s/.*(Chromium|Firefox|Webkit):.*[0-9][0-9]+\/.*[m| ]([0-9]+) passed.*,.*[m| ]([0-9]+)[^0-9]+failed/\1_success=\2\n\1_failed=\3/p" >> $GITHUB_OUTPUT
+        exit $result_code
+    - name: debug
+      if: success() || failure() #Run even if previous step fails
+      run: echo "vals ${{ toJSON(steps.run-tests.outputs) }}"
+    - name: Compute totals
+      if: success() || failure() #Run even if previous step fails
+      env:
+        CHROMIUM_SUCCESS: ${{ steps.run-tests.outputs.Chromium_success }}
+        CHROMIUM_FAILED: ${{ steps.run-tests.outputs.Chromium_failed }}
+        FIREFOX_SUCCESS: ${{ steps.run-tests.outputs.Firefox_success }}
+        FIREFOX_FAILED: ${{ steps.run-tests.outputs.Firefox_failed }}
+        WEBKIT_SUCCESS: ${{ steps.run-tests.outputs.Webkit_success }}
+        WEBKIT_FAILED: ${{ steps.run-tests.outputs.Webkit_failed }}
+      run: |
+        echo "CHROMIUM_TOTAL=$(($CHROMIUM_SUCCESS+$CHROMIUM_FAILED))" >> $GITHUB_ENV
+        echo "FIREFOX_TOTAL=$(($FIREFOX_SUCCESS+$FIREFOX_FAILED))" >> $GITHUB_ENV
+        echo "WEBKIT_TOTAL=$(($WEBKIT_SUCCESS+$WEBKIT_FAILED))" >> $GITHUB_ENV
+        echo "CHROMIUM_COLOR=$(if [ $CHROMIUM_FAILED -gt 0 ]; then echo "red"; else echo "green"; fi)" >> $GITHUB_ENV
+        echo "FIREFOX_COLOR=$(if [ $FIREFOX_FAILED -gt 0 ]; then echo "red"; else echo "green"; fi)" >> $GITHUB_ENV
+        echo "WEBKIT_COLOR=$(if [ $WEBKIT_FAILED -gt 0 ]; then echo "red"; else echo "green"; fi)" >> $GITHUB_ENV
+    - name: Create Awesome Badge
+      if: success() || failure() #Run even if previous step fails
+      uses: schneegans/dynamic-badges-action@v1.6.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: a679662706fd6e691c79282fffa16ada
+        filename: informel-tests-chromium.json
+        label: Chromium tests
+        message: ${{ steps.run-tests.outputs.Chromium_success }}/${{env.CHROMIUM_TOTAL}}
+        color: ${{ env.CHROMIUM_COLOR }}
+    - name: Create Awesome Badge
+      if: success() || failure() #Run even if previous step fails
+      uses: schneegans/dynamic-badges-action@v1.6.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: a679662706fd6e691c79282fffa16ada
+        filename: informel-tests-firefox.json
+        label: Firefox tests
+        message: ${{ steps.run-tests.outputs.Firefox_success }}/${{env.FIREFOX_TOTAL}}
+        color: ${{ env.FIREFOX_COLOR }}
+    - name: Create Awesome Badge
+      if: success() || failure() #Run even if previous step fails
+      uses: schneegans/dynamic-badges-action@v1.6.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: a679662706fd6e691c79282fffa16ada
+        filename: informel-tests-webkit.json
+        label: Webkit (Safari) tests
+        message: ${{ steps.run-tests.outputs.Webkit_success }}/${{env.WEBKIT_TOTAL}}
+        color: ${{ env.WEBKIT_COLOR }}
