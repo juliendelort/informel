@@ -1,0 +1,35 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-20.04 #ubuntu-latest (22.04) has some issues with our version of playwright
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - name: Install deps
+      run: npm ci
+    - name: Install playwright
+      run: npx playwright install-deps
+    - name: build
+      run: npm run build
+    - name: run tests
+      id: run-tests
+      run: npm run test-all
