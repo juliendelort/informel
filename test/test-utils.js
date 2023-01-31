@@ -1,3 +1,4 @@
+import { nextFrame } from '@open-wc/testing';
 import { sendKeys, sendMouse } from '@web/test-runner-commands';
 
 export const type = async (input, text, blur) => {
@@ -10,7 +11,7 @@ export const type = async (input, text, blur) => {
     }
 };
 
-export const clear = async (input) => {
+export const clear = (input) => {
     input.value = '';
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -42,7 +43,8 @@ export const randomString = () => Math.random().toString(36).substr(2, 5);
 
 
 export const setTextInputValue = async (input, val) => {
-    await clear(input);
+    clear(input);
+    await nextFrame();
     if (val) {
         await type(input, val, true);
     }
