@@ -41,6 +41,35 @@ describe('submit', () => {
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
     });
 
+    it('sets nested fields to touched and shows errors if invalid', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="users[0].name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const informField = informEl.querySelector('inform-field');
+        const submitButton = informEl.querySelector('[type="submit"]');
+        const input = informEl.querySelector('input');
+
+        const [submitHasBeenCalled] = eventCheck(informEl, 'inform-submit');
+
+
+        expect(informField).not.to.have.attribute('touched');
+        submitButton.click();
+
+
+        expect(submitHasBeenCalled()).to.be.false;
+        expect(informField).to.have.attribute('touched');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
+    });
+
 
     it('triggers the submit event with the form values if the form is valid', async () => {
         const informEl = await fixture(`
@@ -76,6 +105,39 @@ describe('submit', () => {
         expect(submitDetails()).to.deep.include({ values: { 'some-name': 'something' } });
     });
 
+    it('triggers the submit event with the nested form values if the form is valid', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input id="control" type="text" name="users.0.name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const input = informEl.querySelector('#control');
+        const submitButton = informEl.querySelector('[type="submit"]');
+
+        await type(input, 'a', true);
+        await clear(input);
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
+
+        submitButton.click();
+        await nextFrame();
+
+        expect(submitHasBeenCalled()).to.be.false;
+
+        // Fix the form
+        await type(input, 'something');
+
+        submitButton.click();
+        await nextFrame();
+        expect(submitDetails()).to.deep.include({ values: { users: [{ name: 'something' }] } });
+    });
+
     it('removes dirty and touched after submitting', async () => {
         const informEl = await fixture(`
                 <inform-el>
@@ -89,6 +151,38 @@ describe('submit', () => {
         `);
 
         const input = informEl.querySelector('[name="some-name"]');
+        const submitButton = informEl.querySelector('[type="submit"]');
+        const informField = informEl.querySelector('inform-field');
+
+        await type(input, 'a', true);
+
+        expect(informEl.dirty).to.be.true;
+        expect(informEl).to.have.attribute('dirty');
+        expect(informField).to.have.attribute('dirty');
+        expect(informField).to.have.attribute('touched');
+
+        submitButton.click();
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+        expect(informEl).not.to.have.attribute('dirty');
+        expect(informField).not.to.have.attribute('dirty');
+        expect(informField).not.to.have.attribute('touched');
+    });
+
+    it('removes dirty and touched after submitting nested fields', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input id="control" type="text" name="users.0.name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const input = informEl.querySelector('#control');
         const submitButton = informEl.querySelector('[type="submit"]');
         const informField = informEl.querySelector('inform-field');
 
@@ -167,6 +261,36 @@ describe('submit', () => {
             expect(input).to.have.value('');
 
         });
+
+        it('resets nested fields if  present', async () => {
+            const informEl = await fixture(`
+                    <inform-el reset-on-submit>
+                        <form>
+                            <inform-field>
+                                <input type="text" name="users.0.name" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+
+
+            const [submitHasBeenCalled] = eventCheck(informEl, 'inform-submit');
+
+            await type(input, 'something', true);
+
+            submitButton.click();
+            await nextFrame();
+
+            expect(submitHasBeenCalled()).to.be.true;
+
+            // Resetted
+            expect(input).to.have.value('');
+
+        });
     });
 
     describe('submit action', () => {
@@ -211,6 +335,43 @@ describe('submit', () => {
 
             expect(requestStartDetails()).to.deep.include({ values: { field: 'a' } });
             expect(requestEndDetails()).to.deep.include({ values: { field: 'a' } });
+
+        });
+
+        it('sends an ajax call with nested fields', async () => {
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form action="${formUrl}" method="POST">
+                            <inform-field>
+                                <input type="text" name="users.1.name" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+
+            const [, requestStartDetails] = eventCheck(informEl, 'request-start');
+            const [, requestEndDetails] = eventCheck(informEl, 'request-end');
+
+            await type(input, 'a', true);
+
+            submitButton.click();
+
+            expect(window.fetch).to.have.been.calledWith(expectedUrl.toString(), {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ users: [undefined, { name: 'a' }] })
+            });
+
+            await nextFrame();
+
+            expect(requestStartDetails()).to.deep.include({ values: { users: [undefined, { name: 'a' }] } });
+            expect(requestEndDetails()).to.deep.include({ values: { users: [undefined, { name: 'a' }] } });
 
         });
 
@@ -333,6 +494,33 @@ describe('submit', () => {
             submitButton.click();
 
             expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?field=a`, {
+                method: 'get',
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+        });
+
+        it('serializes nested fields as query params when using GET', async () => {
+            const informEl = await fixture(`
+                    <inform-el>
+                        <form  action="${formUrl}">
+                            <inform-field>
+                                <input type="text" name="users.0.name" required/>
+                            </inform-field>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+            `);
+
+            const submitButton = informEl.querySelector('[type="submit"]');
+            const input = informEl.querySelector('input');
+
+            await type(input, 'a', true);
+
+            submitButton.click();
+
+            expect(window.fetch).to.have.been.calledWith(`${expectedUrl}?users=${encodeURIComponent(JSON.stringify([{ name: 'a' }]))}`, {
                 method: 'get',
                 headers: {
                     "Content-Type": "application/json"

@@ -368,7 +368,7 @@ describe('input and change events', () => {
             const input = informEl.querySelector('#control');
             await type(input, someValue, false); // Only input
             await nextFrame();
-            expect(inputDetails()).to.eql({
+            expect(inputDetails()).to.deep.equal({
                 values: {
                     ...getFieldValue(someValue),
                     other: 'nochange'
@@ -385,14 +385,14 @@ describe('input and change events', () => {
         await setValue(control, newValue, true); // Both input and change
         await nextFrame();
 
-        expect(inputDetails()).to.eql({
+        expect(inputDetails()).to.deep.equal({
             values: {
                 ...getFieldValue(newValue),
                 other: 'nochange'
             },
             changedField: fieldName
         });
-        expect(changeDetails()).to.eql({
+        expect(changeDetails()).to.deep.equal({
             values: {
                 ...getFieldValue(newValue),
                 other: 'nochange'

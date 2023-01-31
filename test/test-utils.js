@@ -132,29 +132,21 @@ function getMiddleOfElement(element) {
 }
 
 export const setSelectMultipleValue = async (select, val) => {
+    let triggerEvents = false;
     for (let o of select.querySelectorAll('option')) {
         const isInValue = val.includes(o.value);
 
         if (o.selected !== isInValue) {
-            await selectMultipleToggleValue(o);
+            o.selected = !o.selected;
+            triggerEvents = true;
         }
+    }
+
+    if (triggerEvents) {
+        select.dispatchEvent(new Event('input', { bubbles: true }));
+        select.dispatchEvent(new Event('change', { bubbles: true }));
     }
 };
 
-const selectMultipleToggleValue = async (option) => {
-    option.selected = !option.selected;
-    option.closest('select').dispatchEvent(new Event('input', { bubbles: true }));
-    option.closest('select').dispatchEvent(new Event('change', { bubbles: true }));
-
-    // Below only works on Windows
-    // const { x, y } = getMiddleOfElement(option);
-    // await sendKeys({
-    //     down: 'Control'
-    // });
-    // await sendMouse({ type: 'click', position: [x, y] });
-    // await sendKeys({
-    //     up: 'Control'
-    // });
-};
 
 export const generateMultiSelectValue = (currentValue) => JSON.stringify(currentValue) === JSON.stringify(["val1", "val2"]) ? ["val2", "val3"] : ["val1", "val2"];
