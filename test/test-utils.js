@@ -43,11 +43,14 @@ export const randomString = () => Math.random().toString(36).substr(2, 5);
 
 
 export const setTextInputValue = async (input, val) => {
-    clear(input);
-    await nextFrame();
-    if (val) {
-        await type(input, val, true);
-    }
+    input.value = val;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    // clear(input);
+    // await nextFrame();
+    // if (val) {
+    //     await type(input, val, true);
+    // }
 };
 export const generateTextInputValue = () => randomString();
 

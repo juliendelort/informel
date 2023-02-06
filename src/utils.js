@@ -23,7 +23,7 @@ function getValidityKey(element) {
 export function valuesToFormData(values) {
     const result = new FormData();
     for (let key in values) {
-        result.append(key, values[key]);
+        result.append(key, typeof values[key] === 'object' && !(values[key] instanceof File) ? JSON.stringify(values[key]) : values[key]);
     }
 
     return result;

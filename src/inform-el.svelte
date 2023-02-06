@@ -107,7 +107,7 @@
                 if (isGet) {
                     // No body for get request
                     Object.keys(values).forEach((key) => {
-                        url.searchParams.set(key, values[key]);
+                        url.searchParams.set(key, typeof values[key] === 'object' ? JSON.stringify(values[key]) : values[key]);
                     });
                 }
 
@@ -381,11 +381,12 @@
         try {
             if (host.zodSchema && typeof host.zodSchema.safeParse === 'function') {
                 const zodResult = host.zodSchema.safeParse(removeEmptyFields(getFormValues()));
+
                 if (!zodResult.success) {
                     return zodResult.error.issues.reduce(
                         (agg, issue) => ({
                             ...agg,
-                            ...(issue.path.at(-1) && { [issue.path.at(-1)]: issue.message }),
+                            ...(issue.path.at(-1) && { [normalizePath(issue.path.join('.'))]: issue.message }),
                         }),
                         {}
                     );

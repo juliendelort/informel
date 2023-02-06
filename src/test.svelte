@@ -40,7 +40,7 @@
 
 <div>
     <inform-el on:inform-change={(e) => console.log('!!!change', e.detail.values)}>
-        <form>
+        <form action="http://example.com">
             <inform-field>
                 <input type="text" name="users[0].name.first" required value="toto" />
             </inform-field>
