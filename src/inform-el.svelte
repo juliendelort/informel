@@ -20,6 +20,7 @@
     let invalid = false;
     let errorShown = false;
     let resetOnSubmitIsPresent;
+    let observer;
 
     $: {
         // error-disable-submit
@@ -466,7 +467,11 @@
     }
 
     async function initSlot() {
+        if (form) {
+            cleanup();
+        }
         form = defaultSlot.assignedElements()[0];
+        // console.log('****initSlot', form);
 
         if (!form || form.tagName.toLowerCase() !== 'form') {
             console.error('<inform-el> must have a <form> element as direct child');
@@ -490,17 +495,39 @@
         currentValues = initialValues;
 
         host.dispatchEvent(new CustomEvent('informel-ready', { bubbles: true }));
+
+        observeDescendants();
+    }
+
+    function observeDescendants() {
+        observer = new MutationObserver(() => {
+            // console.log('****mutation');
+            currentValues = getFormValues();
+        });
+
+        observer.observe(form, { childList: true, subtree: true });
+        return observer;
+    }
+
+    function cleanup() {
+        observer.disconnect();
+        form.removeEventListener('change', handleChange);
+        form.removeEventListener('input', handleInput);
+        form.removeEventListener('submit', handleSubmit);
+        form.removeEventListener('reset', handleFormReset);
     }
 
     onMount(() => {
+        // console.log('****mounting');
+        // initSlot();
         defaultSlot = container.querySelector('slot');
         defaultSlot.addEventListener('slotchange', initSlot);
+        // const observer = observeDescendants();
         return () => {
+            // console.log('****unmounting');
             defaultSlot.removeEventListener('slotchange', initSlot);
-            form.removeEventListener('change', handleChange);
-            form.removeEventListener('input', handleInput);
-            form.removeEventListener('submit', handleSubmit);
-            form.removeEventListener('reset', handleFormReset);
+
+            cleanup();
         };
     });
 

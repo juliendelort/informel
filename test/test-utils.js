@@ -46,6 +46,7 @@ export const setTextInputValue = async (input, val) => {
     input.value = val;
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
+    await nextFrame();
     // clear(input);
     // await nextFrame();
     // if (val) {
