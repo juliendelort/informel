@@ -2,13 +2,18 @@ import { nextFrame } from '@open-wc/testing';
 import { sendKeys, sendMouse } from '@web/test-runner-commands';
 
 export const type = async (input, text, blur) => {
-    input.focus();
-    await sendKeys({
-        type: text.toString(),
-    });
+    // input.focus();
+    // await sendKeys({
+    //     type: text.toString(),
+    // });
+    input.value += text;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+
     if (blur) {
-        await tab();
+        input.dispatchEvent(new Event('change', { bubbles: true }));
     }
+    await nextFrame();
+
 };
 
 export const clear = (input) => {

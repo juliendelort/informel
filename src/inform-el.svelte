@@ -501,8 +501,35 @@
 
     function observeDescendants() {
         observer = new MutationObserver(() => {
-            // console.log('****mutation');
-            currentValues = getFormValues();
+            if (!deepCompare(currentValues, getFormValues())) {
+                // if some extra values match some fields, assign values to the fields
+                const flatExtraValues = flattenObject(extraValues);
+                const newExtraValues = {};
+                for (const key in flatExtraValues) {
+                    const field = getFormElementByName(key);
+
+                    if (field) {
+                        setControlValue(field, flatExtraValues[key]);
+                    } else {
+                        setAtPath(newExtraValues, key, flatExtraValues[key]);
+                    }
+                }
+
+                extraValues = newExtraValues;
+                currentValues = getFormValues();
+
+                // Also remove from initial values the fields that were removed
+                const flatInitialValues = flattenObject(initialValues);
+                const flatFormValues = flattenObject(currentValues);
+                const newInitialValues = {};
+
+                for (const key in flatInitialValues) {
+                    if (key in flatFormValues) {
+                        setAtPath(newInitialValues, key, flatInitialValues[key]);
+                    }
+                }
+                initialValues = newInitialValues;
+            }
         });
 
         observer.observe(form, { childList: true, subtree: true });
