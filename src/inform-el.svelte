@@ -172,6 +172,10 @@
     function getAllFormElements() {
         return [...form.elements].filter((formElement) => !!formElement.name);
     }
+    
+    function getAllFormElementsNormalizedNames() {
+        return getAllFormElements().map((e) => normalizePath(e.name));
+    }
 
     function getFormValues() {
         const values = {};
@@ -501,16 +505,25 @@
 
     function observeDescendants() {
         observer = new MutationObserver(() => {
-            if (!deepCompare(currentValues, getFormValues())) {
+//             if (!deepCompare(currentValues, getFormValues())) {
                 // if some extra values match some fields, assign values to the fields
                 const flatExtraValues = flattenObject(extraValues);
                 const newExtraValues = {};
+                const formElementNames = getAllFormElementsNormalizedNames();
                 for (const key in flatExtraValues) {
                     const field = getFormElementByName(key);
 
                     if (field) {
                         setControlValue(field, flatExtraValues[key]);
-                    } else {
+                    } else if (flatExtraValues[key]?.length !== 0 || !formElementNames.some((n) => n.startsWith(`${key}.`))) {
+                        // console.log(
+                        //     '***adding to extra values',
+                        //     key,
+                        //     flatExtraValues[key],
+                        //     getAllFormElements().map((e) => normalizePath(e.name)),
+                        //     flatExtraValues[key] != [],
+                        //     getAllFormElements().some((e) => normalizePath(e.name).includes(`${key}.`))
+                        // );
                         setAtPath(newExtraValues, key, flatExtraValues[key]);
                     }
                 }
@@ -529,7 +542,7 @@
                     }
                 }
                 initialValues = newInitialValues;
-            }
+//             }
         });
 
         observer.observe(form, { childList: true, subtree: true });
@@ -626,11 +639,23 @@
 
         //     return curr;
         // }
-
+        const formElementNames = getAllFormElementsNormalizedNames();
         // console.log('setValues', flattenObject(newValues));
         Object.entries(flattenObject(newValues)).forEach(([path, value]) => {
-            // console.log('path2', JSON.stringify({ path, value, extraValues }));
+            if (value?.length > 0 && formElementNames.some((n) => n.startsWith(`${path}.`))) {
+                // Some fields are array of objects and the values specify the array is empty.
+                // Example: we have a field "users.0.name" and the value of users is an empty array.
+                // Although we don't have a strictly matching field ("users"), this is not an extra value
+                return;
+            }
             if (!getFormElementByName(path)) {
+                // console.log(
+                //     'set extra value',
+                //     newValues,
+                //     flattenObject(newValues),
+                //     JSON.stringify({ path, value, extraValues }),
+                //     getAllFormElements().map((e) => e.name)
+                // );
                 setAtPath(extraValues, path, value);
             }
         });
