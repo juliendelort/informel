@@ -187,6 +187,37 @@ describe('set values', () => {
         expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastNames: [], another: [4, 5, 6] } });
     });
 
+    it('sets extra values of type null', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field>
+                    <input type="text" name="firstName" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+        const input = informEl.querySelector('[name="firstName"]');
+        informEl.validationHandler = sinon.stub();
+        informEl.setValues({ lastNames: null });
+
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+        expect(informEl.values.lastNames).to.deep.equal(null);
+
+        await type(input, 'a', true);
+
+        expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastNames: null } });
+
+        informEl.setValues({ another: {} });
+
+        await nextFrame();
+
+        expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastNames: null, another: {} } });
+    });
+
     it('sets and merges nested extra values', async () => {
         const informEl = await fixture(`
             <inform-el>

@@ -75,7 +75,7 @@ export function flattenObject(obj, path = [], allPaths = {}) {
     for (let key in obj) {
         const newPath = [...path, key];
         const value = obj[key];
-        if (typeof value === 'object' && Object.keys(value).length > 0) {
+        if (typeof value === 'object' && Object.keys(value ?? {}).length > 0) {
             flattenObject(value, newPath, allPaths);
         } else if (value !== undefined) {
             allPaths[newPath.join('.')] = value;
