@@ -73,6 +73,9 @@ export function flattenObject(obj, path = [], allPaths = {}) {
         return obj;
     }
     for (let key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+            continue;
+        }
         const newPath = [...path, key];
         const value = obj[key];
         if (typeof value === 'object' && Object.keys(value ?? {}).length > 0) {
@@ -121,6 +124,9 @@ export function deepCompare(a, b) {
         }
 
         for (let key in a) {
+            if (!a.hasOwnProperty(key)) {
+                continue;
+            }
             if (!deepCompare(a[key], b[key])) {
                 return false;
             }
