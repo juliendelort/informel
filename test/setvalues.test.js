@@ -253,6 +253,34 @@ describe('set values', () => {
         await nextFrame();
 
         expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastName: 'something', another: [{ name: ['value'], field: 'val' }] } });
+    });
+
+    it('does not create extraValues when assigning an empty array if field members exist', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field>
+                    <input type="text" name="users.0.name"  />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({ users: [{ name: '' }] });
+
+        informEl.setValues({ users: [] });
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [{ name: '' }] });
+        expect(informEl.dirty).to.be.false;
+
+
+        informEl.setValues({ users: [undefined, { name: 'test' }] });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+        expect(informEl.values).to.deep.equal({ users: [{ name: '' }, { name: 'test' }] });
 
     });
 

@@ -172,7 +172,7 @@
     function getAllFormElements() {
         return [...form.elements].filter((formElement) => !!formElement.name);
     }
-    
+
     function getAllFormElementsNormalizedNames() {
         return getAllFormElements().map((e) => normalizePath(e.name));
     }
@@ -485,6 +485,7 @@
         host.reset = publicReset;
         host.setValues = publicSetValues;
         host.requestSubmit = publicRequestSubmit;
+        host.getExtraValues = () => extraValues;
         form.addEventListener('submit', handleSubmit);
         form.addEventListener('input', handleInput);
         form.addEventListener('change', handleChange);
@@ -505,44 +506,50 @@
 
     function observeDescendants() {
         observer = new MutationObserver(() => {
-//             if (!deepCompare(currentValues, getFormValues())) {
-                // if some extra values match some fields, assign values to the fields
-                const flatExtraValues = flattenObject(extraValues);
-                const newExtraValues = {};
-                const formElementNames = getAllFormElementsNormalizedNames();
-                for (const key in flatExtraValues) {
-                    const field = getFormElementByName(key);
+            //             if (!deepCompare(currentValues, getFormValues())) {
+            // if some extra values match some fields, assign values to the fields
+            const flatExtraValues = flattenObject(extraValues);
+            const newExtraValues = {};
+            const formElementNames = getAllFormElementsNormalizedNames();
+            for (const key in flatExtraValues) {
+                const field = getFormElementByName(key);
 
-                    if (field) {
-                        setControlValue(field, flatExtraValues[key]);
-                    } else if (flatExtraValues[key]?.length !== 0 || !formElementNames.some((n) => n.startsWith(`${key}.`))) {
-                        // console.log(
-                        //     '***adding to extra values',
-                        //     key,
-                        //     flatExtraValues[key],
-                        //     getAllFormElements().map((e) => normalizePath(e.name)),
-                        //     flatExtraValues[key] != [],
-                        //     getAllFormElements().some((e) => normalizePath(e.name).includes(`${key}.`))
-                        // );
-                        setAtPath(newExtraValues, key, flatExtraValues[key]);
-                    }
+                if (field) {
+                    setControlValue(field, flatExtraValues[key]);
+                } else if (flatExtraValues[key]?.length !== 0 || !formElementNames.some((n) => n.startsWith(`${key}.`))) {
+                    // console.log(
+                    //     '***adding to extra values',
+                    //     key,
+                    //     flatExtraValues[key],
+                    //     getAllFormElements().map((e) => normalizePath(e.name)),
+                    //     flatExtraValues[key] != [],
+                    //     getAllFormElements().some((e) => normalizePath(e.name).includes(`${key}.`))
+                    // );
+                    setAtPath(newExtraValues, key, flatExtraValues[key]);
                 }
+            }
 
-                extraValues = newExtraValues;
-                currentValues = getFormValues();
+            extraValues = newExtraValues;
+            currentValues = getFormValues();
 
-                // Also remove from initial values the fields that were removed
-                const flatInitialValues = flattenObject(initialValues);
-                const flatFormValues = flattenObject(currentValues);
-                const newInitialValues = {};
+            // Also remove from initial values the fields that were removed
+            const flatInitialValues = flattenObject(initialValues);
+            const flatFormValues = flattenObject(currentValues);
+            const newInitialValues = {};
 
-                for (const key in flatInitialValues) {
-                    if (key in flatFormValues) {
-                        setAtPath(newInitialValues, key, flatInitialValues[key]);
-                    }
+            for (const key in flatInitialValues) {
+                if (key in flatFormValues) {
+                    setAtPath(newInitialValues, key, flatInitialValues[key]);
                 }
-                initialValues = newInitialValues;
-//             }
+            }
+            // Add the fields that were added to the initial values
+            for (const key in flatFormValues) {
+                if (!(key in flatInitialValues)) {
+                    setAtPath(newInitialValues, key, flatFormValues[key]);
+                }
+            }
+            initialValues = newInitialValues;
+            //             }
         });
 
         observer.observe(form, { childList: true, subtree: true });
@@ -642,20 +649,14 @@
         const formElementNames = getAllFormElementsNormalizedNames();
         // console.log('setValues', flattenObject(newValues));
         Object.entries(flattenObject(newValues)).forEach(([path, value]) => {
-            if (value?.length > 0 && formElementNames.some((n) => n.startsWith(`${path}.`))) {
+            if (value?.length === 0 && formElementNames.some((n) => n.startsWith(`${path}.`))) {
                 // Some fields are array of objects and the values specify the array is empty.
                 // Example: we have a field "users.0.name" and the value of users is an empty array.
                 // Although we don't have a strictly matching field ("users"), this is not an extra value
                 return;
             }
             if (!getFormElementByName(path)) {
-                // console.log(
-                //     'set extra value',
-                //     newValues,
-                //     flattenObject(newValues),
-                //     JSON.stringify({ path, value, extraValues }),
-                //     getAllFormElements().map((e) => e.name)
-                // );
+                // console.log('set extra value', newValues, flattenObject(newValues), JSON.stringify({ path, value, extraValues }), formElementNames);
                 setAtPath(extraValues, path, value);
             }
         });
