@@ -84,11 +84,11 @@ const config = {
             items: [
               {
                 label: 'Getting Started',
-                to: '/docs/getting-started',
+                to: '/',
               },
               {
                 label: 'API',
-                to: '/docs/api',
+                to: '/api',
               },
             ],
           },
