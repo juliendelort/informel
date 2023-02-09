@@ -436,11 +436,14 @@ describe('general tests', () => {
 
         expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'some name' } }], extraVal: 'changedExtraVal' });
 
+        await setTextInputValue(input, 'input modified');
+        expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'input modified' } }], extraVal: 'changedExtraVal' });
+
         informEl.reset({ otherExtraVal: 'otherExtraValValue' });
         await nextFrame();
 
-        expect(informEl.values).to.deep.equal({ users: [{ name: { first: '' } }], extraVal: 'initialExtraVal', otherExtraVal: 'otherExtraValValue' });
-        expect(input).to.have.value('');
+        expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'some name' } }], extraVal: 'initialExtraVal', otherExtraVal: 'otherExtraValValue' });
+        expect(input).to.have.value('some name');
 
     });
 
