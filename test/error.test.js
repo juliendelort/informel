@@ -512,22 +512,22 @@ describe('error', () => {
         let receivedValues;
         informEl.validationHandler = ({ values }) => {
             receivedValues = values;
-            return { 'extra[1].name': 'Extra field invalid!' };
+            if (values.extra[1].name === 'invalid') {
+                return { 'extra[1].name': 'Extra field invalid!' };
+            }
+
+            return {};
         };
 
-        informEl.setValues({ extra: [undefined, { name: 'anything' }] });
+        informEl.setValues({ extra: [undefined, { name: 'invalid' }] });
         await nextFrame();
 
-        expect(receivedValues).to.deep.equal({ 'some-name': 'a', extra: [undefined, { name: 'anything' }] });
+        expect(receivedValues).to.deep.equal({ 'some-name': 'a', extra: [undefined, { name: 'invalid' }] });
         expect(informEl).to.have.attribute('invalid');
         expect(informFieldExtra).to.have.attribute('touched');
         expect(informFieldExtra).to.have.attribute('error-message', 'Extra field invalid!');
 
         expect(informFieldExtra).to.have.attribute('error');
-
-        informEl.validationHandler = ({ values }) => {
-            return null;
-        };
 
         informEl.setValues({ extra: [undefined, { name: 'something else' }] });
         await nextFrame();

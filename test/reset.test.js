@@ -800,7 +800,7 @@ describe('reset', () => {
 
             // Change values again and reset => back to the last reset
             await type(field1Input, 'field1 second change');
-            informEl.reset({ users: [{ name: 'field1 reset' }] });
+            informEl.reset();
 
 
             await nextFrame();

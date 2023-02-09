@@ -253,6 +253,12 @@ describe('set values', () => {
         await nextFrame();
 
         expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastName: 'something', another: [{ name: ['value'], field: 'val' }] } });
+
+        informEl.setValues({ another: [undefined, { field: 'val2' }] });
+
+        await nextFrame();
+
+        expect(informEl.validationHandler).to.have.been.calledWith({ values: { firstName: 'a', lastName: 'something', another: [{ name: ['value'], field: 'val' }, { field: 'val2' }] } });
     });
 
     it('does not create extraValues when assigning an empty array if field members exist', async () => {
@@ -281,6 +287,12 @@ describe('set values', () => {
 
         expect(informEl.dirty).to.be.true;
         expect(informEl.values).to.deep.equal({ users: [{ name: '' }, { name: 'test' }] });
+
+        informEl.reset({ users: [undefined, undefined, { name: 'test3' }] });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+        expect(informEl.values).to.deep.equal({ users: [{ name: '' }, undefined, { name: 'test3' }] });
 
     });
 

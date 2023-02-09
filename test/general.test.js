@@ -307,7 +307,7 @@ describe('general tests', () => {
         expect(informEl.values).to.deep.equal({ users: [{ extra: 'val' }] });
     });
 
-    it('keeps nested extra values when fields are removed', async () => {
+    it('keeps nested extra values when fields are removed (array)', async () => {
         const informEl = await fixture(`
             <inform-el>
                 <form>
