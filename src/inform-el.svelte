@@ -151,12 +151,8 @@
 
     function getInformFieldByName(name) {
         const all = [...host.querySelectorAll('inform-field')];
-        // console.log(
-        //     '****all',
-        //     all.map((f) => normalizePath(f.getAttribute('name'))),
-        //     host.outerHTML
-        // );
-        return all.find((f) => f.getAttribute('name') && normalizePath(f.getAttribute('name')) === normalizePath(name));
+        const normalizedName = normalizePath(name);
+        return all.find((f) => f.getAttribute('name') && normalizePath(f.getAttribute('name')) === normalizedName);
     }
 
     function getFormElementByName(name) {
@@ -177,7 +173,7 @@
         return getAllFormElements().map((e) => normalizePath(e.name));
     }
 
-    function getFormValues() {
+    function getFormValues(withExtraValues = true) {
         const values = {};
 
         getAllFormElements().forEach((e) => {
@@ -186,56 +182,13 @@
                 return;
             }
             const value = getControlValue(e);
-            // console.log({ name, value });
             if (value === undefined) {
                 return;
             }
 
-            // const parts = getNameParts(name);
-
-            // const leafName = parts.pop();
-
-            // const currVal = parts.reduce((obj, accessor, index) => {
-            //     if (!obj.hasOwnProperty(accessor)) {
-            //         const nextAccessor = index === obj.length - 1 ? leafName : parts[index + 1];
-            //         obj[accessor] = isNaN(nextAccessor) ? {} : [];
-            //     }
-            //     return obj[accessor];
-            // }, values);
-
-            // --
-
-            // console.log({ name, parts, leafName, currVal });
-
-            // if (accessorIndexes.length) {
-            //     const accessorStartIndex = Math.min(...accessorIndexes);
-            //     const nextAccessorIndex = name.indexOf(name[accessorStartIndex], accessorStartIndex + 1);
-            //     const variable = name.substring(0, accessorStartIndex);
-            //     if(name[accessorStartIndex] === '.') {
-
-            //     } else {
-            //        // it's a "[" => look for closing bracket
-            //        const closingBracketIndex = name.indexOf(']', accessorStartIndex);
-            //        const accessor = name.substring(accessorStartIndex + 1, closingBracketIndex);
-
-            //        const rest = name.substring(closingBracketIndex + 1);
-            //     }
-            // }
-
-            // if (name.includes(NESTED_OBJECT_SEPARATOR)) {
-            //     const parts = name.split(NESTED_OBJECT_SEPARATOR);
-            //     leafName = parts.at(-1);
-
-            //     parts.forEach((part) => {
-            //         if (!currVal.hasOwnProperty(part)) {
-            //             currVal[part] = {};
-            //         }
-            //         currVal = currVal[part];
-            //     });
-            // }
-
             const currentVal = getAtPath(values, name);
 
+            // If we a;ready processed that field name (multiselects)
             if (currentVal !== undefined) {
                 if (Array.isArray(currentVal)) {
                     setAtPath(values, name, [...currentVal, value]);
@@ -247,8 +200,7 @@
             }
         });
 
-        // console.log('***merging', JSON.stringify({ values, extraValues }));
-        return extend(true, {}, extraValues, values);
+        return withExtraValues ? extend(true, {}, extraValues, values) : values;
     }
     async function handleSubmit(e) {
         e.preventDefault();
@@ -286,8 +238,6 @@
     }
 
     function handleInput(e) {
-        // console.log('!!!input', JSON.stringify({ extraValues }));
-        // Not a form field: we don't interfere
         if (!e.target.name) {
             return;
         }
@@ -316,8 +266,6 @@
 
         const newValues = getFormValues();
         const fieldName = e.target.name;
-
-        // console.log({ newValues });
 
         setTimeout(() => {
             // Waiting for dirty and values to be updated after setting currentValues above
@@ -438,13 +386,10 @@
             }
         });
 
-        // console.log('flatCustomValidationErrors', { normalizedCustomValidationErrors: normalizedValidationErrors, customValidationErrors: validationErrors });
-
         // Look for extra fields in the validation result
         if (normalizedValidationErrors) {
             for (let key in normalizedValidationErrors) {
                 const informField = getInformFieldByName(key);
-                // console.log('****informField', { informField, key });
                 if (informField) {
                     informField.setAttribute('error-message', normalizedValidationErrors[key]);
                 }
@@ -452,8 +397,6 @@
         }
 
         const flatExtraValues = flattenObject(extraValues);
-
-        // console.log('flatExtraValues', { flatExtraValues, extraValues });
 
         // extra fields that are not present
         for (let key in flatExtraValues) {
@@ -475,7 +418,6 @@
             cleanup();
         }
         form = defaultSlot.assignedElements()[0];
-        // console.log('****initSlot', form);
 
         if (!form || form.tagName.toLowerCase() !== 'form') {
             console.error('<inform-el> must have a <form> element as direct child');
@@ -504,52 +446,50 @@
         observeDescendants();
     }
 
+    function isWatchedNode(n) {
+        return n.tagName.toLowerCase() === 'inform-el' || n.hasAttribute('name');
+    }
+
     function observeDescendants() {
-        observer = new MutationObserver(() => {
-            //             if (!deepCompare(currentValues, getFormValues())) {
-            // if some extra values match some fields, assign values to the fields
-            const flatExtraValues = flattenObject(extraValues);
-            const newExtraValues = {};
-            const formElementNames = getAllFormElementsNormalizedNames();
-            for (const key in flatExtraValues) {
-                const field = getFormElementByName(key);
+        observer = new MutationObserver((mutationList) => {
+            if (mutationList.some((m) => m.target === form && ([...m.addedNodes].some(isWatchedNode) || [...m.removedNodes].some(isWatchedNode)))) {
+                if (!deepCompare(currentValues, getFormValues(false))) {
+                    // if some extra values match some fields, assign values to the fields
+                    const flatExtraValues = flattenObject(extraValues);
+                    const newExtraValues = {};
+                    const formElementNames = getAllFormElementsNormalizedNames();
+                    for (const key in flatExtraValues) {
+                        const field = getFormElementByName(key);
 
-                if (field) {
-                    setControlValue(field, flatExtraValues[key]);
-                } else if (flatExtraValues[key]?.length !== 0 || !formElementNames.some((n) => n.startsWith(`${key}.`))) {
-                    // console.log(
-                    //     '***adding to extra values',
-                    //     key,
-                    //     flatExtraValues[key],
-                    //     getAllFormElements().map((e) => normalizePath(e.name)),
-                    //     flatExtraValues[key] != [],
-                    //     getAllFormElements().some((e) => normalizePath(e.name).includes(`${key}.`))
-                    // );
-                    setAtPath(newExtraValues, key, flatExtraValues[key]);
+                        if (field) {
+                            setControlValue(field, flatExtraValues[key]);
+                        } else if (flatExtraValues[key]?.length !== 0 || !formElementNames.some((n) => n.startsWith(`${key}.`))) {
+                            setAtPath(newExtraValues, key, flatExtraValues[key]);
+                        }
+                    }
+
+                    extraValues = newExtraValues;
+                    currentValues = getFormValues();
+
+                    // Also remove from initial values the fields that were removed
+                    const flatInitialValues = flattenObject(initialValues);
+                    const flatFormValues = flattenObject(currentValues);
+                    const newInitialValues = {};
+
+                    for (const key in flatInitialValues) {
+                        if (key in flatFormValues) {
+                            setAtPath(newInitialValues, key, flatInitialValues[key]);
+                        }
+                    }
+                    // Add the fields that were added to the initial values
+                    for (const key in flatFormValues) {
+                        if (!(key in flatInitialValues)) {
+                            setAtPath(newInitialValues, key, flatFormValues[key]);
+                        }
+                    }
+                    initialValues = newInitialValues;
                 }
             }
-
-            extraValues = newExtraValues;
-            currentValues = getFormValues();
-
-            // Also remove from initial values the fields that were removed
-            const flatInitialValues = flattenObject(initialValues);
-            const flatFormValues = flattenObject(currentValues);
-            const newInitialValues = {};
-
-            for (const key in flatInitialValues) {
-                if (key in flatFormValues) {
-                    setAtPath(newInitialValues, key, flatInitialValues[key]);
-                }
-            }
-            // Add the fields that were added to the initial values
-            for (const key in flatFormValues) {
-                if (!(key in flatInitialValues)) {
-                    setAtPath(newInitialValues, key, flatFormValues[key]);
-                }
-            }
-            initialValues = newInitialValues;
-            //             }
         });
 
         observer.observe(form, { childList: true, subtree: true });
@@ -565,15 +505,10 @@
     }
 
     onMount(() => {
-        // console.log('****mounting');
-        // initSlot();
         defaultSlot = container.querySelector('slot');
         defaultSlot.addEventListener('slotchange', initSlot);
-        // const observer = observeDescendants();
         return () => {
-            // console.log('****unmounting');
             defaultSlot.removeEventListener('slotchange', initSlot);
-
             cleanup();
         };
     });
@@ -629,25 +564,7 @@
             }
         });
 
-        // function checkNewValues(obj, path, curr) {
-        //     for (let key in obj) {
-        //         const newPath = [...path, key];
-        //         const value = obj[key];
-        //         console.log({ obj, path, curr, newPath, value });
-        //         if (typeof value === 'object') {
-        //             if (!curr[key]) {
-        //                 curr[key] = Array.isArray(value) ? [] : {};
-        //             }
-        //             curr[key] = checkNewValues(value, newPath, curr[key] ?? {});
-        //         } else if (!getFormElementByName(newPath.join('.'))) {
-        //             curr[key] = value;
-        //         }
-        //     }
-
-        //     return curr;
-        // }
         const formElementNames = getAllFormElementsNormalizedNames();
-        // console.log('setValues', flattenObject(newValues));
         Object.entries(flattenObject(newValues)).forEach(([path, value]) => {
             if (value?.length === 0 && formElementNames.some((n) => n.startsWith(`${path}.`))) {
                 // Some fields are array of objects and the values specify the array is empty.
@@ -656,27 +573,9 @@
                 return;
             }
             if (!getFormElementByName(path)) {
-                // console.log('set extra value', newValues, flattenObject(newValues), JSON.stringify({ path, value, extraValues }), formElementNames);
                 setAtPath(extraValues, path, value);
             }
         });
-        // extraValues = checkNewValues(newValues, [], extraValues);
-
-        // Looking for new extra values
-        // Object.keys(newValues).forEach((key) => {
-        //     if (typeof newValues[key] === 'object') {
-        //     } else {
-        //         if (!getFormElementByName(key)) {
-        //             extraValues = {
-        //                 ...extraValues,
-        //                 [key]: newValues[key],
-        //             };
-        //         }
-        //     }
-        // });
-
-        // console.log({ extraValues });
-
         currentValues = getFormValues();
     }
 
@@ -685,8 +584,6 @@
     //
     function publicReset(v) {
         const newValues = extend(true, {}, initialValues, v);
-
-        // console.log('reset', JSON.stringify({ initialValues, newValues }));
 
         form.reset(); // This will trigger handleFormReset which will reset touched
         // Reset current extra values
@@ -697,7 +594,6 @@
                 delete extraValues[key];
             }
         }
-
         setValues(newValues);
         initialValues = currentValues;
     }
@@ -706,8 +602,6 @@
         setValues(newValues);
 
         const flatObject = flattenObject(newValues);
-
-        // console.log('*******setValues', JSON.stringify({ newValues, flatObject }));
 
         // Setting the touched attributes on inform-field
         Object.keys(flatObject).forEach((key) => {
@@ -719,8 +613,6 @@
                 }
             } else {
                 const informField = getInformFieldByName(key);
-
-                // console.log('****', { key, informField });
 
                 if (informField) {
                     informField.setAttribute('touched', '');

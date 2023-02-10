@@ -68,6 +68,7 @@ export function normalizePath(path) {
     return getPathParts(path).join('.');
 }
 
+// {users:[{name:'test'}]} => {'users.0.name':'test'}
 export function flattenObject(obj, path = [], allPaths = {}) {
     if (!obj) {
         return obj;
@@ -96,10 +97,7 @@ export function getAtPath(obj, path) {
 export function setAtPath(obj, path, value) {
     const parts = getPathParts(path);
 
-    // console.log('setAtPath++', JSON.stringify({ obj, path, value }));
-
     parts.reduce((curr, accessor, index) => {
-        // console.log(JSON.stringify({ curr, accessor, index }));
         if (index === parts.length - 1) {
             curr[accessor] = value;
         } else if (curr[accessor] === undefined) {
@@ -108,8 +106,6 @@ export function setAtPath(obj, path, value) {
         }
         return curr[accessor];
     }, obj);
-
-    // console.log('setAtPath--', JSON.stringify({ obj }));
 }
 
 
