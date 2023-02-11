@@ -447,12 +447,12 @@
     }
 
     function isWatchedNode(n) {
-        return n.tagName.toLowerCase() === 'inform-el' || n.hasAttribute('name');
+        return n.nodeType === Node.ELEMENT_NODE && (n.tagName?.toLowerCase() === 'inform-el' || n.hasAttribute('name'));
     }
 
     function observeDescendants() {
         observer = new MutationObserver((mutationList) => {
-            if (mutationList.some((m) => m.target === form && ([...m.addedNodes].some(isWatchedNode) || [...m.removedNodes].some(isWatchedNode)))) {
+            if (mutationList.some((m) => (m.target === form || form.contains(m.target)) && ([...m.addedNodes].some(isWatchedNode) || [...m.removedNodes].some(isWatchedNode)))) {
                 if (!deepCompare(currentValues, getFormValues(false))) {
                     // if some extra values match some fields, assign values to the fields
                     const flatExtraValues = flattenObject(extraValues);
