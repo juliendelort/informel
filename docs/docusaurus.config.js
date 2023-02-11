@@ -31,15 +31,11 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
+          routeBasePath: '/',
           // Please change this to your repo.
           editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
-        },
+        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -61,6 +57,11 @@ const config = {
         name: 'description',
         content: description
       }],
+      colorMode: {
+        defaultMode: 'dark',
+        respectPrefersColorScheme: false,
+        disableSwitch: false
+      },
       navbar: {
         title: 'informel',
         logo: {
@@ -68,12 +69,6 @@ const config = {
           src: 'img/logo.svg',
         },
         items: [
-          {
-            type: 'doc',
-            docId: 'getting-started',
-            position: 'left',
-            label: 'Docs',
-          },
           {
             href: 'https://github.com/juliendelort/informel',
             label: 'GitHub',
@@ -89,11 +84,11 @@ const config = {
             items: [
               {
                 label: 'Getting Started',
-                to: '/docs/getting-started',
+                to: '/',
               },
               {
                 label: 'API',
-                to: '/docs/api',
+                to: '/api',
               },
             ],
           },

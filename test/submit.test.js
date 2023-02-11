@@ -227,7 +227,7 @@ describe('submit', () => {
 
             expect(submitHasBeenCalled()).to.be.true;
 
-            // Not resetted
+            // Not reset
             expect(input).to.have.value('something');
 
         });
@@ -257,7 +257,7 @@ describe('submit', () => {
 
             expect(submitHasBeenCalled()).to.be.true;
 
-            // Resetted
+            // Reset
             expect(input).to.have.value('');
 
         });

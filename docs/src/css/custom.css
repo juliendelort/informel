@@ -14,11 +14,16 @@
     --ifm-color-primary-lighter: #444f61;
     --ifm-color-primary-lightest: #4d5a6d;
     --ifm-code-font-size: 95%;
+    --ifm-font-family-base: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    /* --ifm-font-weight-bold: 600; */
+    letter-spacing: 0.2px;
+    --ifm-button-font-weight: 400;
+
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 html[data-theme="dark"] {
-    --ifm-color-primary: #19c8c1;
+    --ifm-color-primary: #19c0c8;
     --ifm-color-primary-dark: #353e4c;
     --ifm-color-primary-darker: #323b47;
     --ifm-color-primary-darkest: #29303b;
@@ -26,6 +31,52 @@ html[data-theme="dark"] {
     --ifm-color-primary-lighter: #444f61;
     --ifm-color-primary-lightest: #4d5a6d;
     --ifm-color-primary-lightest: #4fddbf;
+    --ifm-background-color: #191919;
+    --ifm-navbar-background-color: var(--ifm-background-color);
+    --ifm-font-color-base: #ffffffa3;
+    --ifm-toc-link-color: var(--ifm-font-color-base);
+    --ifm-menu-color: var(--ifm-font-color-base);
+}
+
+.markdown {
+    --ifm-h1-vertical-rhythm-bottom: 1.5;
+    --ifm-heading-vertical-rhythm-bottom: 1.5;
+    --ifm-h2-vertical-rhythm-top: 3;
+
+}
+
+.markdown>h3 {
+    margin-bottom: 20px;
+}
+
+.menu__list {
+    margin-top: 20px;
+}
+
+.admonition {
+    margin: 1rem 0;
+}
+
+.admonition h5 {
+    text-transform: none;
+    line-height: 24px;
+}
+
+.admonition-content {
+    font-size: 14px;
+}
+
+.markdown h1:first-child {
+    --ifm-h1-font-size: 2.5rem;
+    margin-top: 20px;
+}
+
+code {
+    white-space: pre;
+    vertical-align: baseline;
+    font-size: inherit;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .docusaurus-highlight-code-line {
@@ -39,13 +90,21 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
     background-color: rgba(0, 0, 0, 0.3);
 }
 
+
 @font-face {
-    font-family: "Balsamiq Sans";
-    src: url("/fonts/BalsamiqSans-Regular.ttf");
+    font-family: "Poppins";
+    src: url("/fonts/Poppins-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("/fonts/Poppins-SemiBold.ttf");
+    font-weight: 700;
 }
 
 .navbar__title {
-    font-family: "Balsamiq Sans";
+    font-family: "Poppins",
+        sans-serif;
     padding-top: 5px;
 }
 

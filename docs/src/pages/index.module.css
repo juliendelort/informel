@@ -28,7 +28,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "Balsamiq Sans";
+    font-family: "Poppins", sans-serif;
 }
 
 .logo {
@@ -44,5 +44,6 @@
 
 .subtitle {
     font-size: 1.5rem;
-    font-family: "Balsamiq Sans";
+    font-family: "Poppins",
+        sans-serif;
 }
