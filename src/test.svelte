@@ -5,6 +5,7 @@
 
     let tasks = [];
     let informEl;
+    let informEl1;
 
     async function refreshTasks() {
         const result = await fetch('https://61ffdd875e1c4100174f6fe7.mockapi.io/api/task');
@@ -16,6 +17,10 @@
     }
     onMount(() => {
         informEl.validationHandler = ({ values }) => {};
+        informEl1.validationHandler = ({ values }) => {
+            console.log('*****validation handler', values);
+            return values.users[0].name.first === ' ' ? { 'users[0].name.first': 'no!!!' } : {};
+        };
         refreshTasks();
     });
 
@@ -39,7 +44,7 @@
 </script>
 
 <div>
-    <inform-el on:inform-change={(e) => console.log('!!!change', e.detail.values)}>
+    <inform-el on:inform-change={(e) => console.log('!!!change', e.detail.values)} bind:this={informEl1}>
         <form action="http://example.com">
             <inform-field>
                 <input type="text" name="users[0].name.first" required value="toto" />
