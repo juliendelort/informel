@@ -1,6 +1,6 @@
 <a href="https://juliendelort.github.io/informel/">
-  <p align="center" style="display: flex;align-items: center;justify-content: center;">
-    <img src="https://github.com/juliendelort/informel/blob/main/docs/static/img/logo.svg" alt="logo" width="150px" />
+  <p align="center">
+    <img src="https://github.com/juliendelort/informel/blob/main/docs/static/img/logo.svg" alt="logo" width="150px" align="center"/>
     Informel
   </p>
 </a>
