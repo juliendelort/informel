@@ -17,48 +17,34 @@ const FormData = z
             errorMap: () => ({ message: "You must accept Terms and Conditions" }),
         }),
     });
-export const App = () => {
 
+const User = ({ index }) => {
+    return (
+        <>
+            <InformField>
+                <input type="text" name={`users[${index}].name.first`} />
+            </InformField>
+            <input type="text" name={`users[${index}].name.last`} />
+            <InformField>
+                <input type="checkbox" name={`users[${index}].name.required`} />
+            </InformField>
+        </>
+    );
+};
+
+export const App = () => {
+    const [usersCount, setUsersCount] = React.useState(0);
     const handleSubmit = ({ detail: { values } }) => {
         console.log('submit!', values);
     };
 
     return <><h1>Hey!</h1>
-        <InformEl onInformSubmit={handleSubmit} zodSchema={FormData}>
+        <button onClick={() => setUsersCount(usersCount + 1)}>Add user</button>
+        <InformEl onInformSubmit={handleSubmit} >
             <form>
-
-                <label>
-                    First name
-                    <InformField>
-                        <input type="text" name="first_name" />
-                    </InformField>
-                </label>
-
-                <label>
-                    Last Name
-                    <InformField>
-                        <input type="text" name="last_name" />
-                    </InformField>
-                </label>
-                <label>
-                    Email
-                    <InformField>
-                        <input type="text" name="email" />
-                    </InformField>
-                </label>
-                <label>
-                    password
-                    <InformField>
-                        <input type="password" name="password" />
-                    </InformField>
-                </label>
-
-                <label>
-                    Accept terms:
-                    <InformField>
-                        <input type="checkbox" name="terms" />
-                    </InformField>
-                </label>
+                {[...Array(usersCount).keys()].map((_, index) => (
+                    <User key={index} index={index} />
+                ))}
 
                 <button>Go!</button>
             </form>

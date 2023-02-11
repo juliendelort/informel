@@ -60,6 +60,50 @@ describe('dirty check', () => {
                 generateValue: generateTextInputValue
             });
         });
+
+        describe('with nested fields', () => {
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="text" name="field.name" value="initial-value"/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: 'initial-value',
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue,
+                    getFieldValue: val => ({ field: { name: val } })
+
+                });
+            });
+
+            describe('with no initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="text" name="field.name" />
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: '',
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue,
+                    getFieldValue: val => ({ field: { name: val } })
+
+                });
+            });
+        });
     });
 
     describe('with checkbox field', () => {
@@ -99,6 +143,48 @@ describe('dirty check', () => {
                 generateValue: generateCheckboxValue
             });
         });
+
+        describe('with nested fields', () => {
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="checkbox" name="field.0.1.name" checked/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: true,
+                    setValue: setCheckboxValue,
+                    generateValue: generateCheckboxValue,
+                    getFieldValue: val => ({ field: [[undefined, { name: val }]] })
+                });
+            });
+
+            describe('with no initial value', () => {
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <input id="control" type="checkbox" name="field.0.1.name" />
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: false,
+                    setValue: setCheckboxValue,
+                    generateValue: generateCheckboxValue,
+                    getFieldValue: val => ({ field: [[undefined, { name: val }]] })
+
+                });
+            });
+        });
     });
 
     describe('with textarea field', () => {
@@ -136,6 +222,48 @@ describe('dirty check', () => {
                 initialValue: '',
                 setValue: setTextInputValue,
                 generateValue: generateTextInputValue
+            });
+        });
+
+        describe('with nested fields', () => {
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <textarea id="control" name="field[1].name">initial value</textarea>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: 'initial value',
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue,
+                    getFieldValue: val => ({ field: [undefined, { name: val }] })
+                });
+            });
+
+            describe('with no initial value', () => {
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field>
+                                    <textarea id="control" name="field[1].name"></textarea>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: '',
+                    setValue: setTextInputValue,
+                    generateValue: generateTextInputValue,
+                    getFieldValue: val => ({ field: [undefined, { name: val }] })
+
+                });
             });
         });
     });
@@ -180,6 +308,51 @@ describe('dirty check', () => {
                 setValue: setRadioValue,
                 generateValue: generateRadioValue
             });
+        });
+
+        describe('with nested fields', () => {
+            describe('with a initial value', () => {
+                runTests({
+                    html: `
+                        <inform-el>
+                            <form>
+                                <inform-field id="control">
+                                    <input  type="radio" name="field.value[0].name" value="val1" checked/>
+                                    <input  type="radio" name="field.value[0].name" value="val2"/>
+                                </inform-field>
+                                <button type="submit">Submit</button>
+                            </form>
+                        </inform-el>
+                    `,
+                    initialValue: "val1",
+                    setValue: setRadioValue,
+                    generateValue: generateRadioValue,
+                    getFieldValue: val => ({ field: { value: [{ name: val }] } })
+                });
+            });
+
+
+            describe('without a initial value', () => {
+
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field id="control">
+                                        <input type="radio" name="field.value[0].name" value="val1" />
+                                        <input type="radio" name="field.value[0].name" value="val2" />
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                    initialValue: undefined,
+                    setValue: setRadioValue,
+                    generateValue: generateRadioValue,
+                    getFieldValue: val => ({ field: { value: [{ name: val }] } })
+                });
+            });
+
         });
     });
 
@@ -253,6 +426,59 @@ describe('dirty check', () => {
             });
         });
 
+        describe('with nested fields', () => {
+            describe('without a initial value', () => {
+
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <select id="control" name="field.test[0].name" >
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2">Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                    initialValue: "",
+                    setValue: setSelectValue,
+                    generateValue: generateSelectValue,
+                    getFieldValue: (val) => ({ field: { test: [{ name: val }] } })
+                });
+            });
+
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <select id="control" name="field.test[0].name">
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2" selected>Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                    initialValue: "val2",
+                    setValue: setSelectValue,
+                    generateValue: generateSelectValue,
+                    getFieldValue: (val) => ({ field: { test: [{ name: val }] } })
+                });
+            });
+
+        });
+
     });
 
     describe('with select multiple field', () => {
@@ -324,6 +550,59 @@ describe('dirty check', () => {
             });
         });
 
+        describe('with nested fields', () => {
+            describe('with a initial value', () => {
+
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <select id="control" name="fields.0.value" multiple>
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1" selected>Value1</option>
+                                            <option value="val2" selected>Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                    initialValue: ["val1", "val2"],
+                    setValue: setSelectMultipleValue,
+                    generateValue: generateMultiSelectValue,
+                    getFieldValue: (val) => ({ fields: [{ value: val }] })
+                });
+            });
+
+
+            describe('without a initial value', () => {
+
+                runTests({
+                    html: `
+                            <inform-el>
+                                <form>
+                                    <inform-field>
+                                        <select id="control" name="fields.0.value" multiple >
+                                            <option value="">--Please choose an option--</option>
+                                            <option value="val1">Value1</option>
+                                            <option value="val2">Value2</option>
+                                            <option value="val3">Value3</option>
+                                        </select>
+                                    </inform-field>
+                                    <button type="submit">Submit</button>
+                                </form>
+                            </inform-el>
+                        `,
+                    initialValue: [],
+                    setValue: setSelectMultipleValue,
+                    generateValue: generateMultiSelectValue,
+                    getFieldValue: (val) => ({ fields: [{ value: val }] })
+                });
+            });
+        });
+
     });
 
     let informEl;
@@ -332,10 +611,10 @@ describe('dirty check', () => {
     let form;
 
 
-    function runTests({ html, initialValue, setValue, generateValue, skipInformField }) {
+    function runTests({ html, initialValue, setValue, generateValue, skipInformField, getFieldValue = (val) => ({ field: val }) }) {
         function expectDirty(expectedValue) {
             expect(informEl.dirty).to.be.true;
-            expect(informEl.values).to.eql({ field: expectedValue });
+            expect(informEl.values).to.eql(getFieldValue(expectedValue));
             expect(informEl).to.have.attribute('dirty');
             if (!skipInformField) {
                 expect(informField).to.have.attribute('dirty');
@@ -345,7 +624,7 @@ describe('dirty check', () => {
         function expectNotDirty(expectedValue) {
             expect(informEl.dirty).to.be.false;
             if (expectedValue !== undefined) {
-                expect(informEl.values).to.eql({ field: expectedValue });
+                expect(informEl.values).to.eql(getFieldValue(expectedValue));
             } else {
                 expect(informEl.values).to.eql({}); // radio buttons: field not present when nothing selected
 
@@ -403,7 +682,7 @@ describe('dirty check', () => {
             await setDirtyAndCheck();
             const newValue = generateValue(initialValue);
 
-            informEl.reset({ field: newValue });
+            informEl.reset(getFieldValue(newValue));
             await nextFrame();
 
             expectNotDirty(newValue);
@@ -423,7 +702,7 @@ describe('dirty check', () => {
 
             const resetValue = generateValue(initialValue);
 
-            informEl.reset({ field: resetValue });
+            informEl.reset(getFieldValue(resetValue));
             await nextFrame();
 
             expectNotDirty(resetValue);
@@ -510,6 +789,37 @@ describe('dirty check', () => {
 
         expect(informEl.dirty).to.be.false;
     });
+
+    it('works with nested extra values', async () => {
+        const informEl = await fixture(` <inform-el>
+            <form>
+                <inform-field>
+                    <input id="control" type="text" name="field" value="initial-value" />
+                </inform-field>
+                <button type="submit">Submit</button>
+            </form>
+        </inform-el>`);
+
+        informEl.setValues({ field2: [{ test: 'something' }] });
+        await nextFrame();
+        expect(informEl.dirty).to.be.true;
+
+        informEl.reset({ field2: [{ default: 'field' }] });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+
+        informEl.setValues({ field2: [{ default: 'field2' }] });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.true;
+
+        informEl.setValues({ field2: [{ default: 'field' }] });
+        await nextFrame();
+
+        expect(informEl.dirty).to.be.false;
+    });
+
 
     it('updates the flag before sending inform-input event', async () => {
 

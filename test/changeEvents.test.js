@@ -38,6 +38,27 @@ describe('input and change events', () => {
         });
     });
 
+    it('works with nested field text input', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input id="control" type="text" name="users[1].field.0.name"/>
+                            </inform-field>
+                             <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            generateValue: generateTextInputValue,
+            text: true,
+            getFieldValue: val => ({ users: [undefined, { field: [{ name: val }] }] }),
+            fieldName: 'users[1].field.0.name'
+        });
+    });
+
     it('works with number input', async () => {
         await runTests({
             html: `
@@ -54,6 +75,27 @@ describe('input and change events', () => {
             setValue: setTextInputValue,
             generateValue: generateNumberValue,
             text: true
+        });
+    });
+
+    it('works with nested number input', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input id="control" type="number" name="users[1].field.0.name"/>
+                            </inform-field>
+                             <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            generateValue: generateNumberValue,
+            text: true,
+            getFieldValue: val => ({ users: [undefined, { field: [{ name: val }] }] }),
+            fieldName: 'users[1].field.0.name'
         });
     });
 
@@ -76,6 +118,27 @@ describe('input and change events', () => {
         });
     });
 
+    it('works with nested field textarea', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <textarea id="control" name="users[1].field.0.name"></textarea>
+                            </inform-field>
+                             <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            generateValue: generateTextInputValue,
+            text: true,
+            getFieldValue: val => ({ users: [undefined, { field: [{ name: val }] }] }),
+            fieldName: 'users[1].field.0.name'
+        });
+    });
+
     it('works with checkbox', async () => {
         await runTests({
             html: `
@@ -92,6 +155,27 @@ describe('input and change events', () => {
             setValue: setCheckboxValue,
             generateValue: generateCheckboxValue,
             text: false
+        });
+    });
+
+    it('works with nested field checkbox', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <input id="control" type="checkbox" name="users[1].field.0.name"/>
+                            </inform-field>
+                            <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setCheckboxValue,
+            generateValue: generateCheckboxValue,
+            text: false,
+            getFieldValue: val => ({ users: [undefined, { field: [{ name: val }] }] }),
+            fieldName: 'users[1].field.0.name'
         });
     });
 
@@ -112,6 +196,28 @@ describe('input and change events', () => {
             setValue: setRadioValue,
             generateValue: generateRadioValue,
             text: false
+        });
+    });
+
+    it('works with nested field radio button', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field id="control">
+                                <input  type="radio" name="users[1].field.0.name" value="val1"/>
+                                <input  type="radio" name="users[1].field.0.name" value="val2"/>
+                            </inform-field>
+                            <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setRadioValue,
+            generateValue: generateRadioValue,
+            text: false,
+            getFieldValue: val => ({ users: [undefined, { field: [{ name: val }] }] }),
+            fieldName: 'users[1].field.0.name'
         });
     });
 
@@ -139,6 +245,32 @@ describe('input and change events', () => {
         });
     });
 
+    it('works with nested field select', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <select id="control" name="users[1].field.0.name">
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                            </inform-field>
+                            <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setSelectValue,
+            generateValue: generateSelectValue,
+            text: false,
+            getFieldValue: val => ({ users: [undefined, { field: [{ name: val }] }] }),
+            fieldName: 'users[1].field.0.name'
+        });
+    });
+
     it('works with select multiple', async () => {
         await runTests({
             html: `
@@ -163,6 +295,32 @@ describe('input and change events', () => {
         });
     });
 
+    it('works with nested field select multiple', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <inform-field>
+                                <select id="control" name="users[1].field.0.name" multiple>
+                                    <option value="">--Please choose an option--</option>
+                                    <option value="val1">Value1</option>
+                                    <option value="val2">Value2</option>
+                                    <option value="val3">Value3</option>
+                                </select>
+                            </inform-field>
+                            <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setSelectMultipleValue,
+            generateValue: generateMultiSelectValue,
+            text: false,
+            getFieldValue: val => ({ users: [undefined, { field: [{ name: val }] }] }),
+            fieldName: 'users[1].field.0.name'
+        });
+    });
+
     it('works without inform-field', async () => {
         await runTests({
             html: `
@@ -179,7 +337,26 @@ describe('input and change events', () => {
             text: true,
         });
     });
-    async function runTests({ html, setValue, generateValue, text }) {
+
+    it('works with nested fields without inform-field', async () => {
+        await runTests({
+            html: `
+                    <inform-el>
+                        <form>
+                            <input id="control" type="text" name="users[1].field.0.name"/>
+                            <input  type="text" name="other" value="nochange"/>
+                            <button type="submit">Submit</button>
+                        </form>
+                    </inform-el>
+                `,
+            setValue: setTextInputValue,
+            generateValue: generateTextInputValue,
+            text: true,
+            getFieldValue: val => ({ users: [undefined, { field: [{ name: val }] }] }),
+            fieldName: 'users[1].field.0.name'
+        });
+    });
+    async function runTests({ html, setValue, generateValue, text, getFieldValue = (val) => ({ 'some-name': val }), fieldName = 'some-name' }) {
         const informEl = await fixture(html);
         const control = informEl.querySelector('#control');
 
@@ -191,12 +368,12 @@ describe('input and change events', () => {
             const input = informEl.querySelector('#control');
             await type(input, someValue, false); // Only input
             await nextFrame();
-            expect(inputDetails()).to.eql({
+            expect(inputDetails()).to.deep.equal({
                 values: {
-                    'some-name': someValue,
+                    ...getFieldValue(someValue),
                     other: 'nochange'
                 },
-                changedField: 'some-name'
+                changedField: fieldName
             });
             expect(changeDetails()).to.be.null;
             resetInput();
@@ -205,22 +382,22 @@ describe('input and change events', () => {
         }
 
         const newValue = generateValue();
-        await setValue(control, newValue); // Both input and change
+        await setValue(control, newValue, true); // Both input and change
         await nextFrame();
 
-        expect(inputDetails()).to.eql({
+        expect(inputDetails()).to.deep.equal({
             values: {
-                'some-name': newValue,
+                ...getFieldValue(newValue),
                 other: 'nochange'
             },
-            changedField: 'some-name'
+            changedField: fieldName
         });
-        expect(changeDetails()).to.eql({
+        expect(changeDetails()).to.deep.equal({
             values: {
-                'some-name': newValue,
+                ...getFieldValue(newValue),
                 other: 'nochange'
             },
-            changedField: 'some-name'
+            changedField: fieldName
         });
     }
 

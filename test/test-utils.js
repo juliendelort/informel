@@ -1,16 +1,22 @@
+import { nextFrame } from '@open-wc/testing';
 import { sendKeys, sendMouse } from '@web/test-runner-commands';
 
 export const type = async (input, text, blur) => {
-    input.focus();
-    await sendKeys({
-        type: text.toString(),
-    });
+    // input.focus();
+    // await sendKeys({
+    //     type: text.toString(),
+    // });
+    input.value += text;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+
     if (blur) {
-        await tab();
+        input.dispatchEvent(new Event('change', { bubbles: true }));
     }
+    await nextFrame();
+
 };
 
-export const clear = async (input) => {
+export const clear = (input) => {
     input.value = '';
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -42,10 +48,15 @@ export const randomString = () => Math.random().toString(36).substr(2, 5);
 
 
 export const setTextInputValue = async (input, val) => {
-    await clear(input);
-    if (val) {
-        await type(input, val, true);
-    }
+    input.value = val;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    await nextFrame();
+    // clear(input);
+    // await nextFrame();
+    // if (val) {
+    //     await type(input, val, true);
+    // }
 };
 export const generateTextInputValue = () => randomString();
 
@@ -132,29 +143,21 @@ function getMiddleOfElement(element) {
 }
 
 export const setSelectMultipleValue = async (select, val) => {
+    let triggerEvents = false;
     for (let o of select.querySelectorAll('option')) {
         const isInValue = val.includes(o.value);
 
         if (o.selected !== isInValue) {
-            await selectMultipleToggleValue(o);
+            o.selected = !o.selected;
+            triggerEvents = true;
         }
+    }
+
+    if (triggerEvents) {
+        select.dispatchEvent(new Event('input', { bubbles: true }));
+        select.dispatchEvent(new Event('change', { bubbles: true }));
     }
 };
 
-const selectMultipleToggleValue = async (option) => {
-    option.selected = !option.selected;
-    option.closest('select').dispatchEvent(new Event('input', { bubbles: true }));
-    option.closest('select').dispatchEvent(new Event('change', { bubbles: true }));
-
-    // Below only works on Windows
-    // const { x, y } = getMiddleOfElement(option);
-    // await sendKeys({
-    //     down: 'Control'
-    // });
-    // await sendMouse({ type: 'click', position: [x, y] });
-    // await sendKeys({
-    //     up: 'Control'
-    // });
-};
 
 export const generateMultiSelectValue = (currentValue) => JSON.stringify(currentValue) === JSON.stringify(["val1", "val2"]) ? ["val2", "val3"] : ["val1", "val2"];

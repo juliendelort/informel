@@ -2,7 +2,7 @@
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
 
-    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields } from './utils';
+    import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields, setAtPath, flattenObject, getAtPath, normalizePath, extend, deepCompare } from './utils';
     import { onMount, tick } from 'svelte';
     import { get_current_component } from 'svelte/internal';
 
@@ -20,6 +20,7 @@
     let invalid = false;
     let errorShown = false;
     let resetOnSubmitIsPresent;
+    let observer;
 
     $: {
         // error-disable-submit
@@ -107,7 +108,7 @@
                 if (isGet) {
                     // No body for get request
                     Object.keys(values).forEach((key) => {
-                        url.searchParams.set(key, values[key]);
+                        url.searchParams.set(key, typeof values[key] === 'object' ? JSON.stringify(values[key]) : values[key]);
                     });
                 }
 
@@ -148,15 +149,31 @@
         }
     }
 
+    function getInformFieldByName(name) {
+        const all = [...host.querySelectorAll('inform-field')];
+        const normalizedName = normalizePath(name);
+        return all.find((f) => f.getAttribute('name') && normalizePath(f.getAttribute('name')) === normalizedName);
+    }
+
     function getFormElementByName(name) {
-        return form.elements[name]?.constructor?.name === 'RadioNodeList' ? form.elements[name][0] : form.elements[name];
+        // Look for normalized name: a[b].c[d].e => a.b.c.d.e
+        const normalizedName = normalizePath(name);
+        for (let el of getAllFormElements()) {
+            if (normalizePath(el.name) === normalizedName) {
+                return el?.constructor?.name === 'RadioNodeList' ? el[0] : el;
+            }
+        }
     }
 
     function getAllFormElements() {
         return [...form.elements].filter((formElement) => !!formElement.name);
     }
 
-    function getFormValues() {
+    function getAllFormElementsNormalizedNames() {
+        return getAllFormElements().map((e) => normalizePath(e.name));
+    }
+
+    function getFormValues(withExtraValues = true) {
         const values = {};
 
         getAllFormElements().forEach((e) => {
@@ -168,21 +185,22 @@
             if (value === undefined) {
                 return;
             }
-            if (values.hasOwnProperty(name)) {
-                if (Array.isArray(values[name])) {
-                    values[name] = [...values[name], value];
+
+            const currentVal = getAtPath(values, name);
+
+            // If we a;ready processed that field name (multiselects)
+            if (currentVal !== undefined) {
+                if (Array.isArray(currentVal)) {
+                    setAtPath(values, name, [...currentVal, value]);
                 } else {
-                    values[name] = [values[name], value];
+                    setAtPath(values, name, [currentVal, value]);
                 }
             } else {
-                values[name] = value;
+                setAtPath(values, name, value);
             }
         });
 
-        return {
-            ...extraValues,
-            ...values,
-        };
+        return withExtraValues ? extend(true, {}, extraValues, values) : values;
     }
     async function handleSubmit(e) {
         e.preventDefault();
@@ -220,7 +238,6 @@
     }
 
     function handleInput(e) {
-        // Not a form field: we don't interfere
         if (!e.target.name) {
             return;
         }
@@ -290,7 +307,10 @@
             const name = formElement.name;
             const informField = formElement.closest('inform-field');
 
-            if (!compareFieldValues(currentValues[name], initialValues[name])) {
+            const currVal = getAtPath(currentValues, name);
+            const initVal = getAtPath(initialValues, name);
+
+            if (!compareFieldValues(currVal, initVal)) {
                 someDirty = true;
 
                 if (informField) {
@@ -302,7 +322,7 @@
         });
 
         Object.keys(extraValues).forEach((key) => {
-            if (!compareFieldValues(extraValues[key], initialValues[key])) {
+            if (!deepCompare(extraValues[key], initialValues[key])) {
                 someDirty = true;
             }
         });
@@ -314,11 +334,12 @@
         try {
             if (host.zodSchema && typeof host.zodSchema.safeParse === 'function') {
                 const zodResult = host.zodSchema.safeParse(removeEmptyFields(getFormValues()));
+
                 if (!zodResult.success) {
                     return zodResult.error.issues.reduce(
                         (agg, issue) => ({
                             ...agg,
-                            ...(issue.path.at(-1) && { [issue.path.at(-1)]: issue.message }),
+                            ...(issue.path.at(-1) && { [normalizePath(issue.path.join('.'))]: issue.message }),
                         }),
                         {}
                     );
@@ -336,18 +357,27 @@
         const zodErrors = checkZodValidity();
         const validationHandleErrors = host.validationHandler && typeof host.validationHandler === 'function' ? host.validationHandler({ values: getFormValues() }) : null;
 
-        const customValidationErrors = {
+        const validationErrors = {
             ...zodErrors,
             ...validationHandleErrors,
         };
 
+        const normalizedValidationErrors = Object.keys(validationErrors).reduce(
+            (result, key) => ({
+                ...result,
+                [normalizePath(key)]: validationErrors[key],
+            }),
+            {}
+        );
+
         getAllFormElements().forEach((element) => {
+            const normalizedElName = normalizePath(element.name);
             // Set native error
-            element.setCustomValidity(customValidationErrors?.[element.name] ?? '');
+            element.setCustomValidity(normalizedValidationErrors?.[normalizedElName] ?? '');
 
             const informField = element.closest('inform-field');
             if (informField) {
-                const errorPropValue = customValidationErrors?.[element.name] ?? getFieldError(element, informField);
+                const errorPropValue = normalizedValidationErrors?.[normalizedElName] ?? getFieldError(element, informField);
                 if (errorPropValue) {
                     informField.setAttribute('error-message', errorPropValue);
                 } else {
@@ -357,32 +387,36 @@
         });
 
         // Look for extra fields in the validation result
-        if (customValidationErrors) {
-            for (let key in customValidationErrors) {
-                const informField = host.querySelector(`inform-field[name="${key}"]`);
-
+        if (normalizedValidationErrors) {
+            for (let key in normalizedValidationErrors) {
+                const informField = getInformFieldByName(key);
                 if (informField) {
-                    informField.setAttribute('error-message', customValidationErrors[key]);
+                    informField.setAttribute('error-message', normalizedValidationErrors[key]);
                 }
             }
         }
 
+        const flatExtraValues = flattenObject(extraValues);
+
         // extra fields that are not present
-        for (let key in extraValues) {
-            const error = customValidationErrors?.[key];
-            const informField = host.querySelector(`inform-field[name="${key}"]`);
+        for (let key in flatExtraValues) {
+            const error = normalizedValidationErrors?.[key];
+            const informField = getInformFieldByName(key);
 
             if (informField && !error) {
                 informField.removeAttribute('error-message');
             }
         }
 
-        invalid = !form.checkValidity() || Object.keys(customValidationErrors ?? {}).some((key) => !!customValidationErrors[key]);
+        invalid = !form.checkValidity() || Object.keys(normalizedValidationErrors ?? {}).some((key) => !!normalizedValidationErrors[key]);
 
         errorShown = !!host.querySelector('inform-field[error]');
     }
 
     async function initSlot() {
+        if (form) {
+            cleanup();
+        }
         form = defaultSlot.assignedElements()[0];
 
         if (!form || form.tagName.toLowerCase() !== 'form') {
@@ -393,6 +427,7 @@
         host.reset = publicReset;
         host.setValues = publicSetValues;
         host.requestSubmit = publicRequestSubmit;
+        host.getExtraValues = () => extraValues;
         form.addEventListener('submit', handleSubmit);
         form.addEventListener('input', handleInput);
         form.addEventListener('change', handleChange);
@@ -407,6 +442,66 @@
         currentValues = initialValues;
 
         host.dispatchEvent(new CustomEvent('informel-ready', { bubbles: true }));
+
+        observeDescendants();
+    }
+
+    function isWatchedNode(n) {
+        return n.nodeType === Node.ELEMENT_NODE && (n.tagName?.toLowerCase() === 'inform-el' || n.hasAttribute('name'));
+    }
+
+    function observeDescendants() {
+        observer = new MutationObserver((mutationList) => {
+            if (mutationList.some((m) => (m.target === form || form.contains(m.target)) && ([...m.addedNodes].some(isWatchedNode) || [...m.removedNodes].some(isWatchedNode)))) {
+                if (!deepCompare(currentValues, getFormValues(false))) {
+                    // if some extra values match some fields, assign values to the fields
+                    const flatExtraValues = flattenObject(extraValues);
+                    const newExtraValues = {};
+                    const formElementNames = getAllFormElementsNormalizedNames();
+                    for (const key in flatExtraValues) {
+                        const field = getFormElementByName(key);
+
+                        if (field) {
+                            setControlValue(field, flatExtraValues[key]);
+                        } else if (flatExtraValues[key]?.length !== 0 || !formElementNames.some((n) => n.startsWith(`${key}.`))) {
+                            setAtPath(newExtraValues, key, flatExtraValues[key]);
+                        }
+                    }
+
+                    extraValues = newExtraValues;
+                    currentValues = getFormValues();
+
+                    // Also remove from initial values the fields that were removed
+                    const flatInitialValues = flattenObject(initialValues);
+                    const flatFormValues = flattenObject(currentValues);
+                    const newInitialValues = {};
+
+                    for (const key in flatInitialValues) {
+                        if (key in flatFormValues) {
+                            setAtPath(newInitialValues, key, flatInitialValues[key]);
+                        }
+                    }
+                    // Add the fields that were added to the initial values
+                    for (const key in flatFormValues) {
+                        if (!(key in flatInitialValues)) {
+                            setAtPath(newInitialValues, key, flatFormValues[key]);
+                        }
+                    }
+                    initialValues = newInitialValues;
+                }
+            }
+        });
+
+        observer.observe(form, { childList: true, subtree: true });
+        return observer;
+    }
+
+    function cleanup() {
+        observer.disconnect();
+        form.removeEventListener('change', handleChange);
+        form.removeEventListener('input', handleInput);
+        form.removeEventListener('submit', handleSubmit);
+        form.removeEventListener('reset', handleFormReset);
     }
 
     onMount(() => {
@@ -414,10 +509,7 @@
         defaultSlot.addEventListener('slotchange', initSlot);
         return () => {
             defaultSlot.removeEventListener('slotchange', initSlot);
-            form.removeEventListener('change', handleChange);
-            form.removeEventListener('input', handleInput);
-            form.removeEventListener('submit', handleSubmit);
-            form.removeEventListener('reset', handleFormReset);
+            cleanup();
         };
     });
 
@@ -466,22 +558,24 @@
 
     function setValues(newValues) {
         getAllFormElements().forEach((e) => {
-            const name = e.name;
-            if (newValues.hasOwnProperty(name)) {
-                setControlValue(e, newValues[name]);
+            const value = getAtPath(newValues, e.name);
+            if (value !== undefined) {
+                setControlValue(e, value);
             }
         });
 
-        // Looking for new extra values
-        Object.keys(newValues).forEach((key) => {
-            if (!getFormElementByName(key)) {
-                extraValues = {
-                    ...extraValues,
-                    [key]: newValues[key],
-                };
+        const formElementNames = getAllFormElementsNormalizedNames();
+        Object.entries(flattenObject(newValues)).forEach(([path, value]) => {
+            if (value?.length === 0 && formElementNames.some((n) => n.startsWith(`${path}.`))) {
+                // Some fields are array of objects and the values specify the array is empty.
+                // Example: we have a field "users.0.name" and the value of users is an empty array.
+                // Although we don't have a strictly matching field ("users"), this is not an extra value
+                return;
+            }
+            if (!getFormElementByName(path)) {
+                setAtPath(extraValues, path, value);
             }
         });
-
         currentValues = getFormValues();
     }
 
@@ -489,10 +583,7 @@
     // Public methods
     //
     function publicReset(v) {
-        const newValues = {
-            ...initialValues,
-            ...v,
-        };
+        const newValues = extend(true, {}, initialValues, v);
 
         form.reset(); // This will trigger handleFormReset which will reset touched
         // Reset current extra values
@@ -510,8 +601,10 @@
     function publicSetValues(newValues) {
         setValues(newValues);
 
+        const flatObject = flattenObject(newValues);
+
         // Setting the touched attributes on inform-field
-        Object.keys(newValues).forEach((key) => {
+        Object.keys(flatObject).forEach((key) => {
             const control = getFormElementByName(key);
             if (control) {
                 const informField = control.closest('inform-field');
@@ -519,7 +612,7 @@
                     informField.setAttribute('touched', '');
                 }
             } else {
-                const informField = host.querySelector(`inform-field[name="${key}"]`);
+                const informField = getInformFieldByName(key);
 
                 if (informField) {
                     informField.setAttribute('touched', '');

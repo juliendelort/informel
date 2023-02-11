@@ -97,7 +97,7 @@ describe('error', () => {
             }
             expect(getErrorContainer(informField)).to.have.rendered.text('This field is invalid!');
 
-            // Remove default-error => default to validation 
+            // Remove default-error => default to validation
             informField.removeAttribute('default-error');
             await type(input, 'a');
             await clear(input);
@@ -226,6 +226,116 @@ describe('error', () => {
         expect(informEl).not.to.have.attribute('invalid');
     });
 
+    it('considers validationHandler for nested fields', async () => {
+        // There should be an error on the input because of the pattern
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input id="control" type="text" name="users[1].field.0.name" pattern="^ab|ef$"/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const form = informEl.querySelector('form');
+        const informField = informEl.querySelector('inform-field');
+        const input = informEl.querySelector('#control');
+
+        informEl.validationHandler = ({ values }) => {
+            const result = {};
+            if (values.users[1].field[0].name === 'ab' || values.users[1].field[0].name === 'cd') {
+                result['users[1].field.0.name'] = 'my custom error message';
+            }
+            return result;
+        };
+
+        // Not touched yet, not in error
+        expect(informField).not.to.have.attribute('error');
+
+        await type(input, 'a', true); // Should be native only
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField).to.have.attribute('error-message', input.validationMessage);
+        expect(informField).to.have.attribute('error');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
+
+        expect(input.validity.customError).to.be.false;
+        expect(input.validity.patternMismatch).to.be.true;
+
+        await clear(input);
+        await type(input, 'ab'); // Should be a custom error only
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField).to.have.attribute('error-message', 'my custom error message');
+        expect(informField).to.have.attribute('error');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
+        expect(form.checkValidity()).to.be.false;
+        expect(informEl).to.have.attribute('invalid');
+
+        await clear(input);
+        await type(input, 'cd'); // Should be both => still renders the custom one
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField).to.have.attribute('error-message', 'my custom error message');
+        expect(informField).to.have.attribute('error');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('my custom error message');
+
+        await clear(input);
+        await type(input, 'ef'); // Should be no error
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(informField).not.to.have.attribute('error-message');
+        expect(informField).not.to.have.attribute('error');
+        expect(form.checkValidity()).to.be.true;
+        expect(informEl).not.to.have.attribute('invalid');
+    });
+
+    it('normalizes keys returned by validationHandler for nested fields', async () => {
+        // There should be an error on the input because of the pattern
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input id="control1" type="text" name="users[0].field.[0].name" />
+                        </inform-field>
+                        <inform-field>
+                            <input id="control2" type="text" name="users.1.field.0.name"/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const form = informEl.querySelector('form');
+        const input1 = informEl.querySelector('#control1');
+        const input2 = informEl.querySelector('#control2');
+
+        const informField1 = input1.closest('inform-field');
+        const informField2 = input2.closest('inform-field');
+
+        informEl.validationHandler = ({ values }) => {
+            return { // Inverted key format compared to field names
+                'users.0.field.0.name': 'error field 1',
+                'users[1].field[0].name': 'error field 2'
+            };
+        };
+
+        // Not touched yet, not in error
+        expect(informField1).not.to.have.attribute('error');
+
+        await type(input1, 'a', true); // Should be native only
+        await type(input2, 'a', true); // Should be native only
+        expect(informField1.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField1).to.have.attribute('error-message', 'error field 1');
+        expect(informField1).to.have.attribute('error');
+
+        expect(informField2.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField2).to.have.attribute('error-message', 'error field 2');
+        expect(informField2).to.have.attribute('error');
+
+
+        expect(input1.validity.customError).to.be.true;
+        expect(input2.validity.customError).to.be.true;
+
+
+    });
+
     it('considers validationHandler event if submitted immediately', async () => {
         const informEl = await fixture(`
                 <inform-el>
@@ -255,6 +365,7 @@ describe('error', () => {
         expect(informField).to.have.attribute('touched');
         expect(informField).to.have.attribute('error-message', 'my custom error message');
     });
+
 
     it('does not set aria-invalid if the error is not shown', async () => {
         const informEl = await fixture(`
@@ -383,6 +494,86 @@ describe('error', () => {
         expect(informEl).not.to.have.attribute('invalid');
     });
 
+    it('sets nested extra field returned by validationHandler in error', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" value="a"/>
+                        </inform-field>
+                        <inform-field id="extra" name="extra[1].name">
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const informFieldExtra = informEl.querySelector('inform-field#extra');
+
+        let receivedValues;
+        informEl.validationHandler = ({ values }) => {
+            receivedValues = values;
+            if (values.extra[1].name === 'invalid') {
+                return { 'extra[1].name': 'Extra field invalid!' };
+            }
+
+            return {};
+        };
+
+        informEl.setValues({ extra: [undefined, { name: 'invalid' }] });
+        await nextFrame();
+
+        expect(receivedValues).to.deep.equal({ 'some-name': 'a', extra: [undefined, { name: 'invalid' }] });
+        expect(informEl).to.have.attribute('invalid');
+        expect(informFieldExtra).to.have.attribute('touched');
+        expect(informFieldExtra).to.have.attribute('error-message', 'Extra field invalid!');
+
+        expect(informFieldExtra).to.have.attribute('error');
+
+        informEl.setValues({ extra: [undefined, { name: 'something else' }] });
+        await nextFrame();
+
+        expect(informFieldExtra).not.to.have.attribute('error');
+        expect(informFieldExtra).not.to.have.attribute('error-message', 'Extra field invalid!');
+        expect(informEl).not.to.have.attribute('invalid');
+    });
+
+    it('normalized validationHandler result for nested fields', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field id="extra1" name="extra.0.name">
+                        </inform-field>
+                        <inform-field id="extra2" name="extra[1].name">
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const informFieldExtra1 = informEl.querySelector('inform-field#extra1');
+        const informFieldExtra2 = informEl.querySelector('inform-field#extra2');
+
+        informEl.validationHandler = ({ values }) => {
+            return {
+                'extra[0].name': 'Extra field 1 invalid!',
+                'extra.1.name': 'Extra field 2 invalid!'
+            };
+        };
+
+        informEl.setValues({ extra: [{ name: 'anything1' }, { name: 'anything2' }] });
+        await nextFrame();
+
+        expect(informEl).to.have.attribute('invalid');
+        expect(informFieldExtra1).to.have.attribute('touched');
+        expect(informFieldExtra1).to.have.attribute('error-message', 'Extra field 1 invalid!');
+        expect(informFieldExtra1).to.have.attribute('error');
+
+        expect(informFieldExtra2).to.have.attribute('touched');
+        expect(informFieldExtra2).to.have.attribute('error-message', 'Extra field 2 invalid!');
+        expect(informFieldExtra2).to.have.attribute('error');
+
+    });
+
+
     it('validates extrafield not yet set', async () => {
         const informEl = await fixture(`
                 <inform-el>
@@ -408,7 +599,32 @@ describe('error', () => {
         expect(informFieldExtra).to.have.attribute('touched');
         expect(informFieldExtra).to.have.attribute('error');
         expect(informFieldExtra).to.have.attribute('error-message', 'Extra field invalid!');
+    });
+
+    it('validates nested extrafield not yet set', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field id="extra" name="extra.name[0].1">
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+        const informFieldExtra = informEl.querySelector('inform-field#extra');
+        const submitButton = informEl.querySelector('button[type="submit"]');
+
+        informEl.validationHandler = ({ values }) => {
+            return { 'extra.name[0][1]': 'Extra field invalid!' };
+        };
+
+        submitButton.click();
+        await nextFrame();
 
 
+        expect(informEl).to.have.attribute('invalid');
+        expect(informFieldExtra).to.have.attribute('touched');
+        expect(informFieldExtra).to.have.attribute('error');
+        expect(informFieldExtra).to.have.attribute('error-message', 'Extra field invalid!');
     });
 });

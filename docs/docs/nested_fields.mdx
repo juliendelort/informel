@@ -1,0 +1,58 @@
+---
+hide_title: true
+custom_edit_url: null
+title: 'Nested fields'
+sidebar_position: 9
+---
+
+# Nested fields
+
+Informel supports nested fields (arrays or objects or arrays of objects). Just specify the object path in the `name` attribute of the field.
+For example, the following form:
+
+```html
+<inform-el>
+    <form>
+        <label>
+            First Name
+            <input type="text" name="users[0].name.first" value="John" />
+        </label>
+        <label>
+            Last Name
+            <input type="text" name="users[0].name.last" value="Doe" />
+        </label>
+        <button type="submit">Submit</button>
+    </form>
+</inform-el>
+```
+
+will yield the following values:
+```js
+{
+    users: [{
+        first: 'John',
+        last: 'Doe'
+    }]
+}
+```
+
+For arrays, `users[0].name` is equivalent to `users.0.name`.
+
+Here is a live example:
+
+<iframe width="100%" height="700" src="//jsfiddle.net/juliendelort/y2kL0csf/38/embedded/result,html,js" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
+## Custom validation with nested fields
+
+For setting [custom validation rules](/validation-rules#custom-validation-rules), just return the full field path from the `validationHandler` method:
+```js
+document.querySelector('inform-el').validationHandler = ({ values }) => {
+    if(values.users[0].name.first===' '){
+        return {
+            'values.users[0].name.first': 'No blank values!'
+        }
+    }
+};
+```
+
+Check out the js tab of the live example above!

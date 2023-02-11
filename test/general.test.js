@@ -2,7 +2,8 @@ import { fixture, expect, nextFrame } from '@open-wc/testing';
 import {
     type,
     eventCheck,
-    clear
+    clear,
+    setTextInputValue
 } from './test-utils';
 import '../public/build/bundle.js';
 
@@ -139,6 +140,310 @@ describe('general tests', () => {
         expect(informEl).to.have.attribute('invalid');
         const informField = informEl.querySelector('inform-field');
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text('test error');
+
+    });
+
+    it('handles fields that are added or removed', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="field1" value="initial" />
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({ field1: "initial" });
+
+        const input = document.createElement('input');
+        input.type = "text";
+        input.name = "users.0.name.first";
+
+        informEl.querySelector('form').appendChild(input);
+
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ field1: "initial", users: [{ name: { first: "" } }] });
+
+        const select = document.createElement('select');
+        select.name = "users.0.country";
+
+        ['usa', 'canada', 'france'].forEach(country => {
+            const option = document.createElement('option');
+            option.value = country;
+            option.textContent = country;
+            select.appendChild(option);
+        });
+
+        select.value = "france";
+
+        informEl.querySelector('form').appendChild(select);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ field1: "initial", users: [{ name: { first: "" }, country: "france" }] });
+
+        input.parentElement.removeChild(input);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ field1: "initial", users: [{ country: "france" }] });
+    });
+
+    it('assigns matching extra values when fiels are added', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="field1" value="initial" />
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({ field1: "initial" });
+
+        informEl.setValues({
+            field1: "changed",
+            users: [{ name: { first: 'some name' } }]
+        });
+
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({
+            field1: "changed",
+            users: [{ name: { first: 'some name' } }]
+        });
+
+        const input = document.createElement('input');
+        input.type = "text";
+        input.name = "users.0.name.first";
+
+        informEl.querySelector('form').appendChild(input);
+
+        await nextFrame();
+
+        expect(input).to.have.value('some name');
+        expect(informEl.values).to.deep.equal({
+            field1: "changed",
+            users: [{ name: { first: 'some name' } }]
+        });
+
+        const field1 = informEl.querySelector('[name="field1"]');
+
+        field1.parentElement.removeChild(field1);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'some name' } }] });
+
+        input.parentElement.removeChild(input);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({});
+    });
+
+    it('works if an empty array is assigned before fields are mounted', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({});
+
+        informEl.reset({
+            users: []
+        });
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ users: [] });
+
+        const input = document.createElement('input');
+        input.type = "text";
+        input.name = "users.0.name.first";
+        input.value = 'some name';
+
+        informEl.querySelector('form').appendChild(input);
+
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({
+            users: [{ name: { first: 'some name' } }]
+        });
+
+        input.parentElement.removeChild(input);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({});
+    });
+
+    it('keeps nested extra values when fields are removed', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({});
+
+        informEl.setValues({ users: [{ extra: 'val' }] });
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [{ extra: 'val' }] });
+        const input = document.createElement('input');
+        input.type = "text";
+        input.name = "users.0.first";
+        input.value = 'some name';
+        informEl.querySelector('form').appendChild(input);
+
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ users: [{ extra: 'val', first: 'some name' }] });
+
+        input.parentElement.removeChild(input);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [{ extra: 'val' }] });
+    });
+
+    it('keeps nested extra values when fields are removed (array)', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({});
+
+        informEl.setValues({ users: [1] });
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [1] });
+        const input = document.createElement('input');
+        input.type = "text";
+        input.name = "users.0.first";
+        input.value = 'some name';
+        informEl.querySelector('form').appendChild(input);
+
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ users: [{ first: 'some name' }] });
+
+        input.parentElement.removeChild(input);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [1] });
+    });
+
+    it('does not set the form as dirty when fields are added', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({});
+
+        const input = document.createElement('input');
+        input.type = "text";
+        input.name = "users.0.first";
+        input.value = 'some name';
+        informEl.querySelector('form').appendChild(input);
+
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ users: [{ first: 'some name' }] });
+
+        expect(informEl.dirty).to.be.false;
+
+        setTextInputValue(input, 'new value');
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ users: [{ first: 'new value' }] });
+        expect(informEl.dirty).to.be.true;
+
+        setTextInputValue(input, 'some name');
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ users: [{ first: 'some name' }] });
+        expect(informEl.dirty).to.be.false;
+
+        setTextInputValue(input, 'new value2');
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ users: [{ first: 'new value2' }] });
+        expect(informEl.dirty).to.be.true;
+
+        informEl.reset();
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({ users: [{ first: 'some name' }] });
+        expect(informEl.dirty).to.be.false;
+
+        input.parentElement.removeChild(input);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({});
+        expect(informEl.dirty).to.be.false;
+
+    });
+
+
+
+    it('keeps the current fields when resetting', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="field1" value="initial" />
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({ field1: "initial" });
+
+        // reset with some extra values
+        informEl.reset({ extraVal: 'initialExtraVal' });
+
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ field1: "initial", extraVal: "initialExtraVal" });
+
+        // then change them
+        informEl.setValues({ extraVal: 'changedExtraVal' });
+
+        const input = document.createElement('input');
+        input.type = "text";
+        input.name = "users.0.name.first";
+        input.value = "some name";
+
+        informEl.querySelector('form').appendChild(input);
+
+        await nextFrame();
+
+        expect(input.value).to.equal('some name');
+        expect(informEl.values).to.deep.equal({
+            field1: "initial",
+            users: [{ name: { first: 'some name' } }],
+            extraVal: 'changedExtraVal'
+        });
+
+        const existingField = informEl.querySelector('[name="field1"]');
+        existingField.parentElement.removeChild(existingField);
+
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'some name' } }], extraVal: 'changedExtraVal' });
+
+        await setTextInputValue(input, 'input modified');
+        expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'input modified' } }], extraVal: 'changedExtraVal' });
+
+        informEl.reset({ otherExtraVal: 'otherExtraValValue' });
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'some name' } }], extraVal: 'initialExtraVal', otherExtraVal: 'otherExtraValValue' });
+        expect(input).to.have.value('some name');
 
     });
 
