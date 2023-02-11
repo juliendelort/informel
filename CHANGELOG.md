@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Support for nested fields.
+
 ## [1.9.1] - 2023-01-26
 
 ### Fixed
