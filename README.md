@@ -1,6 +1,6 @@
   <h1 align="center">
     <img src="https://github.com/juliendelort/informel/blob/main/docs/static/img/logo.svg" alt="logo" width="150px"/>
-    Informel
+    <span align="center">Informel</span>
   </h1>
 
 ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-chromium.json)
