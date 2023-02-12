@@ -86,3 +86,6 @@ jobs:
         label: Webkit (Safari) tests
         message: ${{ steps.run-tests.outputs.Webkit_success }}/${{env.WEBKIT_TOTAL}}
         color: ${{ env.WEBKIT_COLOR }}
+    - name: Purge README image cache
+      if: success() || failure() #Run even if previous step fails
+      run: curl -s https://github.com/juliendelort/informel/blob/main/README.md | grep -Eo '<img src="[^"]+"' |  grep camo |  grep -Eo 'https[^"]+' | xargs -I {} curl -w "\n" -s -X PURGE {}
