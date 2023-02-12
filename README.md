@@ -1,6 +1,6 @@
-![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-chromium.json&style=for-the-badge)
-![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-firefox.json&style=for-the-badge)
-![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-webkit.json&style=for-the-badge)
+![badge](https://kitchen-ai.vercel.app/api/badge?badgeUrl=https%3A%2F%2Fimg.shields.io%2Fendpoint%3Fstyle%3Dflat-square%26url%3Dhttps%3A%2F%2Fgist.githubusercontent.com%2Fjuliendelort%2Fa679662706fd6e691c79282fffa16ada%2Fraw%2Finformel-tests-chromium.json)
+![badge](https://kitchen-ai.vercel.app/api/badge?badgeUrl=https%3A%2F%2Fimg.shields.io%2Fendpoint%3Fstyle%3Dflat-square%26url%3Dhttps%3A%2F%2Fgist.githubusercontent.com%2Fjuliendelort%2Fa679662706fd6e691c79282fffa16ada%2Fraw%2Finformel-tests-firefox.json)
+![badge](https://kitchen-ai.vercel.app/api/badge?badgeUrl=https%3A%2F%2Fimg.shields.io%2Fendpoint%3Fstyle%3Dflat-square%26url%3Dhttps%3A%2F%2Fgist.githubusercontent.com%2Fjuliendelort%2Fa679662706fd6e691c79282fffa16ada%2Fraw%2Finformel-tests-webkit.json)
 
 
 # <img src="https://github.com/juliendelort/informel/blob/main/docs/static/img/logo.svg" alt="logo" width="30px"/> informel
