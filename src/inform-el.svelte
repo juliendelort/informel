@@ -451,9 +451,9 @@
     }
 
     function observeDescendants() {
-        observer = new MutationObserver((mutationList) => {
-            if (mutationList.some((m) => (m.target === form || form.contains(m.target)) && ([...m.addedNodes].some(isWatchedNode) || [...m.removedNodes].some(isWatchedNode)))) {
-                if (!deepCompare(currentValues, getFormValues(false))) {
+        if ('MutationObserver' in window) {
+            observer = new MutationObserver((mutationList) => {
+                if (mutationList.some((m) => (m.target === form || form.contains(m.target)) && ([...m.addedNodes].some(isWatchedNode) || [...m.removedNodes].some(isWatchedNode)))) {
                     // if some extra values match some fields, assign values to the fields
                     const flatExtraValues = flattenObject(extraValues);
                     const newExtraValues = {};
@@ -489,15 +489,17 @@
                     }
                     initialValues = newInitialValues;
                 }
-            }
-        });
+            });
 
-        observer.observe(form, { childList: true, subtree: true });
-        return observer;
+            observer.observe(form, { childList: true, subtree: true });
+            return observer;
+        }
     }
 
     function cleanup() {
-        observer.disconnect();
+        if (observer) {
+            observer.disconnect();
+        }
         form.removeEventListener('change', handleChange);
         form.removeEventListener('input', handleInput);
         form.removeEventListener('submit', handleSubmit);
