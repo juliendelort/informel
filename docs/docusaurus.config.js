@@ -96,10 +96,10 @@ const config = {
             title: 'More',
             items: [
               {
-                html: '<img src="img/github-mark.svg" width="18" align="center"/>&nbsp;&nbsp;<a class="footer__link-item" href="https://github.com/juliendelort/informel">Github</a>'
+                html: '<img src="img/github-mark.svg" width="18" align="center"/>&nbsp;&nbsp;<a style="display:inline-block;" class="footer__link-item" href="https://github.com/juliendelort/informel">Github</a>'
               },
               {
-                html: '<img src="img/Twitter-logo.svg" width="18" align="center"/>&nbsp;&nbsp;<a class="footer__link-item" href="https://twitter.com/informel_js">Twitter</a>'
+                html: '<img src="img/Twitter-logo.svg" width="18" align="center"/>&nbsp;&nbsp;<a style="display:inline-block;" class="footer__link-item" href="https://twitter.com/informel_js">Twitter</a>'
               }
             ],
           },
