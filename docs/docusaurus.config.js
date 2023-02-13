@@ -96,11 +96,14 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'GitHub',
-                href: 'https://github.com/juliendelort/informel',
+                html: '<img src="img/github-mark.svg" width="18" align="center"/>&nbsp;&nbsp;<a class="footer__link-item" href="https://github.com/juliendelort/informel">Github</a>'
               },
+              {
+                html: '<img src="img/Twitter-logo.svg" width="18" align="center"/>&nbsp;&nbsp;<a class="footer__link-item" href="https://twitter.com/informel_js">Twitter</a>'
+              }
             ],
           },
+
         ],
         copyright: `Copyright © ${new Date().getFullYear()} informel, Inc. Built with Docusaurus.`,
       },
