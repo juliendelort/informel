@@ -12,6 +12,7 @@ const config = {
   title: 'informel',
   tagline: 'Forms with superpowers',
   url: 'https://juliendelort.github.io',
+
   baseUrl: '/informel/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -50,6 +51,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      image: 'img/logo.svg',
       metadata: [{
         name: 'keywords',
         content: 'informel, forms, form, ajax, html, web component, submit, input, formdata, library, form management'
