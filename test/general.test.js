@@ -189,7 +189,7 @@ describe('general tests', () => {
         expect(informEl.values).to.deep.equal({ field1: "initial", users: [{ country: "france" }] });
     });
 
-    it('assigns matching extra values when fiels are added', async () => {
+    it('assigns matching extra values when fields are added', async () => {
         const informEl = await fixture(`
                 <inform-el>
                     <form>
@@ -234,6 +234,60 @@ describe('general tests', () => {
         await nextFrame();
 
         expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'some name' } }] });
+
+        input.parentElement.removeChild(input);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({});
+    });
+
+
+    it('doesnt assigns matching extra values when fields are added, if the new field has a value', async () => {
+        const informEl = await fixture(`
+                <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="field1" value="initial" />
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        expect(informEl.values).to.deep.equal({ field1: "initial" });
+
+        informEl.setValues({
+            field1: "changed",
+            users: [{ name: { first: 'some name' } }]
+        });
+
+        await nextFrame();
+        expect(informEl.values).to.deep.equal({
+            field1: "changed",
+            users: [{ name: { first: 'some name' } }]
+        });
+
+        const input = document.createElement('input');
+        input.type = "text";
+        input.name = "users.0.name.first";
+        input.value = "I already have a value";
+
+        informEl.querySelector('form').appendChild(input);
+
+        await nextFrame();
+
+        expect(input).to.have.value('I already have a value');
+        expect(informEl.values).to.deep.equal({
+            field1: "changed",
+            users: [{ name: { first: 'I already have a value' } }]
+        });
+
+        const field1 = informEl.querySelector('[name="field1"]');
+
+        field1.parentElement.removeChild(field1);
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [{ name: { first: 'I already have a value' } }] });
 
         input.parentElement.removeChild(input);
         await nextFrame();

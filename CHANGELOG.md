@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.1] - 2023-02-21
+
+### Fixed
+
+- Mounting new fields that already have a value.
+
 ## [1.10.0] - 2023-02-13
 
 ### Added
