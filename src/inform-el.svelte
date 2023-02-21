@@ -462,7 +462,10 @@
                         const field = getFormElementByName(key);
 
                         if (field) {
-                            setControlValue(field, flatExtraValues[key]);
+                            if (!controlHasValue(field)) {
+                                // if the field doesn't already have a value
+                                setControlValue(field, flatExtraValues[key]);
+                            }
                         } else if (flatExtraValues[key]?.length !== 0 || !formElementNames.some((n) => n.startsWith(`${key}.`))) {
                             setAtPath(newExtraValues, key, flatExtraValues[key]);
                         }
@@ -556,6 +559,11 @@
         } else {
             return control.value;
         }
+    }
+
+    function controlHasValue(control) {
+        const value = getControlValue(control);
+        return !!value && (!Array.isArray(value) || value.length > 0);
     }
 
     function setValues(newValues) {
