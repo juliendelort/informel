@@ -20,6 +20,7 @@ export type InformElProps<FormValuesType = FormValuesDefaultType, ResponseType =
     className?: string;
     style?: React.CSSProperties;
     errorDisableSubmit?: boolean;
+    defaultSubmit?: boolean;
     resetOnSubmit?: boolean;
     ref?: React.Ref<HTMLInformEl>;
     zodSchema?: ZodType;
