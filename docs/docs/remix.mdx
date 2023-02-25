@@ -1,0 +1,98 @@
+---
+sidebar_position: 10
+hide_title: true
+custom_edit_url: null
+title: 'Usage in Remix'
+---
+
+# Usage in Remix
+
+Remix uses Server Side Rendering (SSR) to render the page on the server and then hydrates the page on the client side. 
+`informel` relies on Web Components, so the library needs to be imported & initialized on the client side only.
+To do so, add the following to your `App` component located inside [the root file of your project](https://remix.run/docs/en/v1/file-conventions/root).
+
+```tsx
+useEffect(() => {
+    require('informel');
+  }, []);
+```
+
+Full example:
+
+```tsx
+export default function App() {
+  // Add this useEffect
+  useEffect(() => {
+    require('informel');
+  }, []);
+
+  // Rest of the page, no changes below
+  return (
+    <html lang="en">
+      <head>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
+      </body>
+    </html>
+  );
+}
+```
+
+Then, in order to use `informel` with [Remix's Form component](https://remix.run/docs/en/v1/components/form), you'll need to add the [defaultSubmit](/api#attributes) prop to your `<InformEl>` component.
+That'll remove the usage of `e.preventDefault()` by `informel` when submitting, not getting in the way of the `<Form/>` component.
+
+In other words, just wrapt the `<Form/>` component with `<InformEl defaultSubmit>` and you're good to go!
+
+Here is an example:
+
+<iframe width="100%" height="800" src="https://stackblitz.com/edit/remix-run-remix-1qpoxc?embed=1&file=app/routes/index.tsx"></iframe>
+
+## Limitations
+
+When using `<InformEl defaultSubmit>` with the `<Form/>`, the [resetOnSubmit](/api#attributes) prop is not supported: It would reset the form before the `<Form/>` component has a chance to do handle submission and it would receive empty values.
+
+If you need to use that feature, you can use a regular `<form/>` element and trigger the submission manually via [useFetcher](https://remix.run/docs/en/v1/hooks/use-fetcher#fetchersubmit).
+
+Example:
+```tsx
+export default function Index() {
+  const fetcher = useFetcher();
+
+  const handleSubmit = ({ detail: { values } }: CustomEvent<{ values: { login: string, password: string; }; }>) => {
+    fetcher.submit(values, { method: 'post' });
+  };
+
+  return (
+    <InformEl resetOnSubmit onInformSubmit={handleSubmit}> {/* no defaultSubmit prop anymore */}
+      <form> {/* use a regular form here */}
+        <InformField>
+          <input
+            type="email"
+            name="login"
+            placeholder="login"
+            aria-label="login"
+            required
+          />
+        </InformField>
+        <InformField>
+          <input
+            type="password"
+            name="password"
+            placeholder="password"
+            aria-label="password"
+            required
+          />
+        </InformField>
+        <button type="submit">Submit</button>
+      </form>
+    </InformEl>
+  );
+}
+
+```

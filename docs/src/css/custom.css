@@ -33,7 +33,7 @@ html[data-theme="dark"] {
     --ifm-color-primary-lightest: #4fddbf;
     --ifm-background-color: #191919;
     --ifm-navbar-background-color: var(--ifm-background-color);
-    --ifm-font-color-base: #ffffffa3;
+    --ifm-font-color-base: #ffffffd1;
     --ifm-toc-link-color: var(--ifm-font-color-base);
     --ifm-menu-color: var(--ifm-font-color-base);
 }
