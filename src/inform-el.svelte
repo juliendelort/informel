@@ -1,6 +1,7 @@
 <script>
     export let errorDisableSubmit = null;
     export let resetOnSubmit = null;
+    export let defaultSubmit = null;
 
     import { valuesToFormData, getFieldError, compareFieldValues, removeEmptyFields, setAtPath, flattenObject, getAtPath, normalizePath, extend, deepCompare } from './utils';
     import { onMount, tick } from 'svelte';
@@ -21,6 +22,7 @@
     let errorShown = false;
     let resetOnSubmitIsPresent;
     let observer;
+    let defaultSubmitIsPresent;
 
     $: {
         // error-disable-submit
@@ -30,6 +32,11 @@
     $: {
         // reset-on-submit
         resetOnSubmitIsPresent = resetOnSubmit !== null && resetOnSubmit !== undefined; // Make this block reactive to a change on resetOnSubmit
+    }
+
+    $: {
+        // default-submit
+        defaultSubmitIsPresent = defaultSubmit !== null && defaultSubmit !== undefined; // Make this block reactive to a change on defaultSubmit
     }
 
     $: {
@@ -94,6 +101,9 @@
     }
 
     async function sendSubmitRequest(submitter) {
+        if (defaultSubmitIsPresent) {
+            return;
+        }
         if (form.hasAttribute('action') || submitter?.hasAttribute('formaction')) {
             // form.action is always set, we need to check if there is an attribute explicitely defined
             const rawValues = getFormValues();
@@ -203,7 +213,9 @@
         return withExtraValues ? extend(true, {}, extraValues, values) : values;
     }
     async function handleSubmit(e) {
-        e.preventDefault();
+        if (!defaultSubmitIsPresent) {
+            e.preventDefault();
+        }
         const submitter = e.submitter || e.detail?.submitter; // If event is customsubmit (attribute submit-on-change on inform0-field), we need to check e.detail.submitter
 
         host.querySelectorAll('inform-field').forEach((e) => e.setAttribute('touched', ''));
@@ -221,6 +233,9 @@
             initialValues = currentValues;
             checkDirty();
         } else {
+            if (defaultSubmitIsPresent) {
+                e.preventDefault(); // prevent navigation if the form is invalid
+            }
             // focus the first invalid element
             getAllFormElements().some((e) => {
                 if (!e.checkValidity()) {

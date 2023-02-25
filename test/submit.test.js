@@ -41,9 +41,67 @@ describe('submit', () => {
         expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
     });
 
+    it('sets all fields to touched and shows errors if invalid, even with default-submit', async () => {
+        const informEl = await fixture(`
+                <inform-el default-submit>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="some-name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const informField = informEl.querySelector('inform-field');
+        const submitButton = informEl.querySelector('[type="submit"]');
+        const input = informEl.querySelector('input');
+
+        const [submitHasBeenCalled] = eventCheck(informEl, 'inform-submit');
+
+
+        expect(informField).not.to.have.attribute('touched');
+        submitButton.click();
+
+
+        expect(submitHasBeenCalled()).to.be.false;
+        expect(informField).to.have.attribute('touched');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
+    });
+
     it('sets nested fields to touched and shows errors if invalid', async () => {
         const informEl = await fixture(`
                 <inform-el>
+                    <form>
+                        <inform-field>
+                            <input type="text" name="users[0].name" required/>
+                        </inform-field>
+                        <button type="submit">Submit</button>
+                    </form>
+                </inform-el>
+        `);
+
+        const informField = informEl.querySelector('inform-field');
+        const submitButton = informEl.querySelector('[type="submit"]');
+        const input = informEl.querySelector('input');
+
+        const [submitHasBeenCalled] = eventCheck(informEl, 'inform-submit');
+
+
+        expect(informField).not.to.have.attribute('touched');
+        submitButton.click();
+
+
+        expect(submitHasBeenCalled()).to.be.false;
+        expect(informField).to.have.attribute('touched');
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.have.rendered.text(input.validationMessage);
+    });
+
+    it('sets nested fields to touched and shows errors if invalid, even with default-submit', async () => {
+        const informEl = await fixture(`
+                <inform-el default-submit>
                     <form>
                         <inform-field>
                             <input type="text" name="users[0].name" required/>
@@ -1066,9 +1124,67 @@ describe('submit', () => {
 
     });
 
+    it('focuses the first input on error when submitting, even with default-submit', async () => {
+        const informEl = await fixture(`
+        <inform-el default-submimt>
+            <form>
+                <fieldset>
+                    <input type="text" name="some-name" value="a" />
+                    <input type="text" name="some-name2" required />
+                    <inform-field>
+                        <input type="text" name="some-name3" required />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </fieldset>
+            </form>
+        </inform-el>
+        `);
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
+        const firstInvalidInput = informEl.querySelector('input[name="some-name2"]');
+
+        informEl.requestSubmit();
+        await nextFrame();
+        expect(submitHasBeenCalled()).to.be.false;
+        expect(firstInvalidInput.ownerDocument.activeElement).to.equal(firstInvalidInput);
+
+    });
+
     it('focuses the first input with custom error when submitting', async () => {
         const informEl = await fixture(`
         <inform-el>
+            <form>
+                <fieldset>
+                    <input type="text" name="some-name" value="a" />
+                    <input type="text" name="some-name2" />
+                    <inform-field>
+                        <input type="text" name="some-name3" />
+                    </inform-field>
+                    <button type="submit">Submit</button>
+                </fieldset>
+            </form>
+        </inform-el>
+        `);
+
+        const [submitHasBeenCalled, submitDetails] = eventCheck(informEl, 'inform-submit');
+        const invalidInput = informEl.querySelector('input[name="some-name3"]');
+
+        informEl.validationHandler = ({ values }) => {
+            return {
+                'some-name3': 'my custom error message'
+            };
+        };
+
+        informEl.requestSubmit();
+        await nextFrame();
+        expect(submitHasBeenCalled()).to.be.false;
+        expect(invalidInput.ownerDocument.activeElement).to.equal(invalidInput);
+
+    });
+
+    it('focuses the first input with custom error when submitting, even with default-submit', async () => {
+        const informEl = await fixture(`
+        <inform-el default-submit>
             <form>
                 <fieldset>
                     <input type="text" name="some-name" value="a" />

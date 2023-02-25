@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.11.0] - 2023-02-25
+
+### Added
+
+- `default-submit` attribute on `<inform-field>` to disable usage of `e.preventDefault()` on submit.
+
 ## [1.10.1] - 2023-02-21
 
 ### Fixed
