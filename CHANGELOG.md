@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- [Typescript] Return type of `validationHandler`.
+
 ## [1.11.0] - 2023-02-25
 
 ### Added
