@@ -11,9 +11,9 @@ const description = `informel is Web Component that wraps native HTML forms. Fea
 const config = {
   title: 'informel',
   tagline: 'Forms with superpowers',
-  url: 'https://juliendelort.github.io',
+  url: 'https://informel.site/',
 
-  baseUrl: '/informel/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
