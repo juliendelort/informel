@@ -4,8 +4,8 @@
   "version": "1.11.0",
   "main": "public/build/bundle.js",
   "types": "react/index.d.ts",
-  "repository": "https://github.com/juliendelort/informel",
-  "homepage": "https://juliendelort.github.io/informel",
+  "repository": "https://informel.site",
+  "homepage": "https://informel.site",
   "keywords": [
     "form",
     "forms",

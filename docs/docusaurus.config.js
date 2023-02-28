@@ -13,7 +13,7 @@ const config = {
   tagline: 'Forms with superpowers',
   url: 'https://juliendelort.github.io',
 
-  baseUrl: '/informel/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
