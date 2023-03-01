@@ -11,7 +11,7 @@ const description = `informel is Web Component that wraps native HTML forms. Fea
 const config = {
   title: 'informel',
   tagline: 'Forms with superpowers',
-  url: 'https://informel.site/',
+  url: 'https://informel.site',
 
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -51,7 +51,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/logo.svg',
+      image: 'img/logo.png',
       metadata: [{
         name: 'keywords',
         content: 'informel, forms, form, ajax, html, web component, submit, input, formdata, library, form management'
