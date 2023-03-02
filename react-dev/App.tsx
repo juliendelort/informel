@@ -42,9 +42,6 @@ type FormValues = {
     }[];
 };
 
-const handleValidation: ValidationHandler<FormValues> = ({ values }: { values: FormValues; }) => {
-    return { 'dfsadf': 1 };
-};
 
 export const App = () => {
     const [usersCount, setUsersCount] = React.useState(1);
@@ -59,7 +56,7 @@ export const App = () => {
         <InformEl
             onInformSubmit={handleSubmit} initialValues={initialValues}
             validationHandler={({ values }) => {
-                return { 'dfsadf': 1 };
+                return { 'users[1].name.first': 'not valid' };
             }}>
             <form>
                 {[...Array(usersCount).keys()].map((_, index) => (
