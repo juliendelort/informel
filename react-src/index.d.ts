@@ -1,6 +1,17 @@
 import { ZodType } from 'zod';
 
-export type FormValuesDefaultType = Record<string, any>;
+type ArrayItemType<T, K = unknown> = T extends Array<infer K> ? K : never;
+
+type FlatKeys<T extends Record<string, unknown>, K = keyof T> =
+    K extends string ?
+    T[K] extends Function | symbol ?
+    never
+    : T[K] extends Array<unknown> ?
+    ArrayItemType<T[K]> extends Record<string, unknown> ? `${K}[${number}].${FlatKeys<ArrayItemType<T[K]>>}` : `${K}[${number}]`
+    : T[K] extends Record<string, unknown> ? `${K}.${FlatKeys<T[K]>}` : K
+    : never;
+
+export type FormValuesDefaultType = Record<string, unknown>;
 export type InputEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; changedField: string; }>) => void;
 export type ChangeEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; changedField: string; }>) => void;
 export type SubmitEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; }>) => void;
@@ -8,14 +19,16 @@ export type RequestStartEventHandler<FormValuesType> = (e: CustomEvent<{ values:
 export type RequestEndEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; }>) => void;
 export type RequestSuccessEventHandler<FormValuesType, ResponseType> = (e: CustomEvent<{ values: FormValuesType; response: ResponseType; status: number; }>) => void;
 export type RequestErrorEventHandler<FormValuesType, ResponseType> = (e: CustomEvent<{ values: FormValuesType; response: ResponseType; status: number; error?: Error; }>) => void;
-export type ValidationHandler<FormValuesType> = (param: { values: FormValuesType; }) => { [f in keyof FormValuesType]?: string; };
+export type ValidationHandler<FormValuesType extends Record<string, unknown>> = (param: { values: FormValuesType; }) => {
+    [K in FlatKeys<FormValuesType>]?: string;
+} | undefined;
 export type SubmitTransform<FormValuesType, RequestType = FormValuesType> = (param: { values: FormValuesType; }) => RequestType;
 
 export interface HTMLInformEl extends HTMLElement {
     requestSubmit: () => void;
 };
 
-export type InformElProps<FormValuesType = FormValuesDefaultType, ResponseType = any, RequestType = FormValuesType> = React.PropsWithRef<{
+export type InformElProps<FormValuesType extends Record<string, unknown> = FormValuesDefaultType, ResponseType = any, RequestType = FormValuesType> = React.PropsWithRef<{
     children?: ReactNode;
     className?: string;
     style?: React.CSSProperties;
