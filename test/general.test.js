@@ -391,6 +391,34 @@ describe('general tests', () => {
         expect(informEl.values).to.deep.equal({ users: [1] });
     });
 
+    it('resets arrays when items are removed', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                <div id="replaceMe">
+                    <input  type="text" name="users.0.first"  />
+                    <input type="text" name="users.1.first"  />
+                </div>
+                    <button type="submit">Submit</button>
+                </form>
+            </inform-el>
+        `);
+
+        informEl.setValues({ users: [{ id: 1, first: 'name1' }, { id: 2, first: 'name2' }] });
+
+        const replaceMe = informEl.querySelector('#replaceMe');
+
+
+        replaceMe.innerHTML = `
+            <input type="text" name="users.0.first" value="name2" />
+        `;
+
+        await nextFrame();
+
+        expect(informEl.values).to.deep.equal({ users: [{ id: 2, first: 'name2' }] });
+
+    });
+
     it('does not set the form as dirty when fields are added', async () => {
         const informEl = await fixture(`
             <inform-el>

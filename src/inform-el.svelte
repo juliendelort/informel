@@ -466,10 +466,14 @@
     }
 
     function observeDescendants() {
+        console.log('*****observeDescendants');
         if ('MutationObserver' in window) {
             observer = new MutationObserver((mutationList) => {
-                if (mutationList.some((m) => (m.target === form || form.contains(m.target)) && ([...m.addedNodes].some(isWatchedNode) || [...m.removedNodes].some(isWatchedNode)))) {
+                console.log('*****mutation', mutationList, form);
+                if (mutationList.some((m) => m.target === form || form.contains(m.target))) {
                     // if some extra values match some fields, assign values to the fields
+
+                    console.log('*****Changes detected', { extraValues, initialValues, currentValues, newFormValues: getFormValues() });
                     const flatExtraValues = flattenObject(extraValues);
                     const newExtraValues = {};
                     const formElementNames = getAllFormElementsNormalizedNames();
