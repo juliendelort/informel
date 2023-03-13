@@ -477,6 +477,10 @@
                     const flatExtraValues = flattenObject(extraValues);
                     const newExtraValues = {};
                     const formElementNames = getAllFormElementsNormalizedNames();
+
+                    // TODO: use just-diff to compare form values (without extra values) before and after
+                    // If an op is "remove" and path ends with a number, an array item has been removed
+                    // In that case, remove any extra value that starts with the same path
                     for (const key in flatExtraValues) {
                         const field = getFormElementByName(key);
 
