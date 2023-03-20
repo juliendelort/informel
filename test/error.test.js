@@ -72,7 +72,7 @@ describe('error', () => {
             // Not touched: no error displayed
             expect(getNativeContainer(informField)).not.to.exist;
             if (slot) {
-                expect(getErrorContainer(informField)).to.have.rendered.text('');
+                expect(getErrorContainer(informField)).not.to.be.displayed;
             }
 
             // Not in format email
@@ -111,7 +111,7 @@ describe('error', () => {
             await type(input, 'some@else');
             expect(getNativeContainer(informField)).not.to.exist;
             if (slot) {
-                expect(getErrorContainer(informField)).to.have.rendered.text('');
+                expect(getErrorContainer(informField)).not.to.be.displayed;
             }
 
         }

@@ -24,9 +24,11 @@ export type ValidationHandler<FormValuesType extends Record<string, unknown>> = 
 } | undefined;
 export type SubmitTransform<FormValuesType, RequestType = FormValuesType> = (param: { values: FormValuesType; }) => RequestType;
 
-export interface HTMLInformEl extends HTMLElement {
+export interface HTMLInformEl<FormValuesType extends Record<string, unknown> = Record<string, unknown>> extends HTMLElement {
     requestSubmit: () => void;
-};
+    setValues: (values: Partial<FormValuesType>) => void;
+    reset: (values?: Partial<FormValuesType>) => void;
+}
 
 export type InformElProps<FormValuesType extends Record<string, unknown> = FormValuesDefaultType, ResponseType = any, RequestType = FormValuesType> = React.PropsWithRef<{
     children?: ReactNode;

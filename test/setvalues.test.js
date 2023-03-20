@@ -377,4 +377,39 @@ describe('set values', () => {
 
         expect(informUpdatedTriggered()).to.be.true;
     });
+
+    it('triggers validation for custom form elements', async () => {
+        const informEl = await fixture(`
+            <inform-el>
+                <form>
+                    <inform-field name="custom">
+                    </inform-field>
+                </form>
+            </inform-el>
+        `);
+
+        const informField = informEl.querySelector('inform-field');
+
+        informEl.validationHandler = ({ values }) => {
+            return { // Inverted key format compared to field names
+                'custom': values.custom === 'error' ? 'invalid value' : undefined,
+            };
+        };
+
+        // Not touched yet, not in error
+        expect(informField).not.to.have.attribute('error');
+
+        informEl.setValues({ custom: 'error' });
+
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).to.exist;
+        expect(informField).to.have.attribute('error-message', 'invalid value');
+        expect(informField).to.have.attribute('error');
+
+        informEl.setValues({ custom: 'valid' });
+
+        expect(informField.shadowRoot.getRootNode().querySelector('[role="alert"]')).not.to.exist;
+        expect(informField).not.to.have.attribute('error-message');
+        expect(informField).not.to.have.attribute('error');
+
+    });
 });

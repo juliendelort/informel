@@ -401,15 +401,16 @@
             }
         });
 
-        // Look for extra fields in the validation result
-        if (normalizedValidationErrors) {
-            for (let key in normalizedValidationErrors) {
-                const informField = getInformFieldByName(key);
-                if (informField) {
-                    informField.setAttribute('error-message', normalizedValidationErrors[key]);
-                }
+        const informFieldsWithName = [...host.querySelectorAll('inform-field[name]')];
+        informFieldsWithName.forEach((informField) => {
+            const name = normalizePath(informField.getAttribute('name'));
+            const errorPropValue = normalizedValidationErrors?.[name];
+            if (errorPropValue) {
+                informField.setAttribute('error-message', errorPropValue);
+            } else {
+                informField.removeAttribute('error-message');
             }
-        }
+        });
 
         const flatExtraValues = flattenObject(extraValues);
 
@@ -518,10 +519,10 @@
         if (observer) {
             observer.disconnect();
         }
-        form.removeEventListener('change', handleChange);
-        form.removeEventListener('input', handleInput);
-        form.removeEventListener('submit', handleSubmit);
-        form.removeEventListener('reset', handleFormReset);
+        form?.removeEventListener('change', handleChange);
+        form?.removeEventListener('input', handleInput);
+        form?.removeEventListener('submit', handleSubmit);
+        form?.removeEventListener('reset', handleFormReset);
     }
 
     onMount(() => {
