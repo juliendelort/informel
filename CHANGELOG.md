@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.11.2] - 2023-03-20
+
+### Fixed
+
+- Typescript: added missing methods (`setValues`, `reset`) to `HTMLInformEl`.
+- When using custom elements (inform-field with a name attribute and no form element), the error was not disappearing when the value became valid.
+- The default error message now has a default top margin of 5px (unless otherwise specified by `--error-margin`).
+- Fixed a possible js error on unmount if the form element was destroyed before informel.
+- When using error slots, the slot was always shown even if the field was valid (it would be empty when valid but bg color and padding would be visible).
+
 ## [1.11.1] - 2023-03-02
 
 ### Fixed

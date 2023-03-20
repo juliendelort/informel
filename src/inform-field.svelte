@@ -14,6 +14,7 @@
     let submitOnChangeIsPresent;
     let touchedOnInputIsPresent;
     let errorId = 'informel-err-el-screen-reader-' + Math.random().toString(36);
+    let slotDisplayBackup;
 
     $: {
         // Update error attribute
@@ -83,6 +84,11 @@
 
         if (errorSlotChild && touchedIsPresent) {
             errorSlotChild.textContent = errorMessage;
+            if (errorMessage) {
+                errorSlotChild.style.display = slotDisplayBackup;
+            } else {
+                errorSlotChild.style.display = 'none';
+            }
         }
     }
 
@@ -90,6 +96,12 @@
         errorSlot = rootElement.querySelector('slot[name="error"]');
 
         errorSlot.addEventListener('slotchange', updateErrorSlot);
+
+        const errorSlotChild = errorSlot?.assignedElements()?.[0];
+        if (!!errorSlotChild) {
+            slotDisplayBackup = getComputedStyle(errorSlotChild).display;
+            errorSlotChild.style.display = 'none';
+        }
 
         // Generate an invisible error message for screen readers, for using with aria-describedby
         const errEl = document.createElement('span');
@@ -119,7 +131,7 @@
 <style>
     .form-field-error {
         color: var(--error-color, red);
-        margin: var(--error-margin, 0 0 0 0);
+        margin: var(--error-margin, 5px 0 0 0);
         font-size: var(--error-font-size, 1rem);
         font-family: var(--error-font-family, inherit);
         display: var(--error-display, block);
