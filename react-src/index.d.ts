@@ -12,8 +12,8 @@ type FlatKeys<T extends Record<string, unknown>, K = keyof T> =
     : never;
 
 export type FormValuesDefaultType = Record<string, unknown>;
-export type InputEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; changedField: string; }>) => void;
-export type ChangeEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; changedField: string; }>) => void;
+export type InputEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; changedField: keyof FormValuesType; }>) => void;
+export type ChangeEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; changedField: keyof FormValuesType; }>) => void;
 export type SubmitEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; }>) => void;
 export type RequestStartEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; }>) => void;
 export type RequestEndEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; }>) => void;
@@ -24,10 +24,17 @@ export type ValidationHandler<FormValuesType extends Record<string, unknown>> = 
 } | undefined;
 export type SubmitTransform<FormValuesType, RequestType = FormValuesType> = (param: { values: FormValuesType; }) => RequestType;
 
-export interface HTMLInformEl<FormValuesType extends Record<string, unknown> = Record<string, unknown>> extends HTMLElement {
+export interface HTMLInformEl<FormValuesType extends Record<string, unknown> = FormValuesDefaultType, RequestType = FormValuesType> extends HTMLElement {
     requestSubmit: () => void;
     setValues: (values: Partial<FormValuesType>) => void;
     reset: (values?: Partial<FormValuesType>) => void;
+    values: FormValuesType;
+    dirty: boolean;
+    invalid: boolean;
+    submitting: boolean;
+    validationHandler?: ValidationHandler<FormValuesType>;
+    zodSchema?: ZodType;
+    submitTransform?: SubmitTransform<FormValuesType, RequestType>;
 }
 
 export type InformElProps<FormValuesType extends Record<string, unknown> = FormValuesDefaultType, ResponseType = any, RequestType = FormValuesType> = React.PropsWithRef<{

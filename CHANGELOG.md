@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Added missing props to HTMLInformEl typescript definition.
+
 ## [1.11.2] - 2023-03-20
 
 ### Fixed
