@@ -19,9 +19,7 @@ export type RequestStartEventHandler<FormValuesType> = (e: CustomEvent<{ values:
 export type RequestEndEventHandler<FormValuesType> = (e: CustomEvent<{ values: FormValuesType; }>) => void;
 export type RequestSuccessEventHandler<FormValuesType, ResponseType> = (e: CustomEvent<{ values: FormValuesType; response: ResponseType; status: number; }>) => void;
 export type RequestErrorEventHandler<FormValuesType, ResponseType> = (e: CustomEvent<{ values: FormValuesType; response: ResponseType; status: number; error?: Error; }>) => void;
-export type ValidationHandler<FormValuesType extends Record<string, unknown>> = (param: { values: FormValuesType; }) => {
-    [K in FlatKeys<FormValuesType>]?: string;
-} | undefined;
+export type ValidationHandler<FormValuesType extends Record<string, unknown>> = (param: { values: FormValuesType; }) => Record<string, string | null | undefined> | undefined;
 export type SubmitTransform<FormValuesType, RequestType = FormValuesType> = (param: { values: FormValuesType; }) => RequestType;
 
 export interface HTMLInformEl<FormValuesType extends Record<string, unknown> = FormValuesDefaultType, RequestType = FormValuesType> extends HTMLElement {
