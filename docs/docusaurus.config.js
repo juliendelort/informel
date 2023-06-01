@@ -44,6 +44,10 @@ const config = {
           trackingID: 'UA-221499687-1',
           anonymizeIP: false,
         },
+        gtag: {
+          trackingID: 'G-MGY64L82QY',
+          anonymizeIP: false,
+        },
       }),
     ],
   ],
