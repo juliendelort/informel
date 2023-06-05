@@ -22,9 +22,6 @@ const config = {
   customFields: {
     description,
   },
-  clientModules: [
-    require.resolve('./visitor.js'),
-  ],
   presets: [
     [
       'classic',
