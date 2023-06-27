@@ -3,7 +3,7 @@
 ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-webkit.json&style=flat-square)
 
 
-# <img src="https://github.com/juliendelort/informel/blob/main/docs/static/img/logo.svg?bust_cache=1" alt="logo" width="30px"/> informel
+# informel
 `informel` is a Web Component that wraps your native HTML forms and gives them super powers.
 
 <br />
