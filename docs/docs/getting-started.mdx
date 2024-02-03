@@ -91,10 +91,10 @@ Just wrap your native form in `<inform-el />`:
 `<inform-el>` heavily relies on native Forms features!
 :::
 
-Then you can listen to the `submit` event on `<inform-el>` which gives you the form values:
+Then you can listen to the `inform-submit` event on `<inform-el>` which gives you the form values:
 
 ```javascript
-document.querySelector('inform-el').addEventListener('submit', ({ detail: { values } }) => {
+document.querySelector('inform-el').addEventListener('inform-submit', ({ detail: { values } }) => {
     console.log('Submitted:', values);
 });
 ```
