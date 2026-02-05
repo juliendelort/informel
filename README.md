@@ -2,8 +2,8 @@
 ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-firefox.json&style=flat-square)
 ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/juliendelort/a679662706fd6e691c79282fffa16ada/raw/informel-tests-webkit.json&style=flat-square)
 
-
 # informel
+
 `informel` is a Web Component that wraps your native HTML forms and gives them super powers.
 
 <br />
@@ -20,10 +20,9 @@ Features:
 
 `informel` is a headless library: all the styling belongs to you!
 
-Documentation: https://informel.site/
+Documentation: https://juliendelort.github.io/informel/
 
-[Changelog](https://github.com/juliendelort/informel/blob/main/CHANGELOG.md) 
-
+[Changelog](https://github.com/juliendelort/informel/blob/main/CHANGELOG.md)
 
 ## Build
 
@@ -42,7 +41,7 @@ npm run test
 ### Svelte/Webcomponent
 
 In `main.js`, import `test.svelte`. Then run
-  
+
 ```bash
 npm run dev
 ```

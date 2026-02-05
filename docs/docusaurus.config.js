@@ -11,9 +11,9 @@ const description = `informel is Web Component that wraps native HTML forms. Fea
 const config = {
   title: 'informel',
   tagline: 'Forms with superpowers',
-  url: 'https://informel.site',
+  url: 'https://juliendelort.github.io/informel/',
 
-  baseUrl: '/',
+  baseUrl: '/informel/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
@@ -22,6 +22,7 @@ const config = {
   customFields: {
     description,
   },
+  clientModules: [require.resolve('./visitor.js')],
   presets: [
     [
       'classic',
@@ -53,17 +54,20 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       image: 'img/logo.png',
-      metadata: [{
-        name: 'keywords',
-        content: 'informel, forms, form, ajax, html, web component, submit, input, formdata, library, form management'
-      }, {
-        name: 'description',
-        content: description
-      }],
+      metadata: [
+        {
+          name: 'keywords',
+          content: 'informel, forms, form, ajax, html, web component, submit, input, formdata, library, form management',
+        },
+        {
+          name: 'description',
+          content: description,
+        },
+      ],
       colorMode: {
         defaultMode: 'dark',
         respectPrefersColorScheme: false,
-        disableSwitch: false
+        disableSwitch: false,
       },
       navbar: {
         title: 'informel',
@@ -99,14 +103,13 @@ const config = {
             title: 'More',
             items: [
               {
-                html: '<img src="img/github-mark.svg" width="18" align="center"/>&nbsp;&nbsp;<a style="display:inline-block;" class="footer__link-item" href="https://github.com/juliendelort/informel">Github</a>'
+                html: '<img src="img/github-mark.svg" width="18" align="center"/>&nbsp;&nbsp;<a style="display:inline-block;" class="footer__link-item" href="https://github.com/juliendelort/informel">Github</a>',
               },
               {
-                html: '<img src="img/Twitter-logo.svg" width="18" align="center"/>&nbsp;&nbsp;<a style="display:inline-block;" class="footer__link-item" href="https://twitter.com/intent/follow?screen_name=informel_js">Twitter</a>'
-              }
+                html: '<img src="img/Twitter-logo.svg" width="18" align="center"/>&nbsp;&nbsp;<a style="display:inline-block;" class="footer__link-item" href="https://twitter.com/intent/follow?screen_name=informel_js">Twitter</a>',
+              },
             ],
           },
-
         ],
         copyright: `Copyright © ${new Date().getFullYear()} informel, Inc. Built with Docusaurus.`,
       },
@@ -114,7 +117,6 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
-
     }),
 };
 
